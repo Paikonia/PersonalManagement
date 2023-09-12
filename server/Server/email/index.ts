@@ -2,26 +2,35 @@ import { createTestAccount, createTransport } from "nodemailer";
 import { config } from "dotenv";
 
 config();
-const email_user = process.env.EMAIL_USER;
-const email_pass = process.env.PASS;
-console.log(email_user, email_pass);
-const transporter = createTransport({
-  host: "smtp.zoho.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "aikospersonalmanagement@aikosnotes.info",
-    pass: "NQJgGTcK0bza",
-  },
-});
+const transportCreator = () => {
+  const email_user = process.env.EMAIL_USER;
+  const email_pass = process.env.PASS;
+  return createTransport({
+    host: "smtp.zoho.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: email_user,
+      pass: email_pass,
+    },
+  });
+};
 
-export const sendConfirmCode = async ({email, name, code}:{email: string, name: string, code: string}) => {
+export const sendConfirmCode = async ({
+  email,
+  name,
+  code,
+}: {
+  email: string;
+  name: string;
+  code: string;
+}) => {
   try {
-    console.log(email, name, code)
+    const transporter = transportCreator()
     return await transporter.sendMail({
       from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>', // sender address
-      to: email, 
-      subject: "Confirmation Email", 
+      to: email,
+      subject: "Confirmation Email",
       text: `Hello ${name},
       Welcome to the Aikos personal management App. You please enter the code to confirm your email.
       Code: ${code}
@@ -43,6 +52,7 @@ const confirmAccountRegistration = async (
   role: string
 ) => {
   try {
+    const transporter = transportCreator()
     return await transporter.sendMail({
       from: '"Chrysalis Support" <support@aikosnotes.info>', // sender address
       to: email, // list of receivers
@@ -57,7 +67,6 @@ const confirmAccountRegistration = async (
   }
 };
 
-
 export const sendResetCode = async (
   code: string,
   email: string,
@@ -65,6 +74,7 @@ export const sendResetCode = async (
   name: string
 ) => {
   try {
+    const transporter = transportCreator()
     return await transporter.sendMail({
       from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>', // sender address
       to: email, // list of receivers
@@ -81,6 +91,3 @@ export const sendResetCode = async (
     throw e;
   }
 };
-
-
-
