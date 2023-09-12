@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("./controllers");
+const authRoute = (0, express_1.Router)();
+authRoute.post('/', controllers_1.refreshController);
+authRoute.post('/signin', controllers_1.signinController);
+authRoute.post('/signup', controllers_1.signupController);
+authRoute.post('/verify/email', controllers_1.verifyUserEmailController);
+authRoute.post('/recovery/start', controllers_1.resetStartController);
+authRoute.post('/recovery/code', controllers_1.resetCodeController);
+authRoute.post("/recovery/code", controllers_1.resetCodeController);
+authRoute.post('/recovery/password', controllers_1.resetPasswordController);
+exports.default = authRoute;

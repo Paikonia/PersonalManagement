@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controller_1 = require("./controller");
+const budgetRoutes = (0, express_1.Router)();
+budgetRoutes.post("/", controller_1.postBudgetItemController);
+budgetRoutes.patch("/", controller_1.updateBudgetItemController);
+budgetRoutes.delete("/", controller_1.deleteBudgetItemController);
+budgetRoutes.get("/", controller_1.getBudgetItemController);
+budgetRoutes.get("/:id", controller_1.getBudgetItemByIdController);
+exports.default = budgetRoutes;
