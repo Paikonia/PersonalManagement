@@ -4,3 +4,5 @@ mobile/.expo/
 mobile/node_modules/
 server/.env
 server/dist/ecosystem.config.js
+server/ecosystem.config.json
+server/Server/database/databaseSchema.sql
