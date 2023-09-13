@@ -1,6 +1,7 @@
 import { createPool, format } from "mysql2";
 import {config} from 'dotenv'
 config()
+
 const pool = createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,

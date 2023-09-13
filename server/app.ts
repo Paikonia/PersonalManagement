@@ -5,3 +5,4 @@ app.listen(process.env.PORT, () => {
   redisClient.connect()
   console.log(`App listening on port ${process.env.PORT}!`);
 });
+

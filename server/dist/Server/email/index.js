@@ -13,21 +13,23 @@ exports.sendResetCode = exports.sendConfirmCode = void 0;
 const nodemailer_1 = require("nodemailer");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
-const email_user = process.env.EMAIL_USER;
-const email_pass = process.env.PASS;
-console.log(email_user, email_pass);
-const transporter = (0, nodemailer_1.createTransport)({
-    host: "smtp.zoho.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: "aikospersonalmanagement@aikosnotes.info",
-        pass: "NQJgGTcK0bza",
-    },
-});
-const sendConfirmCode = ({ email, name, code }) => __awaiter(void 0, void 0, void 0, function* () {
+const transportCreator = () => {
+    const email_user = process.env.EMAIL_USER;
+    const email_pass = process.env.EMAIL_PASS;
+    return (0, nodemailer_1.createTransport)({
+        host: "smtp.zoho.com",
+        port: 587,
+        secure: false,
+        auth: {
+            user: email_user,
+            pass: email_pass,
+        },
+    });
+};
+console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
+const sendConfirmCode = ({ email, name, code, }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(email, name, code);
+        const transporter = transportCreator();
         return yield transporter.sendMail({
             from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>',
             to: email,
@@ -50,6 +52,7 @@ const sendConfirmCode = ({ email, name, code }) => __awaiter(void 0, void 0, voi
 exports.sendConfirmCode = sendConfirmCode;
 const confirmAccountRegistration = (name, email, role) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const transporter = transportCreator();
         return yield transporter.sendMail({
             from: '"Chrysalis Support" <support@aikosnotes.info>',
             to: email,
@@ -66,6 +69,7 @@ const confirmAccountRegistration = (name, email, role) => __awaiter(void 0, void
 });
 const sendResetCode = (code, email, link, name) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const transporter = transportCreator();
         return yield transporter.sendMail({
             from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>',
             to: email,

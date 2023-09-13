@@ -31,8 +31,8 @@ export const comparePasswords = async (
 export const generateAuthToken = async (user: LoggedinData, param: object) => {
   try {
     const secretKey = process.env.JSON_KEY as string;
+   
     const token = jwt.sign(user, secretKey, param);
-    
     return token;
   } catch (error) {
     throw error;

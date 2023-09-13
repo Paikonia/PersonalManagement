@@ -1,2 +1,6 @@
 frontend/node_modules/
 server/node_modules/
+mobile/.expo/
+mobile/node_modules/
+server/.env
+server/dist/ecosystem.config.js

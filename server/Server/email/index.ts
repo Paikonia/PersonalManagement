@@ -4,7 +4,7 @@ import { config } from "dotenv";
 config();
 const transportCreator = () => {
   const email_user = process.env.EMAIL_USER;
-  const email_pass = process.env.PASS;
+  const email_pass = process.env.EMAIL_PASS;
   return createTransport({
     host: "smtp.zoho.com",
     port: 587,
@@ -16,6 +16,8 @@ const transportCreator = () => {
   });
 };
 
+console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
+
 export const sendConfirmCode = async ({
   email,
   name,
@@ -26,7 +28,7 @@ export const sendConfirmCode = async ({
   code: string;
 }) => {
   try {
-    const transporter = transportCreator()
+    const transporter = transportCreator();
     return await transporter.sendMail({
       from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>', // sender address
       to: email,
@@ -52,10 +54,10 @@ const confirmAccountRegistration = async (
   role: string
 ) => {
   try {
-    const transporter = transportCreator()
+    const transporter = transportCreator();
     return await transporter.sendMail({
       from: '"Chrysalis Support" <support@aikosnotes.info>', // sender address
-      to: email, // list of receivers
+      to: email,
       subject: "Confirmation of activation", // Subject line
       text: `Hello ${name},\n
         This email is to confirm that you have successfully registered to our database.        
@@ -74,7 +76,7 @@ export const sendResetCode = async (
   name: string
 ) => {
   try {
-    const transporter = transportCreator()
+    const transporter = transportCreator();
     return await transporter.sendMail({
       from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>', // sender address
       to: email, // list of receivers
