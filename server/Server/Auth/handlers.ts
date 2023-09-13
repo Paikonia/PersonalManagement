@@ -67,7 +67,10 @@ const generateTokens = async (
   );
   let currentTokens: { tokens: any[] } = { tokens: [] };
   if (refreshTokens.length > 0 && refreshTokens[0] !== null) {
-    if (refreshTokens[0].validRefreshTokens) {
+    if (
+      refreshTokens[0].validRefreshTokens &&
+      refreshTokens[0].validRefreshTokens.tokens
+    ) {
       currentTokens = {
         tokens: [...refreshTokens[0].validRefreshTokens.tokens],
       };
@@ -216,6 +219,7 @@ export const verifyEmail = async (session: string, code: string) => {
   const m = (await makeQueries(
     `select * from registeredUsers where userId = '${data.userId}';`
   )) as any[];
+  console.log(m)
   const { userId, fullName, username, email, mobile } = m[0];
 
   const { refreshToken, token } = await generateTokens(

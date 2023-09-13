@@ -52,7 +52,8 @@ const generateTokens = (username, email, name, mobile, userId) => __awaiter(void
     const refreshTokens = yield (0, database_1.default)(`select validRefreshTokens from registeredUsers where userId = '${userId}';`);
     let currentTokens = { tokens: [] };
     if (refreshTokens.length > 0 && refreshTokens[0] !== null) {
-        if (refreshTokens[0].validRefreshTokens) {
+        if (refreshTokens[0].validRefreshTokens &&
+            refreshTokens[0].validRefreshTokens.tokens) {
             currentTokens = {
                 tokens: [...refreshTokens[0].validRefreshTokens.tokens],
             };
@@ -155,6 +156,7 @@ const verifyEmail = (session, code) => __awaiter(void 0, void 0, void 0, functio
         throw new Error("The code you sent is incorrect");
     }
     const m = (yield (0, database_1.default)(`select * from registeredUsers where userId = '${data.userId}';`));
+    console.log(m);
     const { userId, fullName, username, email, mobile } = m[0];
     const { refreshToken, token } = yield generateTokens(username, email, fullName, mobile, userId);
     (0, database_1.default)(`UPDATE registeredUsers SET validRefreshTokens = '{"tokens":"[${refreshToken}]"}', verifiedEmail = 1 WHERE userId = '${userId}';`);
