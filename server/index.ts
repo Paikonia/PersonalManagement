@@ -1,4 +1,5 @@
 import express, {Request, Errback, Response, NextFunction} from "express";
+import cors from "cors";
 import goalRoutes from "./Server/tasks/routes";
 import budgetRoutes from "./Server/budget/routes";
 import expenseRoutes from "./Server/expenses/routes";
@@ -8,7 +9,10 @@ import authRoute from "./Server/Auth/routes";
 dot.config();
 import {getUserDataMiddleWare} from './Server/Auth/authorisation'
 
+
 const app = express();
+
+app.use(cors())
 app.use(express.json());
 
 
