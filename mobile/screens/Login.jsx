@@ -20,7 +20,7 @@ const Login = ({navigation}) => {
       ...loginData, [name]: value
     })
   };
-  const authContext = useAuthContext()
+  const { signin } = useAuthContext();
   return (
     <View style={styles.container}>
       <View style={styles.wrapper}>
@@ -46,7 +46,7 @@ const Login = ({navigation}) => {
         />
         <Button
           onPress={() => {
-            console.log(loginData);
+            signin(loginData.user, loginData.password);
           }}
           title="Login"
           accessibilityLabel="Login"

@@ -1,16 +1,11 @@
-import { useState } from "react";
+
 import {
   StyleSheet,
-  Text,
-  View,
-  TextInput,
-  Button,
-  SafeAreaView,
 } from "react-native";
 
 import Constants from "expo-constants";
+import { AuthContextProvider, useAuthContext } from "./contexts/authContext";
 import Navigation from "./components/Navigation";
-import { AuthContextProvider } from "./contexts/authContext";
 
 export default function App() {
   return (

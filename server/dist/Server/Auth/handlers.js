@@ -125,11 +125,11 @@ const signup = ({ username, email, mobile, password, name, }) => __awaiter(void 
             .trim()}', '${email.toLowerCase().trim()}', '${mobile ? mobile.toLowerCase().trim() : ""}', '${passHash}', '[]')`;
         yield (0, database_1.default)(query);
         const session = yield setUpEmailSession({ name, email, userId });
-        return {
-            name,
-            success: true,
-            session,
-        };
+        return { requireConfirmation: {
+                name,
+                success: true,
+                session,
+            } };
     }
     catch (error) {
         throw error;

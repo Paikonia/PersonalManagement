@@ -173,11 +173,11 @@ export const signup = async ({
     }', '${passHash}', '[]')`;
     await makeQueries(query);
     const session = await setUpEmailSession({ name, email, userId });
-    return {
+    return{requireConfirmation: {
       name,
       success: true,
       session,
-    };
+    }};
   } catch (error) {
     throw error;
   }

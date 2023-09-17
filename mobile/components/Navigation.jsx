@@ -1,29 +1,16 @@
-import React from 'react'
-import {NavigationContainer} from '@react-navigation/native'
-import {createNativeStackNavigator} from '@react-navigation/native-stack'
-import Login from '../screens/Login'
-import Signup from '../screens/Signup'
-const Stack = createNativeStackNavigator()
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { useAuthContext } from "../contexts/authContext";
+import AuthStack from "./AuthStack";
+import AppStack from "./AppStack";
+
 const Navigation = () => {
+  const { refreshToken,  } = useAuthContext();
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Group>
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Signup"
-            component={Signup}
-            options={{ headerShown: false }}
-          />
-        </Stack.Group>
-        <Stack.Group></Stack.Group>
-      </Stack.Navigator>
+      {refreshToken ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
-}
+};
 
-export default Navigation
+export default Navigation;
