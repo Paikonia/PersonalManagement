@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 const baseURL = "http://localhost:8080/";
 
 export const useAxios = () => {
-  const { userToken, refreshToken, setAuthToken } = useAuthContext();
+  const { userToken } = useAuthContext();
   const axiosIntance = axios.create({
     baseURL,
     headers: {
@@ -22,7 +22,7 @@ export const useAxios = () => {
 
       if (!isExpired) return req;
 
-      const newToken = await axios.post(`${baseURL}/auth/`, {refreshToken});
+      //const newToken = await axios.post(`${baseURL}/auth/`, {refreshToken});
 
       // setAuthToken(newToken.token as unknown as string);
       // req.headers.Authorization = `Bearer ${newToken.token}`

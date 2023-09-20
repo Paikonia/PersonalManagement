@@ -1,53 +1,74 @@
 import { Card } from "../Components/ui/card";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
-import { useAuthContext } from "../Contexts/authContext";
+import { RegisterUser, useAuthContext } from "../Contexts/authContext";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-  const { signin } = useAuthContext();
-  const [signinData, setSigninData] = useState({
-    user: "",
+  const { signup } = useAuthContext();
+  const [signupData, setSignupData] = useState<RegisterUser>({
+    username: "",
     password: "",
+    email: "",
+    confirmPassword: "",
+    name: "",
+    mobile: ""
   });
   const handleOnInputChange = (e: any) => {
     const { name, value } = e.target;
-    setSigninData((prev) => ({
+    setSignupData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
   const handleSignin = () => {
-    signin(signinData.user, signinData.password);
+    signup(signupData);
   };
   return (
-    <div className="w-full h-[100vh] flex bg-gray-100 justify-center items-center">
+    <div className="w-full h-full flex bg-gray-100 justify-center p-12 items-center">
       <Card className="w-8/12 shadow-2xl">
-        <p>Signup page.</p>
+        <img
+          className="w-42 h-36 mx-auto"
+          src={require("../Resources/aikos-logo.png")}
+          alt="Logo"
+        />
+
         <LabelledInput
           label="Name"
           id="name"
+          className="mb-2"
           placeholder="Name....."
           name="name"
-          value={signinData.user}
+          value={signupData.name}
           onChange={handleOnInputChange}
         />
         <LabelledInput
           label="Username or email"
           id="username"
+          className="mb-2"
           placeholder="Username"
           name="username"
-          value={signinData.user}
+          value={signupData.username}
           onChange={handleOnInputChange}
         />
         <LabelledInput
           label="Email"
           id="email"
+          className="mb-2"
           placeholder="Email....."
           name="email"
-          value={signinData.user}
+          value={signupData.email}
+          onChange={handleOnInputChange}
+        />
+        <LabelledInput
+          label="Phone"
+          id="mobile"
+          className="mb-2"
+          placeholder="+256 700000000"
+          name="mobile"
+          value={signupData.mobile}
           onChange={handleOnInputChange}
         />
         <LabelledInput
@@ -56,7 +77,8 @@ const Login = () => {
           type="password"
           placeholder="************"
           name="password"
-          value={signinData.user}
+          value={signupData.password}
+          className="mb-2"
           onChange={handleOnInputChange}
         />
         <LabelledInput
@@ -65,15 +87,22 @@ const Login = () => {
           placeholder="**********"
           name="confirmPassword"
           type="password"
+          className="mb-2"
           onChange={handleOnInputChange}
-          value={signinData.password}
+          value={signupData.confirmPassword}
         />
         <div className="flex flex-col justify-center items-center mb-4">
           <Button onClick={handleSignin} className="w-[80%]">
-            Login
+            Signup
           </Button>
           <p>
-            Already have an account? <Link to="/auth/signin">Signin</Link>
+            Already have an account?{" "}
+            <Link
+              className="hover:underline hover:text-blue-400"
+              to="/auth/signin"
+            >
+              Signin
+            </Link>
           </p>
         </div>
       </Card>

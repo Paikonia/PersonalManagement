@@ -23,9 +23,10 @@ const Login = () => {
     signin(signinData.user, signinData.password);
   };
   return (
-    <div className="w-full h-[100vh] flex bg-gray-100 justify-center items-center">
+    <div className="w-full h-[100vh] flex shadow-inner bg-gray-100 justify-center items-center">
       <Card className="w-8/12 shadow-2xl">
-        <p>Login page.</p>
+
+        <img className="w-72 h-64 mx-auto" src={require("../Resources/aikos-logo.png")} alt="Logo" />
         <LabelledInput
           label="Username or email"
           id="user"
@@ -47,7 +48,9 @@ const Login = () => {
           <Button onClick={handleSignin} className="w-[80%]">
             Login
           </Button>
-          <p>Don't have an account? <Link to='/auth/signup'>Signup</Link></p>
+          <p>
+            Don't have an account? <Link className="hover:underline hover:text-blue-400" to="/auth/signup">Signup</Link>
+          </p>
         </div>
       </Card>
     </div>

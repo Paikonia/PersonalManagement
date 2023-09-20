@@ -1,13 +1,25 @@
-import { useContext, createContext, useState, useEffect } from "react";
-//import axios from "axios";
-import { useNavigate } from 'react-router-dom'
+import {
+  useContext,
+  createContext,
+  useState,
+  useEffect
+} from "react";
+import { useNavigate } from "react-router-dom";
 
+export interface RegisterUser {
+  name: string;
+  username: string;
+  email: string;
+  mobile: string;
+  password: string;
+  confirmPassword: string;
+}
 
 type AuthContextType = {
   verifyEmail: () => void;
   signin: (user: string, password: string) => void;
   signout: () => void;
-  signup: () => void;
+  signup: (data: RegisterUser) => void;
   setAuthToken: (token: string) => void;
   user: {};
   userToken: string;
@@ -35,12 +47,15 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
     requireConfirmation: null,
   });
 
+  
   useEffect(() => {
     const getting = async () => {
       const data = await localStorage.getItem("userData");
-      if (data) {
+      console.log(JSON.parse(data as string))
+      if (data !== null) {
         setAuthData(JSON.parse(data));
       }
+      
     };
     getting();
   }, []);
@@ -55,15 +70,22 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
           password,
         }),
       });
-      const data = await response.json()
-      if(data.requireConfirmation) {
-        navigate('/auth/verify')
+      const data = await response.json();
+
+      if (data.requireConfirmation) {
+        navigate("/auth/verify");
+        return;
       }
+      setAuthData(data);
+      navigate("/");
+      localStorage.setItem("userData", JSON.stringify(data));
     } catch (err) {
       console.error(err);
     }
   };
-  const signup = () => {};
+  const signup = (user: RegisterUser) => {
+    console.log(user);
+  };
 
   const signout = () => {};
 
