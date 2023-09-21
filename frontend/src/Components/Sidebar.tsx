@@ -12,7 +12,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-gray-100 shadow-black transition-all duration-500 shadow-lg h-full fixed  left-0 top-0 bottom-0 text-black w-48">
+    <div className="bg-gray-100 shadow-black hidden transition-all duration-500 shadow-lg h-full fixed lg:flex  left-0 top-0 bottom-0 text-black w-48">
       <div className="border-t-2 pt-4 border-t-teal">
         <ul className=" p-4 border-t-4 w-full">
           <li className="mb-4 text-lg hover:text-blue-400 flex justify-start align-center">

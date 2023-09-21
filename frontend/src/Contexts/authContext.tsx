@@ -15,16 +15,19 @@ export interface RegisterUser {
   confirmPassword: string;
 }
 
-type AuthContextType = {
+interface authData {
+  user: object | {};
+  userToken: string | null;
+  refreshToken: string | null;
+  requireConfirmation: string | null;
+}
+
+interface AuthContextType extends authData {
   verifyEmail: () => void;
   signin: (user: string, password: string) => void;
   signout: () => void;
   signup: (data: RegisterUser) => void;
   setAuthToken: (token: string) => void;
-  user: {};
-  userToken: string;
-  refreshToken: string;
-  requireConfirmation: string;
 };
 const AuthContext = createContext<AuthContextType>({
   verifyEmail: () => null,
@@ -40,7 +43,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthContextProvider = ({ children }: { children: any }) => {
   const navigate = useNavigate();
-  const [authData, setAuthData] = useState({
+  const [authData, setAuthData] = useState<authData>({
     user: {},
     userToken: null,
     refreshToken: null,
@@ -51,7 +54,6 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
   useEffect(() => {
     const getting = async () => {
       const data = await localStorage.getItem("userData");
-      console.log(JSON.parse(data as string))
       if (data !== null) {
         setAuthData(JSON.parse(data));
       }
@@ -92,7 +94,7 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
   const verifyEmail = () => {};
 
   const setAuthToken = (token: string) => {
-    const newData = { ...authData, userData: token };
+    const newData = { ...authData, userToken: token };
     setAuthData(newData);
     localStorage.setItem("userData", JSON.stringify(newData));
   };

@@ -20,7 +20,6 @@ const Home = () => {
         budget="Books for Akello"
         amount={200000}
       />
-      <NotesDisplay dateCreated={new Date(Date.now())} title="First note"  noteId={2}  />
     </div>
   );
 };
