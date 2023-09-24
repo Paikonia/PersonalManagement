@@ -32,6 +32,7 @@ const insertExpenseQueryBuilder = (expenseObjects, userId) => {
 };
 exports.insertExpenseQueryBuilder = insertExpenseQueryBuilder;
 const parseExpenseInsertObject = (expense) => {
+    expense.amount = Number(expense.amount);
     if (typeof expense.item !== "string" ||
         expense.item.trim() === "" ||
         typeof expense.amount !== "number" ||

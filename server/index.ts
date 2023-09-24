@@ -27,7 +27,7 @@ app.use("/expense", expenseRoutes);
 app.use("/notes", notesRoutes);
 
 app.use((error:any, req:Request, res:Response, next:NextFunction) => {
-  console.error(error.stack)
+  
   res.status(500).json({
     error: error.message
   })

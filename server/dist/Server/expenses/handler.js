@@ -39,6 +39,8 @@ exports.getExpenseByIdHandler = getExpenseByIdHandler;
 const createExpenseHandler = (expenses, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { query, failed } = (0, expensesDatabaseCall_1.insertExpenseQueryBuilder)(expenses, userId);
+        console.log({ query, failed });
+        console.log({ query, failed });
         yield (0, database_1.default)(query);
         return {
             query,

@@ -36,6 +36,8 @@ export const insertExpenseQueryBuilder = (
 };
 
 const parseExpenseInsertObject = (expense: ExpenseType): boolean => {
+  expense.amount = Number(expense.amount)
+  
   if (
     typeof expense.item !== "string" ||
     expense.item.trim() === "" ||

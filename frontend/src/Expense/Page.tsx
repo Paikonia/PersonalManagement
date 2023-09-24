@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import DisplayNotes from "./DisplayNotes";
-import NoNotesCurrently from "./NoNotesCurrently";
 import useFetch from "../utils/fetch";
-import MarkdownEditor from "./components/MarkDownEditor";
+import NoExpenseCurrently from "./NoExpenseCurrently";
+import DisplayExpense from "./DisplayExpense";
+import { PartialExpenseType } from "./dataTypesAndUtilities";
+import NewExpenseCard from "./components/NewExpenseCard";
 
 export interface NoteType {
   noteId: number;
@@ -14,16 +15,14 @@ export interface NoteType {
   creator: string;
 }
 
-const NotesPage = () => {
-  const [notes, setNotes] = useState<NoteType[]>([]);
+const Expense = () => {
+  const [expenses, setExpenses] = useState<PartialExpenseType[]>([]);
   const [addEdit, setAddEdit] = useState<{ edit: "edit" | "add" | null }>({
     edit: null,
   });
 
   const changeToAdd = () => {
-    
     setAddEdit({ edit: "add" });
-  
   };
   const changeToDisplay = () => {
     setAddEdit({ edit: null });
@@ -31,32 +30,29 @@ const NotesPage = () => {
   const fetch = useFetch();
   useEffect(() => {
     const getNotes = async () => {
-      const data = await fetch("/notes");
-      setNotes(data);
-      console.log(data);
+      const data = await fetch("/expense");
+      setExpenses(data);
     };
     getNotes();
   }, []);
-
+  console.log("Expenses: ", expenses);
   return (
     <div>
       {addEdit.edit === null ? (
         <div>
-          {notes.length <= 0 ? (
-            <NoNotesCurrently />
+          {expenses.length <= 0 ? (
+            <NoExpenseCurrently changeToAdd={changeToAdd} />
           ) : (
-            <DisplayNotes changeToAdd={changeToAdd} notes={notes} />
+            <DisplayExpense changeToAdd={changeToAdd} expenses={expenses} />
           )}
         </div>
       ) : (
         addEdit.edit === "add" && (
-          <div>
-            <MarkdownEditor changeToDisplay={changeToDisplay} />
-          </div>
+          <NewExpenseCard changeToDisplay={changeToDisplay} />
         )
       )}
     </div>
   );
 };
 
-export default NotesPage;
+export default Expense;

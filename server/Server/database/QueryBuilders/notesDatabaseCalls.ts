@@ -59,9 +59,11 @@ const insertNoteQueryString = (note: NoteType, userId: string) => {
   const noteText = `"${note.note}"`;
   const dateCreated = new Date(Date.now()).toISOString().split('T')[0]
 
-  return `("${title}", ${noteText}, "${dateCreated}", "${JSON.stringify(
-    note.media
-  )}", "${note.notePrivacy}", "${userId}")`;
+  console.log({noteText})
+
+  return `("${title}", ${noteText}, "${dateCreated}", '${JSON.stringify(
+    note.media || '[]'
+  )}', "${note.notePrivacy}", "${userId}")`;
 };
 
 export const updateNote = (

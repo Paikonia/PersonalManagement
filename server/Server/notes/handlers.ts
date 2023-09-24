@@ -12,8 +12,9 @@ export const createNoteHandler = async (
   userId: string
 ): Promise<{ notes: NoteType[]; failed: any }> => {
   try {
+    
     const { query, failed } = insertNoteQueryBuilder(noteData, userId);
-
+    
     let notes: NoteType[] = [];
     if (query !== "") {
       notes = await makeQueries(query);

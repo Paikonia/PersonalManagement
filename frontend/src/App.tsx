@@ -8,6 +8,8 @@ import Verify from "./Screens/Verify";
 import Signup from "./Screens/Signup";
 import { NavContextProvider } from "./Contexts/sidebarContext";
 import NotesPage from "./Notes/Page";
+import ExpensePage from "./Expense/Page";
+import BudgetPage from "./Budget/Page";
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
             <Route path="/" element={<Mainlayout />}>
               <Route index element={<Home />} />
               <Route path="/notes" element={<NotesPage />} />
+              <Route path="/expense" element={<ExpensePage />} />
+              <Route path="/budget" element={<BudgetPage />} />
             </Route>
             <Route path="/auth/signin" element={<Login />} />
             <Route path="/auth/verify" element={<Verify />} />

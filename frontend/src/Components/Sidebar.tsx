@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, ListTodo, ListChecks, LayoutList, Receipt, Banknote } from "lucide-react";
+import {  ListTodo, ListChecks, LayoutList, Receipt, Banknote, StickyNote } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
@@ -21,7 +21,7 @@ const Sidebar = () => {
               to="/notes"
               className="flex justify-center items-center"
             >
-              <Pencil size={20} className="inline" />
+              <StickyNote size={20} className="inline" />
               <span className="ml-2">Notes</span>
             </Link>
           </li>

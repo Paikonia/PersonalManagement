@@ -14,7 +14,7 @@ const LabelledInput = ({
 } & InputProps) => {
   return (
     <div className="p-2 mx-4 mt-2 mb-2">
-      <Label className="text-md mb-4" htmlFor={id}>{label}</Label>
+      <Label className="text-xl py-2 " htmlFor={id}>{label}</Label>
       <Input
         name={name}
         {...rest}

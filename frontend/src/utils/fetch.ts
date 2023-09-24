@@ -50,6 +50,7 @@ const useFetch = (): ((url: string, options?: object) => Promise<any>) => {
     try {
       
       const combUrl = encodeURI(baseUrl + url.toString());
+      console.log(parsedOption)
       const response = await fetch(combUrl, parsedOption);
       if (!response.ok) {
         throw new Error(JSON.stringify(await returnedContent(response)));

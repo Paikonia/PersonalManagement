@@ -31,6 +31,9 @@ export const getExpenseByIdHandler = async (
 export const createExpenseHandler = async (expenses: any[], userId: string) => {
   try {
     const { query, failed } = insertExpenseQueryBuilder(expenses, userId);
+    
+    console.log({ query, failed });
+    console.log({ query, failed });
     await makeQueries(query);
     return {
       query,
