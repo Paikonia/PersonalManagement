@@ -64,7 +64,7 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
 
   const signin = async (user: string, password: string) => {
     try {
-      const response = await fetch("http://localhost:8080/auth/signin", {
+      const response = await fetch("https://pm.aikosnotes.info/api/auth/signin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
