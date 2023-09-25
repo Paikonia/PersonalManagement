@@ -45,9 +45,23 @@ const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
             setTitle(e.target.value);
           }}
         />
+        <div className="py-2 px-2 mx-2">
+          <select
+            id="privace"
+            name="notePrivacy"
+            value={privacy}
+            onChange={(e) => {
+              setPrivacy(e.target.value);
+            }}
+            className="w-full mx-2 px-2 py-4"
+          >
+            <option value="private">Private</option>
+            <option value="public">Public</option>
+          </select>
+        </div>
       </div>
 
-      <div className="w-full lg:grid lg:grid-cols-2 gap-2">
+      <div className="w-full p-2 mx-4 lg:grid lg:grid-cols-2 gap-2">
         <div className="w-full mb-4 ">
           <h1>Markdown Editor</h1>
           <textarea
@@ -70,19 +84,7 @@ const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
         </div>
       </div>
       <div className="flex  mt-4">
-        <select
-          id="privace"
-          name="notePrivacy"
-          value={privacy}
-          onChange={(e) => {
-            setPrivacy(e.target.value);
-          }}
-          className="w-5/12 mx-2"
-        >
-          <option value="private">Private</option>
-          <option value="public">Public</option>
-        </select>
-        <Button onClick={subimitNote} className="w-5/12 mx-2">
+        <Button onClick={subimitNote} className="w-full mx-2">
           Submit
         </Button>
       </div>

@@ -4,7 +4,7 @@ import { ExpenseType } from "../dataTypesAndUtilities";
 
 const ExpenseDetailsDisplay = ({ expense }: { expense: ExpenseType }) => {
   return (
-    <Card className="w-full border-2">
+    <Card className="w-full h-48 border-2">
       <div className="flex w-full justify-between items-center px-2 pt-4 pb-2">
         <div>
           <h1 className="text-xl font-bold capitalize">{expense.item}</h1>

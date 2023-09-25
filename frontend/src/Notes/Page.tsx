@@ -43,7 +43,7 @@ const NotesPage = () => {
       {addEdit.edit === null ? (
         <div>
           {notes.length <= 0 ? (
-            <NoNotesCurrently />
+            <NoNotesCurrently changeToAdd={changeToAdd} />
           ) : (
             <DisplayNotes changeToAdd={changeToAdd} notes={notes} />
           )}

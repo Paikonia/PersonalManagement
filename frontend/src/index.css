@@ -88,9 +88,7 @@
 }
 
 .main-displays {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  @apply flex flex-col-reverse md:grid md:grid-cols-2 gap-4
 }
 
 .sidebar-container {
