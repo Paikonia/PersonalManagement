@@ -2,18 +2,20 @@ import React from "react";
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { useAuthContext } from "../Contexts/authContext";
 import Sidebar from "../Components/Sidebar";
+import NavBar from "../Components/NavBar";
+import { NavContextProvider } from "../Contexts/sidebarContext";
 const Mainlayout = () => {
   const { userToken } = useAuthContext();
   const location = useLocation();
 
-  
   return userToken ? (
-    <div>
+    <NavContextProvider>
       <Sidebar />
+      <NavBar />
       <main className={"lg:ml-48 p-4"}>
         <Outlet />
       </main>
-    </div>
+    </NavContextProvider>
   ) : (
     <Navigate to={"/auth/signin"} state={{ from: location }} replace />
   );

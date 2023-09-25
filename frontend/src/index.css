@@ -92,3 +92,19 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
+
+.sidebar-container {
+  @apply bg-gray-100 z-10 shadow-black hidden transition-all duration-500 shadow-lg h-full fixed lg:flex  left-0 top-0 bottom-0 text-black w-48
+}
+
+.side-bar-small-screen {
+  @apply mt-16 flex w-full
+}
+
+.nav-bar-container {
+  display: fix;
+  @apply p-4 z-0 shadow-md border-2 flex items-center justify-between lg:justify-end top-0 lg:ml-48 right-0 h-16 w-auto 
+}
+
+
+

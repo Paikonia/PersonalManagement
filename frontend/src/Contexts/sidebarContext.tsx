@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState, useEffect } from "react";
+import React, { useContext, createContext, useState} from "react";
 
 type Returner = {
   isCollapsed: boolean;
@@ -19,20 +19,11 @@ export const NavContextProvider = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
-  useEffect(() => {
-    const cState = localStorage.getItem("isCollapsed");
-    if (!cState) {
-        setIsCollapsed(false);
-        return
-    }
-    setIsCollapsed(cState === "true");
-  }, []);
-
   const handler = (e: any) => {
+    console.log('Changed')
     setIsCollapsed(!isCollapsed);
-    localStorage.setItem("isCollapsed", !isCollapsed ? "true" : "false");
   };
-
+  
   return (
     <NavContext.Provider value={{ isCollapsed, handleIsCollapsed: handler }}>
       {children}

@@ -1,8 +1,10 @@
 import React from "react";
 import {  ListTodo, ListChecks, LayoutList, Receipt, Banknote, StickyNote } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useNavContext } from "../Contexts/sidebarContext";
 
 const Sidebar = () => {
+  const {isCollapsed} = useNavContext()
   const navigation = useNavigate();
   const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -10,9 +12,13 @@ const Sidebar = () => {
     const link = event.currentTarget.getAttribute("href");
     navigation(link ?? "/");
   };
-
+  console.log('isCollaped: ', isCollapsed)
   return (
-    <div className="bg-gray-100 shadow-black hidden transition-all duration-500 shadow-lg h-full fixed lg:flex  left-0 top-0 bottom-0 text-black w-48">
+    <div
+      className={`sidebar-container ${
+        isCollapsed ? "hidden" : "side-bar-small-screen"
+      }`}
+    >
       <div className="border-t-2 pt-4 border-t-teal">
         <ul className=" p-4 border-t-4 w-full">
           <li className="mb-4 text-lg hover:text-blue-400 flex justify-start align-center">
