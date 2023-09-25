@@ -1,14 +1,20 @@
-export interface PartialNoteType {
-  noteId: number;
-  title: string;
-  dateCreated: Date | null;
+export interface PartialBudgetType {
+  budgetId: string;
+  budget: string;
+  amount: number;
+  paid: boolean;
 }
 
-export interface NotesType extends PartialNoteType {
-  note: string | null;
-  media: any;
-  notePrivacy: "private" | "public";
+export interface BudgetType extends PartialBudgetType {
+  dateOfPayment: Date;
+  goalId: string;
+  expenseCategory:
+    | "Food"
+    | "Clothing"
+    | "Family"
+    | "Academics"
+    | "Living"
+    | "Travel";
+  budgetPrivacy: "private" | "public";
   creator: string;
 }
-
-

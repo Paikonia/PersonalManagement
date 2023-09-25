@@ -24,12 +24,10 @@ const DisplayExpense = ({
   return (
     <div className="w-full">
       <Button onClick={changeToAdd}>
-        <Pencil /> Add Note
+        <Pencil /> Add Expense
       </Button>
-      <div className="w-full flex my-2">
-        <Card
-          className={`mx-1 p-4 ${expense ? "md:w-7/12 xl:w-5/12" : "w-full"} `}
-        >
+      <div className={`${expense ? "main-displays" : ""} my-2`}>
+        <Card className={`mx-1 p-4 w-full border-2`}>
           {expenses.map((expense: PartialExpenseType) => (
             <ExpenseDisplayCard
               expense={expense}

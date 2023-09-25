@@ -6,7 +6,7 @@ import Markdown from "react-markdown";
 const NotesDetailsDisplay = ({ note }: { note: NotesType }) => {
   
   return (
-    <Card className="md:w-4/12 xl:w-5/12 shadow-xl">
+    <Card className="w-full shadow-xl">
       <div className="flex w-full justify-between items-center px-2 pt-4 pb-2">
         <div>
           <h1 className="text-xl font-bold capitalize">{note.title}</h1>

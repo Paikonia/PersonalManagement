@@ -24,9 +24,9 @@ const DisplayNotes = ({
       <Button onClick={changeToAdd}>
         <Pencil /> Add Note
       </Button>
-      <div className="w-full flex my-2">
+      <div className={`${note ? "main-displays" : ""} my-2`}>
         <Card
-          className={`mx-1 p-4 ${note ? "md:w-7/12 xl:w-5/12" : "w-full"} `}
+          className={`mx-1 p-4  "w-full" `}
         >
           {notes.map((note: PartialNoteType) => (
             <NotesDisplay

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import DisplayNotes from "./DisplayNotes";
-import NoNotesCurrently from "./NoNotesCurrently";
 import useFetch from "../utils/fetch";
-import MarkdownEditor from "./components/MarkDownEditor";
+import NoExpenseCurrently from "./NoBudgetCurrently";
+import { PartialBudgetType } from "./dataTypesAndUtilities";
+import NewBudgetCard from "./components/NewBudgetCard";
+import DisplayBudget from "./DisplayBudget";
 
 export interface NoteType {
   noteId: number;
@@ -14,49 +15,43 @@ export interface NoteType {
   creator: string;
 }
 
-const NotesPage = () => {
-  const [notes, setNotes] = useState<NoteType[]>([]);
+const BudgetPage = () => {
+  const [budgets, setBudgets] = useState<PartialBudgetType[]>([]);
   const [addEdit, setAddEdit] = useState<{ edit: "edit" | "add" | null }>({
     edit: null,
   });
 
   const changeToAdd = () => {
-    
     setAddEdit({ edit: "add" });
-  
   };
   const changeToDisplay = () => {
     setAddEdit({ edit: null });
   };
   const fetch = useFetch();
   useEffect(() => {
-    const getNotes = async () => {
-      const data = await fetch("/notes");
-      setNotes(data);
-      console.log(data);
+    const getBudgets = async () => {
+      const data = await fetch("/budget");
+      setBudgets(data);
     };
-    getNotes();
+    getBudgets();
   }, []);
-
   return (
     <div>
       {addEdit.edit === null ? (
         <div>
-          {notes.length <= 0 ? (
-            <NoNotesCurrently />
+          {budgets.length <= 0 ? (
+            <NoExpenseCurrently changeToAdd={changeToAdd} />
           ) : (
-            <DisplayNotes changeToAdd={changeToAdd} notes={notes} />
+            <DisplayBudget changeToAdd={changeToAdd} budgets={budgets} />
           )}
         </div>
       ) : (
         addEdit.edit === "add" && (
-          <div>
-            <MarkdownEditor changeToDisplay={changeToDisplay} />
-          </div>
+          <NewBudgetCard changeToDisplay={changeToDisplay} />
         )
       )}
     </div>
   );
 };
 
-export default NotesPage;
+export default BudgetPage;

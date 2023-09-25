@@ -80,3 +80,15 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+.grid-expense-card {
+  grid-template-columns: 5fr 1fr 1fr;
+  @apply grid
+
+}
+
+.main-displays {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
