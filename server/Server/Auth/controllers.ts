@@ -7,6 +7,7 @@ import {
   refreshHandler,
   signup,
   verifyEmail,
+  signoutHandler,
 } from "./handlers";
 import { verifyAuthToken } from "../utilities/generators";
 
@@ -41,12 +42,14 @@ export const signupController = async (
   next: NextFunction
 ) => {
   try {
-    const { name, username, email, mobile, password, confirmPassword } =
+    const { firstName, lastName, username, email, mobile, password, confirmPassword } =
       req.body;
     if (
       !(
-        name &&
-        name.trim() !== "" &&
+        firstName &&
+        firstName.trim() !== "" &&
+        lastName &&
+        lastName.trim() !== "" &&
         username &&
         username.trim() !== "" &&
         email &&
@@ -62,7 +65,7 @@ export const signupController = async (
     if (password !== confirmPassword) {
       throw new Error("The password do not match.");
     }
-    const session = await signup({ name, username, email, mobile, password });
+    const session = await signup({ firstName, lastName, username, email, mobile, password });
 
     res.json({ session });
   } catch (error) {
@@ -151,3 +154,16 @@ export const refreshController = async (
     next(error);
   }
 };
+
+export const signoutController = async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const {refreshToken} = req.body;
+    const data = await verifyAuthToken(refreshToken)
+    const { audience } = data as unknown as { audience:string };
+    
+    const result = await signoutHandler(audience, refreshToken)
+    res.json(result)
+  } catch (error) {
+    next(error);
+  }
+}

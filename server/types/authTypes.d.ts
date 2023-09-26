@@ -1,5 +1,6 @@
 interface RegisterUser {
-  name: string;
+  firstName: string;
+  lastName:string;
   username: string;
   email: string;
   mobile: string;

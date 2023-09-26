@@ -13,13 +13,14 @@ import {
   redisGetString,
 } from "../database/redis";
 import { sendConfirmCode } from "../email/index";
+import { isConditionalExpression } from "typescript";
 
-function isValidEmail(email: string) {
+const isValidEmail = (email: string) => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   return emailRegex.test(email);
-}
+};
 
-function isPasswordStrong(password: string) {
+const isPasswordStrong = (password: string) => {
   if (password.length < 8) {
     return false;
   }
@@ -41,7 +42,7 @@ function isPasswordStrong(password: string) {
   }
 
   return true;
-}
+};
 
 const generateTokens = async (
   username: string,
@@ -54,7 +55,7 @@ const generateTokens = async (
     username,
     email,
     name,
-    mobile
+    mobile,
   } as unknown as LoggedinData;
   const token = await generateAuthToken(loggedinData, { expiresIn: "15m" });
   const refreshToken = await generateAuthToken(
@@ -71,12 +72,14 @@ const generateTokens = async (
       refreshTokens[0].validRefreshTokens &&
       refreshTokens[0].validRefreshTokens.tokens
     ) {
+      console.log(refreshTokens[0].validRefreshTokens.tokens);
       currentTokens = {
         tokens: [...refreshTokens[0].validRefreshTokens.tokens],
       };
     }
   }
   currentTokens = { tokens: [...currentTokens.tokens, refreshToken] };
+  console.log(currentTokens.tokens.join(""));
   makeQueries(
     `UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(
       currentTokens
@@ -100,11 +103,11 @@ export const signin = async (user: string, password: string) => {
       throw new Error("Incorrect password provided.");
     }
 
-    const { userId, fullName, username, email, mobile } = userData;
+    const { userId, firstName, lastName, username, email, mobile } = userData;
 
     if (userData.verifiedEmail !== 1) {
       const session = await setUpEmailSession({
-        name: fullName,
+        name: firstName + " " + lastName,
         email,
         userId,
       });
@@ -112,7 +115,7 @@ export const signin = async (user: string, password: string) => {
         requireConfirmation: {
           session,
           success: true,
-          name: fullName,
+          name: firstName + " " + lastName,
         },
       };
     }
@@ -120,7 +123,7 @@ export const signin = async (user: string, password: string) => {
     const { token, refreshToken } = await generateTokens(
       username,
       email,
-      fullName,
+      firstName + " " + lastName,
       mobile,
       userId
     );
@@ -128,7 +131,7 @@ export const signin = async (user: string, password: string) => {
     return {
       userToken: token,
       user: {
-        name: fullName,
+        name: firstName + " " + lastName,
         username,
         email,
         mobile,
@@ -150,7 +153,8 @@ export const signup = async ({
   email,
   mobile,
   password,
-  name,
+  firstName,
+  lastName,
 }: RegisterUser) => {
   try {
     const validEmail = isValidEmail(email);
@@ -165,19 +169,21 @@ export const signup = async ({
     const userId = generateRandomAlphanumeric(10);
     const passHash = await hashPassword(password);
 
-    const query = `insert into registeredUsers(userId, fullName, username, email, mobile, userPassword, validRefreshTokens) values(\
-        '${userId}', '${name.trim()}', '${username
+    const query = `insert into registeredUsers(userId, firstName, lastName, username, email, mobile, userPassword, validRefreshTokens) values(\
+        '${userId}', '${firstName.trim()}', '${lastName.trim()}', '${username
       .toLowerCase()
       .trim()}', '${email.toLowerCase().trim()}', '${
       mobile ? mobile.toLowerCase().trim() : ""
     }', '${passHash}', '[]')`;
     await makeQueries(query);
-    const session = await setUpEmailSession({ name, email, userId });
-    return{requireConfirmation: {
-      name,
-      success: true,
-      session,
-    }};
+    const session = await setUpEmailSession({ name: firstName, email, userId });
+    return {
+      requireConfirmation: {
+        firstName,
+        success: true,
+        session,
+      },
+    };
   } catch (error) {
     throw error;
   }
@@ -219,7 +225,6 @@ export const verifyEmail = async (session: string, code: string) => {
   const m = (await makeQueries(
     `select * from registeredUsers where userId = '${data.userId}';`
   )) as any[];
-  console.log(m)
   const { userId, fullName, username, email, mobile } = m[0];
 
   const { refreshToken, token } = await generateTokens(
@@ -229,9 +234,12 @@ export const verifyEmail = async (session: string, code: string) => {
     mobile,
     userId
   );
+  const validRefreshTokens = { tokens: [refreshToken] };
 
   makeQueries(
-    `UPDATE registeredUsers SET validRefreshTokens = '{"tokens":"[${refreshToken}]"}', verifiedEmail = 1 WHERE userId = '${userId}';`
+    `UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(
+      validRefreshTokens
+    )}', verifiedEmail = 1 WHERE userId = '${userId}';`
   );
   redisDeleteString(session);
   return {
@@ -335,19 +343,38 @@ export const refreshHandler = async (userId: string, refreshToken: string) => {
     );
 
     const { username, email, fullName, mobile, validRefreshTokens } = user[0];
- 
-    if(!validRefreshTokens.tokens.includes(refreshToken)){
-      throw new Error('The refresh token you are using is invalid')
+
+    if (!validRefreshTokens.tokens.includes(refreshToken)) {
+      throw new Error("The refresh token you are using is invalid");
     }
     const tokenData = {
       username,
       email,
       name: fullName,
-      mobile
+      mobile,
     } as unknown as LoggedinData;
     const token = await generateAuthToken(tokenData, { expiresIn: "15m" });
     return { token };
+  } catch (error) {
+    throw error;
+  }
+};
 
+export const signoutHandler = async (userId: string, refreshToken: string) => {
+  try {
+    const refreshTokens = await makeQueries(
+      `select validRefreshTokens from registeredUsers where userId = '${userId}';`
+    );
+    if (refreshTokens[0].validRefreshTokens.tokens.includes(refreshToken)) {
+      const newRefreshTokens =
+        refreshTokens[0].validRefreshTokens.tokens.filter(
+          (token: string) => refreshToken !== token
+        );
+      const update = `UPDATE registeredUsers SET validRefreshTokens = '{"tokens":${JSON.stringify(
+        newRefreshTokens
+      )}}', verifiedEmail = 1 WHERE userId = '${userId}';`;
+      makeQueries(update);
+    }
   } catch (error) {
     throw error;
   }

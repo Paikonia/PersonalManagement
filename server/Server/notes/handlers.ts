@@ -14,7 +14,7 @@ export const createNoteHandler = async (
   try {
     
     const { query, failed } = insertNoteQueryBuilder(noteData, userId);
-  
+    console.log('Query run: ', query)
     let notes: NoteType[] = [];
     if (query !== "") {
       notes = await makeQueries(query);

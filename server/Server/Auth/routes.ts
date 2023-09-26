@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { verifyUserEmailController, refreshController, signinController,  signupController, resetStartController, resetCodeController, resetPasswordController } from './controllers'
+import { verifyUserEmailController, refreshController, signinController,  signupController, resetStartController, resetCodeController, resetPasswordController, signoutController, } from './controllers'
 
 const authRoute = Router()
 
@@ -11,6 +11,7 @@ authRoute.post('/recovery/start', resetStartController)
 authRoute.post('/recovery/code', resetCodeController)
 authRoute.post("/recovery/code", resetCodeController);
 authRoute.post('/recovery/password', resetPasswordController)
+authRoute.post('/signout', signoutController)
 
 
 export default authRoute

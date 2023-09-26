@@ -7,7 +7,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export interface RegisterUser {
-  name: string;
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   mobile: string;
@@ -22,8 +23,11 @@ interface authData {
   requireConfirmation: string | null;
 }
 
+// const baseUrl = "https://pm.aikosnotes.info/api";
+const baseUrl = "http://localhost:8080";
+
 interface AuthContextType extends authData {
-  verifyEmail: () => void;
+  verifyEmail: (session:string, code:string) => void;
   signin: (user: string, password: string) => void;
   signout: () => void;
   signup: (data: RegisterUser) => void;
@@ -54,8 +58,9 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
   useEffect(() => {
     const getting = async () => {
       const data = await localStorage.getItem("userData");
-      if (data !== null) {
+      if (data !== null && data !== '') {
         setAuthData(JSON.parse(data));
+        navigate("/");
       }
       
     };
@@ -64,7 +69,7 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
 
   const signin = async (user: string, password: string) => {
     try {
-      const response = await fetch("https://pm.aikosnotes.info/api/auth/signin", {
+      const response = await fetch(`${baseUrl}/auth/signin`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -73,9 +78,10 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
         }),
       });
       const data = await response.json();
-
       if (data.requireConfirmation) {
-        navigate("/auth/verify");
+        navigate("/auth/verify", {
+          state: data
+        });
         return;
       }
       setAuthData(data);
@@ -85,13 +91,56 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
       console.error(err);
     }
   };
-  const signup = (user: RegisterUser) => {
-    console.log(user);
+  const signup = async(user: RegisterUser) => {
+    try {
+      const response = await fetch(
+        `${baseUrl}/auth/signup`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(user),
+        }
+      );
+      const data = await response.json();
+      
+      if (data.session.requireConfirmation) {
+        navigate("/auth/verify", {
+          state: data.session,
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const signout = () => {};
+  const signout = async () => {
+      await fetch(`${baseUrl}/auth/signout`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ refreshToken: authData.refreshToken }),
+      });
+      localStorage.setItem("userData", '')
+      navigate(0)
+  };
 
-  const verifyEmail = () => {};
+  const verifyEmail = async(session:string, code:string) => {
+    
+    const response = await fetch(
+      `${baseUrl}/auth/verify/email`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({session, code}),
+      }
+    );
+
+    const res = await response.json()
+    
+    setAuthData(res)
+    localStorage.setItem("userData", JSON.stringify(res));
+    navigate('/')
+  };
 
   const setAuthToken = (token: string) => {
     const newData = { ...authData, userToken: token };

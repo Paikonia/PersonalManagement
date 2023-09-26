@@ -15,10 +15,11 @@ const insertNoteQueryBuilder = (noteObjects, userId) => {
                 data.failed.push(note);
             }
         });
+        console.log(data);
         const parsedString = data.success
             .map((success) => insertNoteQueryString(success, userId))
             .join();
-        console.log(parsedString);
+        console.log('Parsed string: ', parsedString);
         if (parsedString === "") {
             return {
                 failed: data.failed,

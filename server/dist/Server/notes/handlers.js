@@ -18,6 +18,7 @@ const notesDatabaseCalls_1 = require("../database/QueryBuilders/notesDatabaseCal
 const createNoteHandler = (noteData, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { query, failed } = (0, notesDatabaseCalls_1.insertNoteQueryBuilder)(noteData, userId);
+        console.log('Query run: ', query);
         let notes = [];
         if (query !== "") {
             notes = yield (0, database_1.default)(query);

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { ChevronDownCircle, Menu,X } from "lucide-react";
+import { ChevronDownCircle, LogOut, Menu,X } from "lucide-react";
 import { useAuthContext } from "../Contexts/authContext";
 import { useNavContext } from "../Contexts/sidebarContext";
 import { Card } from "./ui/card";
+import { Button } from "./ui/button";
 const NavBar = () => {
-  const { user } = useAuthContext();
+  const { user, signout } = useAuthContext();
   const {handleIsCollapsed, isCollapsed} = useNavContext()
   const m = user as unknown as any;
   const [dropDown, setDropDown] =useState(false)
@@ -28,8 +29,8 @@ const NavBar = () => {
           setDropDown(!dropDown)
         }} className="cursor-pointer" />
 
-        {dropDown && <Card className="fixed p-4 top-16 right-4 w-64 h-48 border-2 shadow-lg">
-         <h1 className="text-lg">Hello</h1>
+        {dropDown && <Card className="fixed flex flex-col justify-end p-4 top-16 right-4 w-64 h-48 border-2 shadow-xl">
+         <Button className="flex justify-between" onClick={signout}><LogOut /> Signout</Button>
         </Card>}
       </div>
     </div>

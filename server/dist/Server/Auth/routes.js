@@ -11,4 +11,5 @@ authRoute.post('/recovery/start', controllers_1.resetStartController);
 authRoute.post('/recovery/code', controllers_1.resetCodeController);
 authRoute.post("/recovery/code", controllers_1.resetCodeController);
 authRoute.post('/recovery/password', controllers_1.resetPasswordController);
+authRoute.post('/signout', controllers_1.signoutController);
 exports.default = authRoute;

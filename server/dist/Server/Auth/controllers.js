@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshController = exports.resetPasswordController = exports.resetCodeController = exports.resetStartController = exports.verifyUserEmailController = exports.signupController = exports.signinController = void 0;
+exports.signoutController = exports.refreshController = exports.resetPasswordController = exports.resetCodeController = exports.resetStartController = exports.verifyUserEmailController = exports.signupController = exports.signinController = void 0;
 const handlers_1 = require("./handlers");
 const generators_1 = require("../utilities/generators");
 const signinController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -31,9 +31,11 @@ const signinController = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 exports.signinController = signinController;
 const signupController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, username, email, mobile, password, confirmPassword } = req.body;
-        if (!(name &&
-            name.trim() !== "" &&
+        const { firstName, lastName, username, email, mobile, password, confirmPassword } = req.body;
+        if (!(firstName &&
+            firstName.trim() !== "" &&
+            lastName &&
+            lastName.trim() !== "" &&
             username &&
             username.trim() !== "" &&
             email &&
@@ -45,7 +47,7 @@ const signupController = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         if (password !== confirmPassword) {
             throw new Error("The password do not match.");
         }
-        const session = yield (0, handlers_1.signup)({ name, username, email, mobile, password });
+        const session = yield (0, handlers_1.signup)({ firstName, lastName, username, email, mobile, password });
         res.json({ session });
     }
     catch (error) {
@@ -115,3 +117,16 @@ const refreshController = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.refreshController = refreshController;
+const signoutController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { refreshToken } = req.body;
+        const data = yield (0, generators_1.verifyAuthToken)(refreshToken);
+        const { audience } = data;
+        const result = yield (0, handlers_1.signoutHandler)(audience, refreshToken);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.signoutController = signoutController;

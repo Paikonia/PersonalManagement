@@ -11,7 +11,7 @@ type MarkDownEditorProps = {
 const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
   const [markdownText, setMarkdownText] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [privacy, setPrivacy] = useState<string>("");
+  const [privacy, setPrivacy] = useState<string>("private");
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownText(event.target.value);
   };
@@ -27,6 +27,7 @@ const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
           title,
           note: markdownText,
           notePrivacy: privacy,
+          media: []
         },
       ]),
     });

@@ -12,17 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshHandler = exports.resetPasswordHandler = exports.resetCodeHandler = exports.resetStartHandler = exports.verifyEmail = exports.signup = exports.signin = void 0;
+exports.signoutHandler = exports.refreshHandler = exports.resetPasswordHandler = exports.resetCodeHandler = exports.resetStartHandler = exports.verifyEmail = exports.signup = exports.signin = void 0;
 const database_1 = __importDefault(require("../database"));
 const email_1 = require("../email");
 const generators_1 = require("../utilities/generators");
 const redis_1 = require("../database/redis");
 const index_1 = require("../email/index");
-function isValidEmail(email) {
+const isValidEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return emailRegex.test(email);
-}
-function isPasswordStrong(password) {
+};
+const isPasswordStrong = (password) => {
     if (password.length < 8) {
         return false;
     }
@@ -39,13 +39,13 @@ function isPasswordStrong(password) {
         return false;
     }
     return true;
-}
+};
 const generateTokens = (username, email, name, mobile, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const loggedinData = {
         username,
         email,
         name,
-        mobile
+        mobile,
     };
     const token = yield (0, generators_1.generateAuthToken)(loggedinData, { expiresIn: "15m" });
     const refreshToken = yield (0, generators_1.generateAuthToken)({ audience: userId }, { expiresIn: "1w" });
@@ -54,12 +54,14 @@ const generateTokens = (username, email, name, mobile, userId) => __awaiter(void
     if (refreshTokens.length > 0 && refreshTokens[0] !== null) {
         if (refreshTokens[0].validRefreshTokens &&
             refreshTokens[0].validRefreshTokens.tokens) {
+            console.log(refreshTokens[0].validRefreshTokens.tokens);
             currentTokens = {
                 tokens: [...refreshTokens[0].validRefreshTokens.tokens],
             };
         }
     }
     currentTokens = { tokens: [...currentTokens.tokens, refreshToken] };
+    console.log(currentTokens.tokens.join(""));
     (0, database_1.default)(`UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(currentTokens)}' WHERE userId = '${userId}';`);
     return { token, refreshToken };
 });
@@ -73,10 +75,10 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
         if (!(yield (0, generators_1.comparePasswords)(password, userData.userPassword))) {
             throw new Error("Incorrect password provided.");
         }
-        const { userId, fullName, username, email, mobile } = userData;
+        const { userId, firstName, lastName, username, email, mobile } = userData;
         if (userData.verifiedEmail !== 1) {
             const session = yield setUpEmailSession({
-                name: fullName,
+                name: firstName + " " + lastName,
                 email,
                 userId,
             });
@@ -84,15 +86,15 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
                 requireConfirmation: {
                     session,
                     success: true,
-                    name: fullName,
+                    name: firstName + " " + lastName,
                 },
             };
         }
-        const { token, refreshToken } = yield generateTokens(username, email, fullName, mobile, userId);
+        const { token, refreshToken } = yield generateTokens(username, email, firstName + " " + lastName, mobile, userId);
         return {
             userToken: token,
             user: {
-                name: fullName,
+                name: firstName + " " + lastName,
                 username,
                 email,
                 mobile,
@@ -109,7 +111,7 @@ exports.signin = signin;
 // name: {type: GraphQLString},
 //     success: {type: GraphQLBoolean},
 //     session: {type: GraphQLString}
-const signup = ({ username, email, mobile, password, name, }) => __awaiter(void 0, void 0, void 0, function* () {
+const signup = ({ username, email, mobile, password, firstName, lastName, }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const validEmail = isValidEmail(email);
         const passwordStrength = isPasswordStrong(password);
@@ -119,17 +121,19 @@ const signup = ({ username, email, mobile, password, name, }) => __awaiter(void 
             throw new Error("The password must be eight characters long, contain atleast 1 uppercase, lowercase, number and a special character !#?()$%£");
         const userId = (0, generators_1.generateRandomAlphanumeric)(10);
         const passHash = yield (0, generators_1.hashPassword)(password);
-        const query = `insert into registeredUsers(userId, fullName, username, email, mobile, userPassword, validRefreshTokens) values(\
-        '${userId}', '${name.trim()}', '${username
+        const query = `insert into registeredUsers(userId, firstName, lastName, username, email, mobile, userPassword, validRefreshTokens) values(\
+        '${userId}', '${firstName.trim()}', '${lastName.trim()}', '${username
             .toLowerCase()
             .trim()}', '${email.toLowerCase().trim()}', '${mobile ? mobile.toLowerCase().trim() : ""}', '${passHash}', '[]')`;
         yield (0, database_1.default)(query);
-        const session = yield setUpEmailSession({ name, email, userId });
-        return { requireConfirmation: {
-                name,
+        const session = yield setUpEmailSession({ name: firstName, email, userId });
+        return {
+            requireConfirmation: {
+                firstName,
                 success: true,
                 session,
-            } };
+            },
+        };
     }
     catch (error) {
         throw error;
@@ -156,10 +160,10 @@ const verifyEmail = (session, code) => __awaiter(void 0, void 0, void 0, functio
         throw new Error("The code you sent is incorrect");
     }
     const m = (yield (0, database_1.default)(`select * from registeredUsers where userId = '${data.userId}';`));
-    console.log(m);
     const { userId, fullName, username, email, mobile } = m[0];
     const { refreshToken, token } = yield generateTokens(username, email, fullName, mobile, userId);
-    (0, database_1.default)(`UPDATE registeredUsers SET validRefreshTokens = '{"tokens":"[${refreshToken}]"}', verifiedEmail = 1 WHERE userId = '${userId}';`);
+    const validRefreshTokens = { tokens: [refreshToken] };
+    (0, database_1.default)(`UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(validRefreshTokens)}', verifiedEmail = 1 WHERE userId = '${userId}';`);
     (0, redis_1.redisDeleteString)(session);
     return {
         userToken: token,
@@ -248,13 +252,13 @@ const refreshHandler = (userId, refreshToken) => __awaiter(void 0, void 0, void 
         const user = yield (0, database_1.default)(`select * from registeredUsers where userId = "${userId}";`);
         const { username, email, fullName, mobile, validRefreshTokens } = user[0];
         if (!validRefreshTokens.tokens.includes(refreshToken)) {
-            throw new Error('The refresh token you are using is invalid');
+            throw new Error("The refresh token you are using is invalid");
         }
         const tokenData = {
             username,
             email,
             name: fullName,
-            mobile
+            mobile,
         };
         const token = yield (0, generators_1.generateAuthToken)(tokenData, { expiresIn: "15m" });
         return { token };
@@ -264,3 +268,17 @@ const refreshHandler = (userId, refreshToken) => __awaiter(void 0, void 0, void 
     }
 });
 exports.refreshHandler = refreshHandler;
+const signoutHandler = (userId, refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const refreshTokens = yield (0, database_1.default)(`select validRefreshTokens from registeredUsers where userId = '${userId}';`);
+        if (refreshTokens[0].validRefreshTokens.tokens.includes(refreshToken)) {
+            const newRefreshTokens = refreshTokens[0].validRefreshTokens.tokens.filter((token) => refreshToken !== token);
+            const update = `UPDATE registeredUsers SET validRefreshTokens = '{"tokens":${JSON.stringify(newRefreshTokens)}}', verifiedEmail = 1 WHERE userId = '${userId}';`;
+            (0, database_1.default)(update);
+        }
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.signoutHandler = signoutHandler;
