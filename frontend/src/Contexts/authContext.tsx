@@ -23,8 +23,8 @@ interface authData {
   requireConfirmation: string | null;
 }
 
-// const baseUrl = "https://pm.aikosnotes.info/api";
-const baseUrl = "http://localhost:8080";
+const baseUrl = "https://pm.aikosnotes.info/api";
+//const baseUrl = "http://localhost:8080";
 
 interface AuthContextType extends authData {
   verifyEmail: (session:string, code:string) => void;
