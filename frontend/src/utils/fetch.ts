@@ -2,8 +2,8 @@ import { useAuthContext } from "../Contexts/authContext";
 import jwt_decode from "jwt-decode";
 import dayjs from "dayjs";
 
-// const baseUrl = "https://pm.aikosnotes.info/api";
-const baseUrl = "http://localhost:8080";
+const baseUrl = "https://pm.aikosnotes.info/api";
+//const baseUrl = "http://localhost:8080";
 
 const returnedContent = async (response: Response) => {
   const contentType = response.headers.get("content-type");
