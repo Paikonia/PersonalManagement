@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBudgetItemController = exports.updateBudgetItemController = exports.postBudgetItemController = exports.getBudgetItemByIdController = exports.getBudgetItemController = void 0;
 const handler_1 = require("./handler");
+const OtherErrorDefinitions_1 = require("../Constants/OtherErrorDefinitions");
 const getBudgetItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = JSON.parse(req.headers.user);
@@ -50,8 +51,11 @@ const updateBudgetItemController = (req, res, next) => __awaiter(void 0, void 0,
     try {
         const data = req.body.data;
         const user = req.body.user;
-        if (!data || !(data instanceof Object) || (Array.isArray(data))) {
-            throw new Error('The request request an object that has the budget ids as keys and and changes in the object');
+        if (!data || !(data instanceof Object) || Array.isArray(data)) {
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message =
+                "The request request an object that has the budget ids as keys and and changes in the object";
+            throw err;
         }
         const result = yield (0, handler_1.updateBudgetHandler)(data, user.userId);
         res.json(result);
@@ -66,7 +70,9 @@ const deleteBudgetItemController = (req, res, next) => __awaiter(void 0, void 0,
         const { budgetIds } = req.body.data;
         const { userId } = req.body.user;
         if (!Array.isArray(budgetIds)) {
-            throw new Error("The data provided is not an array");
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message = "The data provided is not an array";
+            throw err;
         }
         const data = yield (0, handler_1.deleteBudgetById)(budgetIds, userId);
         res.json({ data });

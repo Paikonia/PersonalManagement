@@ -45,18 +45,29 @@ const generateAuthToken = (user, param) => __awaiter(void 0, void 0, void 0, fun
         return token;
     }
     catch (error) {
-        throw error;
+        const err = {
+            name: "Token " + error.name,
+            message: error.message,
+            status: 401,
+        };
+        throw err;
     }
 });
 exports.generateAuthToken = generateAuthToken;
 const verifyAuthToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const secretKey = process.env.JSON_KEY; // Replace with a strong secret key
-        const data = yield jsonwebtoken_1.default.verify(token, secretKey);
+        const data = (yield jsonwebtoken_1.default.verify(token, secretKey));
         return data;
     }
     catch (error) {
-        throw error;
+        console.error(error);
+        const err = {
+            name: 'Token ' + error.name,
+            message: error.message,
+            status: 401,
+        };
+        throw err;
     }
 });
 exports.verifyAuthToken = verifyAuthToken;

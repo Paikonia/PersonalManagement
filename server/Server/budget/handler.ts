@@ -39,7 +39,7 @@ export const postBudgetItemsHandler = async (
 ): Promise<{ success: string; failed: any }> => {
   try {
     const { query, failed, params } = insertBudgetQueryBuilder(data, userId);
-    console.log({query, params})
+    
     await makeQueriesWithParams(query, params.flat());
     return {
       success:

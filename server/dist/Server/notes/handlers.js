@@ -8,20 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllNotesHandler = exports.deleteNoteByIdHandler = exports.updateNoteHandler = exports.getNoteByIdHandler = exports.createNoteHandler = void 0;
-const database_1 = __importDefault(require("../database"));
+const database_1 = require("../database");
 const notesDatabaseCalls_1 = require("../database/QueryBuilders/notesDatabaseCalls");
 const createNoteHandler = (noteData, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query, failed } = (0, notesDatabaseCalls_1.insertNoteQueryBuilder)(noteData, userId);
-        console.log('Query run: ', query);
+        const { query, failed, params } = (0, notesDatabaseCalls_1.insertNoteQueryBuilder)(noteData, userId);
+        console.log({ query, failed, params });
         let notes = [];
         if (query !== "") {
-            notes = yield (0, database_1.default)(query);
+            notes = yield (0, database_1.makeQueriesWithParams)(query, params.flat());
         }
         return {
             notes,
@@ -35,10 +32,8 @@ const createNoteHandler = (noteData, userId) => __awaiter(void 0, void 0, void 0
 exports.createNoteHandler = createNoteHandler;
 const getNoteByIdHandler = (noteId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const query = (0, notesDatabaseCalls_1.getNoteByIdQuery)(noteId, userId);
-        console.log(query);
-        const data = yield (0, database_1.default)(query);
-        console.log(data);
+        const { query, params } = (0, notesDatabaseCalls_1.getNoteByIdQuery)(noteId, userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
         return data[0];
     }
     catch (error) {
@@ -63,9 +58,9 @@ const updateNoteHandler = (updatedData, userId) => __awaiter(void 0, void 0, voi
             return query;
         });
         queries.forEach((query) => {
-            (0, database_1.default)(query);
+            if (query)
+                (0, database_1.makeQueriesWithParams)(query.query, query.params);
         });
-        console.log(queries);
         return returned;
     }
     catch (error) {
@@ -76,8 +71,11 @@ exports.updateNoteHandler = updateNoteHandler;
 const deleteNoteByIdHandler = (noteIds, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const queries = (0, notesDatabaseCalls_1.deleteNoteByIdQuery)(noteIds, userId);
-        const result = yield (0, database_1.default)(queries.data);
-        (0, database_1.default)(queries.delete);
+        const result = yield (0, database_1.makeQueriesWithParams)(queries.data, queries.params);
+        (0, database_1.makeQueriesWithParams)(queries.delete, queries.params).catch(error => {
+            //TODO: failed request notification
+            console.log(error);
+        });
         return result;
     }
     catch (error) {
@@ -87,8 +85,8 @@ const deleteNoteByIdHandler = (noteIds, userId) => __awaiter(void 0, void 0, voi
 exports.deleteNoteByIdHandler = deleteNoteByIdHandler;
 const getAllNotesHandler = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const query = (0, notesDatabaseCalls_1.getAllNotesQuery)(userId);
-        const data = yield (0, database_1.default)(query);
+        const { query, params } = (0, notesDatabaseCalls_1.getAllNotesQuery)(userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
         return data;
     }
     catch (error) {

@@ -33,6 +33,8 @@ export const makeQueriesWithParams = async (query: string, params: Array<any>): 
   return new Promise((resolve, reject) => {
     pool.query(f, params, (error: any, results: any, fields: any) => {
       if (error) {
+        console.error(error);
+        
         reject(constructSQLError(error));
         return;
       }

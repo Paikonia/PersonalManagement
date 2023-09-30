@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNoteItemController = exports.updateNoteItemController = exports.postNoteItemController = exports.getNoteItemByIdController = exports.getNoteItemController = void 0;
 const handlers_1 = require("./handlers");
+const OtherErrorDefinitions_1 = require("../Constants/OtherErrorDefinitions");
 const getNoteItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = JSON.parse(req.headers.user);
@@ -41,7 +42,9 @@ const postNoteItemController = (req, res, next) => __awaiter(void 0, void 0, voi
         const user = req.body.user;
         const data = req.body.data;
         if (!Array.isArray(data)) {
-            throw new Error('Invalid input type!');
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message = 'The data you have entered in malformed. Includes the updates as specified in the documentation';
+            throw err;
         }
         const result = yield (0, handlers_1.createNoteHandler)(data, user.userId);
         res.json({ success: true, data: result });
@@ -56,7 +59,10 @@ const updateNoteItemController = (req, res, next) => __awaiter(void 0, void 0, v
         const data = req.body.data;
         const user = req.body.user;
         if (!data || !(data instanceof Object && !Array.isArray(data))) {
-            throw new Error('Please include the updates and the id of the notes you want to update.');
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message =
+                "Please include the updates and the id of the notes you want to update.";
+            throw err;
         }
         const result = yield (0, handlers_1.updateNoteHandler)(data, user.userId);
         res.json(result);
@@ -71,7 +77,10 @@ const deleteNoteItemController = (req, res, next) => __awaiter(void 0, void 0, v
         const { noteIds } = req.body.data;
         const { userId } = req.body.user;
         if (!Array.isArray(noteIds)) {
-            throw new Error("The data provided is not an array");
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message =
+                "The data provided is not an array of notes to be deleted. Follow the documentation.";
+            throw err;
         }
         const data = yield (0, handlers_1.deleteNoteByIdHandler)(noteIds, userId);
         res.json({ data });

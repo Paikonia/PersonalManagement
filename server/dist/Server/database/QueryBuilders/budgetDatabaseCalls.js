@@ -15,14 +15,14 @@ const insertBudgetQueryBuilder = (budgetObjects, userId) => {
                 data.failed.push(budget);
             }
         });
-        const parsedString = data.success.map((success) => insertQueryString(success, userId));
+        const params = data.success.map((success) => insertQueryString(success, userId));
         const placeholder = data.success
-            .map((success) => "(?, ?, ?, ?, ?, ?, ?)")
+            .map(() => "(?, ?, ?, ?, ?, ?, ?)")
             .join(", ");
         const query = `INSERT INTO budgetTable(budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) value${placeholder};`;
         return {
             query,
-            params: parsedString,
+            params,
             failed: data.failed,
         };
     }
@@ -118,7 +118,7 @@ const parseBudgetUpdateObject = (budget) => {
 };
 const deleteBudgetByIdsQuery = (budgetId, userId) => {
     try {
-        const condition = budgetId.map((id) => `?`).join(", ");
+        const condition = budgetId.map(() => `?`).join(", ");
         return {
             delete: `DELETE FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
             data: `SELECT * FROM budgcetTable WHERE budgetId in (${condition}) and creator = ?;`,

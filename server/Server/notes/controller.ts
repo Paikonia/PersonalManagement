@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { getAllNotesHandler, getNoteByIdHandler, updateNoteHandler, deleteNoteByIdHandler, createNoteHandler} from "./handlers";
+import { GENERALERRORS } from "../Constants/OtherErrorDefinitions";
 
 export const getNoteItemController = async (
   req: Request,
@@ -41,7 +42,9 @@ export const postNoteItemController = async (
     const user = req.body.user;
     const data = req.body.data;
     if(!Array.isArray(data)) {
-      throw new Error('Invalid input type!')
+      const err = GENERALERRORS.MalformedRequest
+      err.message ='The data you have entered in malformed. Includes the updates as specified in the documentation'
+      throw err
     }
     const result = await createNoteHandler(data, user.userId);
     res.json({ success: true, data: result });
@@ -60,7 +63,10 @@ export const updateNoteItemController = async (
     const user = req.body.user;
     
     if(!data || !(data instanceof Object && !Array.isArray(data))) {
-      throw new Error('Please include the updates and the id of the notes you want to update.')
+      const err = GENERALERRORS.MalformedRequest
+      err.message =
+        "Please include the updates and the id of the notes you want to update.";
+      throw err
     }
     const result = await updateNoteHandler(data, user.userId);
     res.json(result);
@@ -78,7 +84,11 @@ export const deleteNoteItemController = async (
     const { noteIds } = req.body.data;
     const { userId } = req.body.user;
     if (!Array.isArray(noteIds)) {
-      throw new Error("The data provided is not an array");
+      const err = GENERALERRORS.MalformedRequest
+      err.message =
+        "The data provided is not an array of notes to be deleted. Follow the documentation.";
+
+      throw err
     }
     const data = await deleteNoteByIdHandler(noteIds, userId);
     res.json({ data });

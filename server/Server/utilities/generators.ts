@@ -31,21 +31,35 @@ export const comparePasswords = async (
 export const generateAuthToken = async (user: LoggedinData, param: object) => {
   try {
     const secretKey = process.env.JSON_KEY as string;
-   
     const token = jwt.sign(user, secretKey, param);
     return token;
-  } catch (error) {
-    throw error;
+  } catch (error:any) {
+    const err: ServerExceptions = {
+      name: "Token " + error.name,
+      message: error.message,
+      status: 401,
+    };
+    throw err;
   }
 };
 
-export const verifyAuthToken = async (token: string):Promise<LoggedinData| {audience:string}> => {
+export const verifyAuthToken = async (
+  token: string
+): Promise<LoggedinData | { audience: string }> => {
   try {
     const secretKey = process.env.JSON_KEY as string; // Replace with a strong secret key
-    const data = await jwt.verify(token, secretKey) as LoggedinData;
+    const data = (await jwt.verify(token, secretKey)) as LoggedinData;
+
     return data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    console.error(error);
+    
+    const err: ServerExceptions = {
+      name: 'Token '+error.name,
+      message: error.message,
+      status: 401,
+    };
+    throw err;
   }
 };
 

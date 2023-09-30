@@ -44,6 +44,7 @@ const makeQueriesWithParams = (query, params) => __awaiter(void 0, void 0, void 
     return new Promise((resolve, reject) => {
         pool.query(f, params, (error, results, fields) => {
             if (error) {
+                console.error(error);
                 reject((0, MySqlErrors_1.default)(error));
                 return;
             }

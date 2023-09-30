@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteExpenseItemController = exports.updateExpenseItemController = exports.postExpenseItemController = exports.getExpenseItemByIdController = exports.getExpenseItemController = void 0;
 const handler_1 = require("./handler");
+const OtherErrorDefinitions_1 = require("../Constants/OtherErrorDefinitions");
 const getExpenseItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userString = req.headers.user;
@@ -48,7 +49,9 @@ const postExpenseItemController = (req, res, next) => __awaiter(void 0, void 0, 
     try {
         const { user, data } = req.body;
         if (!data || !Array.isArray(data)) {
-            throw new Error('The data you have passed must be an array of expenses');
+            const error = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            error.message = 'The data you have passed must be an array of expenses';
+            throw error;
         }
         const response = yield (0, handler_1.createExpenseHandler)(data, user.userId);
         res.json(response);
@@ -62,7 +65,9 @@ const updateExpenseItemController = (req, res, next) => __awaiter(void 0, void 0
     try {
         const { data, user } = req.body;
         if (!data || typeof data !== 'object' || (Array.isArray(data))) {
-            throw new Error('The request requires a data object that contains expenseIds and the changes to be updated');
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message = 'The request requires a data object that contains expenseIds and the changes to be updated';
+            throw err;
         }
         const returnedData = yield (0, handler_1.updateExpenseHandler)(data, user.userId);
         res.json(returnedData);
@@ -77,7 +82,9 @@ const deleteExpenseItemController = (req, res, next) => __awaiter(void 0, void 0
         const { user, data } = req.body;
         const { expenseIds } = data;
         if (!expenseIds || !Array.isArray(expenseIds)) {
-            throw new Error('Please provide and array of expense IDs to delete!');
+            const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
+            err.message = 'Please provide and array of expense IDs to delete!';
+            throw err;
         }
         const returnedData = yield (0, handler_1.deleteExpenseHandler)(expenseIds, user.userId);
         res.json(returnedData);

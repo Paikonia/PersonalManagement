@@ -15,21 +15,20 @@ const insertNoteQueryBuilder = (noteObjects, userId) => {
                 data.failed.push(note);
             }
         });
-        console.log(data);
-        const parsedString = data.success
-            .map((success) => insertNoteQueryString(success, userId))
-            .join();
-        console.log('Parsed string: ', parsedString);
-        if (parsedString === "") {
+        const placeholder = data.success.map(() => "(?, ?, ?, ?, ?, ?)").join(", ");
+        const params = data.success.map((success) => insertNoteQueryString(success, userId));
+        if (data.success.length === 0) {
             return {
                 failed: data.failed,
                 query: "",
+                params: [],
             };
         }
         const query = `INSERT INTO notesTable(title, note, dateCreated, media, notePrivacy, creator) \
-    VALUES ${parsedString};`;
+    VALUES ${placeholder};`;
         return {
             query,
+            params,
             failed: data.failed,
         };
     }
@@ -50,11 +49,9 @@ const parseNoteInsertObject = (note) => {
     return false;
 };
 const insertNoteQueryString = (note, userId) => {
-    const title = note.title;
-    const noteText = `"${note.note}"`;
-    const dateCreated = new Date(Date.now()).toISOString().split('T')[0];
-    console.log({ noteText });
-    return `("${title}", ${noteText}, "${dateCreated}", '${JSON.stringify(note.media || '[]')}', "${note.notePrivacy}", "${userId}")`;
+    const dateCreated = new Date(Date.now()).toISOString().split("T")[0];
+    const media = JSON.stringify(note.media || "[]");
+    return [note.title, note.note, dateCreated, media, note.notePrivacy, userId];
 };
 const updateNote = (noteId, updatedNote, userId) => {
     try {
@@ -62,7 +59,10 @@ const updateNote = (noteId, updatedNote, userId) => {
         if (Object.keys(parsed).length === 0) {
             return null;
         }
-        return `UPDATE notesTable SET ${parsed} WHERE noteId = ${noteId} and creator = '${userId}';`;
+        return {
+            query: `UPDATE notesTable SET ${parsed.placeholder} WHERE noteId = ? and creator = ?;`,
+            params: [...parsed.updateFields, Number(noteId), userId],
+        };
     }
     catch (error) {
         console.error(error);
@@ -72,37 +72,50 @@ const updateNote = (noteId, updatedNote, userId) => {
 exports.updateNote = updateNote;
 const parseNoteUpdateObject = (note) => {
     const updateFields = [];
+    const placeHolder = [];
     if (typeof note.title === "string") {
-        updateFields.push(`title = "${note.title}"`);
+        updateFields.push(note.title);
+        placeHolder.push("title = ?");
     }
-    if ('note' in note && typeof note.note === "string") {
-        updateFields.push(`note = "${note.note}"`);
+    if ("note" in note && typeof note.note === "string") {
+        updateFields.push(note.note);
+        placeHolder.push("note = ?");
     }
     if (note.dateCreated !== null && note.dateCreated instanceof Date) {
-        updateFields.push(`dateCreated = "${note.dateCreated.toISOString()}"`);
+        const dateCreated = note.dateCreated.toISOString();
+        updateFields.push(dateCreated);
+        placeHolder.push("dateCreated = ?");
     }
     if (typeof note.media !== "undefined") {
-        updateFields.push(`media = '${JSON.stringify(note.media)}'`);
+        const media = JSON.stringify(note.media);
+        updateFields.push(media);
+        placeHolder.push("media = ?");
     }
     if (typeof note.notePrivacy === "string" &&
         ["private", "public"].includes(note.notePrivacy)) {
-        updateFields.push(`notePrivacy = "${note.notePrivacy}"`);
+        updateFields.push(note.notePrivacy);
+        placeHolder.push("notePrivacy = ?");
     }
-    return updateFields.join(", ");
+    return { updateFields, placeholder: placeHolder.join(", ") };
 };
 const getAllNotesQuery = (userId) => {
     try {
-        return `SELECT * FROM notesTable where creator = '${userId}';`;
+        return {
+            query: `SELECT * FROM notesTable where creator = ?;`,
+            params: [userId],
+        };
     }
     catch (error) {
-        console.error(error);
         throw error;
     }
 };
 exports.getAllNotesQuery = getAllNotesQuery;
 const getNoteByIdQuery = (noteId, userId) => {
     try {
-        return `SELECT * FROM notesTable WHERE noteId = ${noteId} and creator = '${userId}';`;
+        return {
+            query: `SELECT * FROM notesTable WHERE noteId = ? and creator = ?;`,
+            params: [noteId, userId],
+        };
     }
     catch (error) {
         console.error(error);
@@ -112,10 +125,11 @@ const getNoteByIdQuery = (noteId, userId) => {
 exports.getNoteByIdQuery = getNoteByIdQuery;
 const deleteNoteByIdQuery = (noteIds, userId) => {
     try {
-        const condition = noteIds.map(id => `noteId = ${Number(id)}`).join(' or ');
+        const condition = noteIds.map(() => "? ").join(", ");
         return {
-            delete: `DELETE FROM notesTable WHERE  (${condition}) and creator = '${userId}';`,
-            data: `SELECT * FROM budgetTable WHERE (${condition}) and creator = '${userId}';`,
+            delete: `DELETE FROM notesTable WHERE noteId in (${condition}) and creator = ?;`,
+            data: `SELECT * FROM notesTable WHERE noteId in (${condition}) and creator = ?;`,
+            params: [...noteIds, userId],
         };
     }
     catch (error) {

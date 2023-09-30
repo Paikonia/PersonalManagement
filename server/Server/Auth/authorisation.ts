@@ -21,6 +21,14 @@ export const getUserDataMiddleWare = async (
       const userIds = await makeQueries(
         `select userId from registeredUsers where username = '${userData.username}'`
       );
+      if(userIds.length === 0) {
+        const error:ServerExceptions ={
+          name: 'Invalid user',
+          message: 'The user you are logged in as is not in our database',
+          status: 404
+        }
+        throw error
+      }
       const user = { ...userData, userId: userIds[0].userId };
       if (req.method === "GET") {
         req.headers.user = JSON.stringify(user);

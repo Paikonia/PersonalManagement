@@ -6,6 +6,8 @@ import {
   postBudgetItemsHandler,
   updateBudgetHandler,
 } from "./handler";
+import { AUTHERRORS } from "../Constants/AuthConstants";
+import { GENERALERRORS } from "../Constants/OtherErrorDefinitions";
 
 export const getBudgetItemController = async (
   req: Request,
@@ -27,7 +29,7 @@ export const getBudgetItemByIdController = async (
   next: NextFunction
 ) => {
   try {
-    const user = JSON.parse(req.headers.user as string)
+    const user = JSON.parse(req.headers.user as string);
     const budgetId = req.params["id"];
     const ret = await getBudgetByIdHandler(budgetId, user.userId);
     res.json(ret);
@@ -42,7 +44,7 @@ export const postBudgetItemController = async (
   next: NextFunction
 ) => {
   try {
-    const user = req.body.user
+    const user = req.body.user;
     const data = req.body.data;
     const result = await postBudgetItemsHandler(data, user.userId);
     res.json({ success: true, data: result });
@@ -51,7 +53,7 @@ export const postBudgetItemController = async (
   }
 };
 
-export const updateBudgetItemController =async (
+export const updateBudgetItemController = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -60,13 +62,15 @@ export const updateBudgetItemController =async (
     const data = req.body.data;
     const user = req.body.user;
 
-    if(!data || !(data instanceof Object) || (Array.isArray(data))) {
-      throw new Error('The request request an object that has the budget ids as keys and and changes in the object')
+    if (!data || !(data instanceof Object) || Array.isArray(data)) {
+      const err = GENERALERRORS.MalformedRequest;
+      err.message =
+        "The request request an object that has the budget ids as keys and and changes in the object";
+      throw err;
     }
 
     const result = await updateBudgetHandler(data, user.userId);
     res.json(result);
-
   } catch (error) {
     next(error);
   }
@@ -79,9 +83,11 @@ export const deleteBudgetItemController = async (
 ) => {
   try {
     const { budgetIds } = req.body.data;
-    const {userId} = req.body.user
+    const { userId } = req.body.user;
     if (!Array.isArray(budgetIds)) {
-      throw new Error("The data provided is not an array");
+      const err = GENERALERRORS.MalformedRequest
+      err.message ="The data provided is not an array";
+      throw err;
     }
 
     const data = await deleteBudgetById(budgetIds, userId);

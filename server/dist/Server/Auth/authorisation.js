@@ -26,6 +26,14 @@ const getUserDataMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void
             }
             const userData = (yield (0, generators_1.verifyAuthToken)(token));
             const userIds = yield (0, database_1.default)(`select userId from registeredUsers where username = '${userData.username}'`);
+            if (userIds.length === 0) {
+                const error = {
+                    name: 'Invalid user',
+                    message: 'The user you are logged in as is not in our database',
+                    status: 404
+                };
+                throw error;
+            }
             const user = Object.assign(Object.assign({}, userData), { userId: userIds[0].userId });
             if (req.method === "GET") {
                 req.headers.user = JSON.stringify(user);

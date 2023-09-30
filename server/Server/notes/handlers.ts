@@ -1,4 +1,4 @@
-import makeQueries from "../database";
+import makeQueries, { makeQueriesWithParams } from "../database";
 import {
   insertNoteQueryBuilder,
   getNoteByIdQuery,
@@ -13,11 +13,11 @@ export const createNoteHandler = async (
 ): Promise<{ notes: NoteType[]; failed: any }> => {
   try {
     
-    const { query, failed } = insertNoteQueryBuilder(noteData, userId);
-    console.log('Query run: ', query)
+    const { query, failed, params } = insertNoteQueryBuilder(noteData, userId);
+    console.log({ query, failed, params });
     let notes: NoteType[] = [];
     if (query !== "") {
-      notes = await makeQueries(query);
+      notes = await makeQueriesWithParams(query, params.flat());
     }
     return {
       notes,
@@ -33,10 +33,8 @@ export const getNoteByIdHandler = async (
   userId: string
 ): Promise<NoteType | null> => {
   try {
-    const query = getNoteByIdQuery(noteId, userId);
-    console.log(query)
-    const data = await makeQueries(query);
-    console.log(data)
+    const {query, params} = getNoteByIdQuery(noteId, userId);
+    const data = await makeQueriesWithParams(query, params);
     return data[0] as NoteType
   } catch (error) {
     throw error;
@@ -64,9 +62,9 @@ export const updateNoteHandler = async (
       return query;
     });
     queries.forEach((query) => {
-      makeQueries(query);
+      if(query)
+      makeQueriesWithParams(query.query, query.params);
     });
-    console.log(queries)
     return returned;
   } catch (error) {
     throw error;
@@ -80,8 +78,11 @@ export const deleteNoteByIdHandler = async (
   try {
     
       const queries = deleteNoteByIdQuery(noteIds, userId);
-      const result = await makeQueries(queries.data)
-      makeQueries(queries.delete)
+      const result = await makeQueriesWithParams(queries.data, queries.params)
+      makeQueriesWithParams(queries.delete, queries.params).catch(error => {
+        //TODO: failed request notification
+        console.log(error)
+      })
       return result
   } catch (error) {
     throw error;
@@ -92,8 +93,8 @@ export const getAllNotesHandler = async (
   userId: string
 ): Promise<NoteType[]> => {
   try {
-    const query = getAllNotesQuery(userId);
-    const data = await makeQueries(query);
+    const {query, params} = getAllNotesQuery(userId);
+    const data = await makeQueriesWithParams(query, params);
     return data as NoteType[];
   } catch (error) {
     throw error;
