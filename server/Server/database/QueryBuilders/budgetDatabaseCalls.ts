@@ -1,9 +1,7 @@
-import { generateRandomAlphanumeric } from "../../utilities/generators";
-
 export const insertBudgetQueryBuilder = (
   budgetObjects: any[],
   userId: string
-): { query: string; failed: any } => {
+): { query: string; failed: any; params: Array<any> } => {
   try {
     const data: {
       success: BudgetType[];
@@ -21,13 +19,16 @@ export const insertBudgetQueryBuilder = (
       }
     });
 
-    const parsedString = data.success
-      .map((success) => insertQueryString(success, userId))
-      .join();
-    const query = `INSERT INTO budgetTable(budgetId, budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) \
-    VALUES ${parsedString};`;
+    const parsedString = data.success.map((success) =>
+      insertQueryString(success, userId)
+    );
+    const placeholder = data.success
+      .map((success) => "(?, ?, ?, ?, ?, ?, ?)")
+      .join(", ");
+    const query = `INSERT INTO budgetTable(budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) value${placeholder};`;
     return {
       query,
+      params: parsedString,
       failed: data.failed,
     };
   } catch (error) {
@@ -60,98 +61,108 @@ const parseBudgetInsertObject = (budget: any): boolean => {
 };
 
 const insertQueryString = (budget: any, userId: string) => {
-  const id = generateRandomAlphanumeric(5);
-  return `("${id}", "${budget.budget}", ${budget.amount}, "${
-    budget.dateOfPayment
-  }", ${budget.goalId !== "" ? `"${budget.goalId}"` : null}, "${
-    budget.expenseCategory
-  }", "${budget.budgetPrivacy}", "${userId}")`;
+  return [
+    budget.budget,
+    budget.amount,
+    budget.dateOfPayment,
+    budget.goalId !== "" ? budget.goalId : null,
+    budget.expenseCategory,
+    budget.budgetPrivacy,
+    userId,
+  ];
 };
 
 export const updateBudget = (
   budgetId: string,
   updatedBudget: object,
   userId: string
-): string | null => {
+): { query: string; params: any } | null => {
   try {
     const parsed = parseBudgetUpdateObject(updatedBudget);
     if (Object.keys(parsed).length === 0) {
       return null;
     }
-
-    return `UPDATE budgetTable SET ${parsed} WHERE budgetId = '${budgetId}' and creator = '${userId}';`;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
-const parseBudgetUpdateObject = (budget: object) => {
-  const updateFields = [];
-  if ("budget" in budget && typeof budget.budget === "string") {
-    updateFields.push(`budget = "${budget.budget}"`);
-  }
-  if ("amount" in budget && typeof budget.amount === "number") {
-    updateFields.push(`amount = ${budget.amount}`);
-  }
-  if ("dateOfPayment" in budget && typeof budget.dateOfPayment === "string") {
-    updateFields.push(`dateOfPayment = '${(new Date(budget.dateOfPayment)).toISOString().split('T')[0]}'`);
-  }
-  if ("goalId" in budget) {
-    updateFields.push(`goalId = '${budget.goalId}'`);
-  }
-  if ("expenseCategory" in budget) {
-    updateFields.push(`expenseCategory = '${budget.expenseCategory}'`);
-  }
-  if (
-    "budgetPrivacy" in budget &&
-    (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")
-  ) {
-    updateFields.push(`budgetPrivacy = '${budget.budgetPrivacy}'`);
-  }
-  if('paid' in budget && typeof budget.paid === 'number'){
-    updateFields.push(`paid = ${budget.paid}`);
-  }
-
-  return updateFields.join(", ");
-};
-
-export const deleteBudgetByIdsQuery = (
-  budgetId: string[],
-  userId: string
-): { delete: string; data: string } => {
-  try {
-    const condition = budgetId
-      .map((id) => `budgetId = "${id}"`)
-      .join(" or ");
     return {
-      delete: `DELETE FROM budgetTable WHERE (${condition}) and creator = "${userId}";`,
-      data: `SELECT * FROM budgetTable WHERE (${condition}) and creator = "${userId}";`,
+      query: `UPDATE budgetTable SET ${parsed.placeholder} WHERE budgetId = ? and creator = ?;`,
+      params: [...parsed.updateFields, budgetId,  userId ],
     };
   } catch (error) {
     throw error;
   }
 };
 
-const constructDeleteMultiple = () => {};
+const parseBudgetUpdateObject = (budget: object) => {
+  let updateFields: Array<any> = [];
+  let placeHolder = [];
+  if ("budget" in budget && typeof budget.budget === "string") {
+    updateFields.push(budget.budget);
+    placeHolder.push("budget = ?");
+  }
+  if ("amount" in budget && typeof budget.amount === "number") {
+    updateFields = [...updateFields, budget.amount];
+    placeHolder.push("amount = ?");
+  }
+  if ("dateOfPayment" in budget && typeof budget.dateOfPayment === "string") {
+    const dateOfPayment = new Date(budget.dateOfPayment)
+      .toISOString()
+      .split("T")[0];
+    updateFields = [...updateFields, dateOfPayment];
+    placeHolder.push("dateOfPayment = ?");
+  }
+  if ("goalId" in budget) {
+    updateFields = [...updateFields, budget.goalId];
+    placeHolder.push("goalId= ?");
+  }
+  if ("expenseCategory" in budget) {
+    updateFields = [...updateFields,budget.expenseCategory];
+    placeHolder.push("expenseCategory = ?");
+  }
+  if (
+    "budgetPrivacy" in budget &&
+    (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")
+  ) {
+    updateFields = [...updateFields, budget.budgetPrivacy];
+    placeHolder.push("budgetPrivacy = ?");
+  }
+  if ("paid" in budget && typeof budget.paid === "number") {
+    updateFields = [...updateFields, budget.paid];
+    placeHolder.push("paid = ?");
+  }
 
-export const getAllBudgetsQuery = (userId: string): string => {
+  return { updateFields, placeholder: placeHolder.join(", ") };
+};
+
+export const deleteBudgetByIdsQuery = (
+  budgetId: string[],
+  userId: string
+): { delete: string; data: string, params: Array<string> } => {
   try {
-    return `SELECT * FROM budgetTable where creator = '${userId}';`;
+    const condition = budgetId.map((id) => `?`).join(", ");
+    return {
+      delete: `DELETE FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
+      data: `SELECT * FROM budgcetTable WHERE budgetId in (${condition}) and creator = ?;`,
+      params: [...budgetId, userId]
+    };
   } catch (error) {
-    console.error(error);
     throw error;
   }
+};
+
+export const getAllBudgetsQuery = (
+  userId: string
+): { query: string; params: Array<string> } => {
+  return {
+    query: `SELECT * FROM budgetTable where creator = ?;`,
+    params: [userId],
+  };
 };
 
 export const getBudgetByIdQuery = (
   budgetId: string,
   userId: string
-): string => {
-  try {
-    return `SELECT * FROM budgetTable WHERE budgetId = '${budgetId}' and creator = '${userId}';`;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+): { query: string; params: Array<any> } => {
+  return {
+    query: `SELECT * FROM budgetTable WHERE budgetId = ? and creator = ?;`,
+    params: [budgetId, userId],
+  };
 };

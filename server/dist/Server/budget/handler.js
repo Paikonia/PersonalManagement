@@ -8,17 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBudgetHandler = exports.deleteBudgetById = exports.postBudgetItemsHandler = exports.getBudgetByIdHandler = exports.getAllBudgetHandler = void 0;
-const database_1 = __importDefault(require("../database"));
+const database_1 = require("../database");
 const budgetDatabaseCalls_1 = require("../database/QueryBuilders/budgetDatabaseCalls");
 const getAllBudgetHandler = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const query = (0, budgetDatabaseCalls_1.getAllBudgetsQuery)(userId);
-        const data = yield (0, database_1.default)(query);
+        const { query, params } = (0, budgetDatabaseCalls_1.getAllBudgetsQuery)(userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
         return data;
     }
     catch (error) {
@@ -28,8 +25,8 @@ const getAllBudgetHandler = (userId) => __awaiter(void 0, void 0, void 0, functi
 exports.getAllBudgetHandler = getAllBudgetHandler;
 const getBudgetByIdHandler = (budgetId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const query = (0, budgetDatabaseCalls_1.getBudgetByIdQuery)(budgetId, userId);
-        const data = yield (0, database_1.default)(query);
+        const { query, params } = (0, budgetDatabaseCalls_1.getBudgetByIdQuery)(budgetId, userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
         const returned = data;
         return returned[0];
     }
@@ -40,8 +37,9 @@ const getBudgetByIdHandler = (budgetId, userId) => __awaiter(void 0, void 0, voi
 exports.getBudgetByIdHandler = getBudgetByIdHandler;
 const postBudgetItemsHandler = (data, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query, failed } = (0, budgetDatabaseCalls_1.insertBudgetQueryBuilder)(data, userId);
-        yield (0, database_1.default)(query);
+        const { query, failed, params } = (0, budgetDatabaseCalls_1.insertBudgetQueryBuilder)(data, userId);
+        console.log({ query, params });
+        yield (0, database_1.makeQueriesWithParams)(query, params.flat());
         return {
             success: failed.length > 0 && query !== ""
                 ? "Partially successful"
@@ -59,8 +57,8 @@ exports.postBudgetItemsHandler = postBudgetItemsHandler;
 const deleteBudgetById = (ids, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const queries = (0, budgetDatabaseCalls_1.deleteBudgetByIdsQuery)(ids, userId);
-        const result = yield (0, database_1.default)(queries.data);
-        (0, database_1.default)(queries.delete);
+        const result = yield (0, database_1.makeQueriesWithParams)(queries.data, queries.params);
+        (0, database_1.makeQueriesWithParams)(queries.delete, queries.params);
         return result;
     }
     catch (error) {
@@ -81,7 +79,7 @@ const updateBudgetHandler = (update, userId) => __awaiter(void 0, void 0, void 0
             return query;
         });
         queries.forEach((query) => {
-            (0, database_1.default)(query);
+            (0, database_1.makeQueriesWithParams)(query.query, query.params);
         });
         return {
             success: "Partial",

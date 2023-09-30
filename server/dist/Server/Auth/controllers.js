@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signoutController = exports.refreshController = exports.resetPasswordController = exports.resetCodeController = exports.resetStartController = exports.verifyUserEmailController = exports.signupController = exports.signinController = void 0;
 const handlers_1 = require("./handlers");
 const generators_1 = require("../utilities/generators");
+const functions_1 = require("./functions");
+const AuthConstants_1 = require("../Constants/AuthConstants");
 const signinController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = req.body;
@@ -31,23 +33,25 @@ const signinController = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 exports.signinController = signinController;
 const signupController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { firstName, lastName, username, email, mobile, password, confirmPassword } = req.body;
-        if (!(firstName &&
-            firstName.trim() !== "" &&
-            lastName &&
-            lastName.trim() !== "" &&
-            username &&
-            username.trim() !== "" &&
-            email &&
-            email.trim() !== "" &&
-            password &&
-            password.trim() !== "")) {
-            throw new Error("The fields name, username, email, password, confirmPassword are required");
+        const body = req.body;
+        const { data, message } = (0, functions_1.verifyUserData)(body);
+        if (message !== "") {
+            const missigParts = AuthConstants_1.AUTHERRORS.MissingData;
+            missigParts.message = message;
+            throw missigParts;
         }
+        const { password, confirmPassword, firstName, lastName, username, email, mobile, } = data;
         if (password !== confirmPassword) {
-            throw new Error("The password do not match.");
+            throw AuthConstants_1.AUTHERRORS.PasswordMissmatch;
         }
-        const session = yield (0, handlers_1.signup)({ firstName, lastName, username, email, mobile, password });
+        const session = yield (0, handlers_1.signup)({
+            firstName,
+            lastName,
+            username,
+            email,
+            mobile,
+            password,
+        });
         res.json({ session });
     }
     catch (error) {
@@ -59,7 +63,9 @@ const verifyUserEmailController = (req, res, next) => __awaiter(void 0, void 0, 
     try {
         const { session, code } = req.body;
         if (!(session && session.trim() !== "" && code && code.trim() !== "")) {
-            throw new Error("Both the session and code are required!");
+            const missingData = AuthConstants_1.AUTHERRORS.MissingData;
+            missingData.message = "Both the session and code are required!";
+            throw missingData;
         }
         const ret = yield (0, handlers_1.verifyEmail)(session, code);
         res.json(ret);
@@ -72,6 +78,11 @@ exports.verifyUserEmailController = verifyUserEmailController;
 const resetStartController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = req.body.user;
+        if (!(user && user.trim() !== "")) {
+            const missingData = AuthConstants_1.AUTHERRORS.MissingData;
+            missingData.message = "This request requires either a username or email address!";
+            throw missingData;
+        }
         const g = yield (0, handlers_1.resetStartHandler)(user);
         res.json(g);
     }
@@ -83,6 +94,11 @@ exports.resetStartController = resetStartController;
 const resetCodeController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { session, code } = req.body;
+        if (!(session && session.trim() !== "" && code && code.trim() !== "")) {
+            const missingData = AuthConstants_1.AUTHERRORS.MissingData;
+            missingData.message = "Both the session and code are required!";
+            throw missingData;
+        }
         const data = yield (0, handlers_1.resetCodeHandler)(session, code);
         res.json(data);
     }
@@ -95,7 +111,7 @@ const resetPasswordController = (req, res, next) => __awaiter(void 0, void 0, vo
     try {
         const { session, password, confirmPassword } = req.body;
         if (password !== confirmPassword) {
-            throw new Error("The password you have entered do not match");
+            throw AuthConstants_1.AUTHERRORS.PasswordMissmatch;
         }
         const result = yield (0, handlers_1.resetPasswordHandler)(session, password);
         res.json(result);

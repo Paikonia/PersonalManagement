@@ -75,7 +75,7 @@ export const updateExpenseItemController = async(
   }
 };
 
-export const deleteExpenseItemController = (
+export const deleteExpenseItemController = async(
   req: Request,
   res: Response,
   next: NextFunction
@@ -86,7 +86,7 @@ export const deleteExpenseItemController = (
     if (!expenseIds || !Array.isArray(expenseIds)) {
       throw new Error('Please provide and array of expense IDs to delete!')
     }
-    const returnedData = deleteExpenseHandler(expenseIds, user.userId)
+    const returnedData = await deleteExpenseHandler(expenseIds, user.userId)
     res.json(returnedData)
   } catch (error) {
     next(error);

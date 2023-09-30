@@ -1,4 +1,4 @@
-import makeQueries from "../database";
+import { makeQueriesWithParams } from "../database";
 import {
   deleteBudgetByIdsQuery,
   getAllBudgetsQuery,
@@ -11,8 +11,8 @@ export const getAllBudgetHandler = async (
   userId: string
 ): Promise<BudgetType[]> => {
   try {
-    const query = getAllBudgetsQuery(userId);
-    const data = await makeQueries(query);
+    const {query, params} = getAllBudgetsQuery(userId);
+    const data = await makeQueriesWithParams(query,params);
     return data as BudgetType[];
   } catch (error) {
     throw error;
@@ -24,8 +24,8 @@ export const getBudgetByIdHandler = async (
   userId: string
 ): Promise<BudgetType> => {
   try {
-    const query = getBudgetByIdQuery(budgetId, userId);
-    const data = await makeQueries(query);
+    const {query, params} = getBudgetByIdQuery(budgetId, userId);
+    const data = await makeQueriesWithParams(query, params);
     const returned = data as BudgetType[];
     return returned[0];
   } catch (error) {
@@ -38,9 +38,9 @@ export const postBudgetItemsHandler = async (
   userId: string
 ): Promise<{ success: string; failed: any }> => {
   try {
-    const { query, failed } = insertBudgetQueryBuilder(data, userId);
-
-    await makeQueries(query);
+    const { query, failed, params } = insertBudgetQueryBuilder(data, userId);
+    console.log({query, params})
+    await makeQueriesWithParams(query, params.flat());
     return {
       success:
         failed.length > 0 && query !== ""
@@ -59,8 +59,8 @@ export const deleteBudgetById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteBudgetByIdsQuery(ids, userId);
 
-    const result = await makeQueries(queries.data);
-    makeQueries(queries.delete);
+    const result = await makeQueriesWithParams(queries.data, queries.params);
+    makeQueriesWithParams(queries.delete, queries.params);
     return result;
   } catch (error) {
     throw error;
@@ -83,9 +83,8 @@ export const updateBudgetHandler = async (
       }
       return query;
     });
-
-    queries.forEach((query) => {
-      makeQueries(query as string);
+    queries.forEach((query:any) => {
+      makeQueriesWithParams(query.query, query.params);
     });
 
     return {

@@ -18,6 +18,7 @@ const email_1 = require("../email");
 const generators_1 = require("../utilities/generators");
 const redis_1 = require("../database/redis");
 const index_1 = require("../email/index");
+const AuthConstants_1 = require("../Constants/AuthConstants");
 const isValidEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return emailRegex.test(email);
@@ -54,14 +55,12 @@ const generateTokens = (username, email, name, mobile, userId) => __awaiter(void
     if (refreshTokens.length > 0 && refreshTokens[0] !== null) {
         if (refreshTokens[0].validRefreshTokens &&
             refreshTokens[0].validRefreshTokens.tokens) {
-            console.log(refreshTokens[0].validRefreshTokens.tokens);
             currentTokens = {
                 tokens: [...refreshTokens[0].validRefreshTokens.tokens],
             };
         }
     }
     currentTokens = { tokens: [...currentTokens.tokens, refreshToken] };
-    console.log(currentTokens.tokens.join(""));
     (0, database_1.default)(`UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(currentTokens)}' WHERE userId = '${userId}';`);
     return { token, refreshToken };
 });
@@ -69,18 +68,20 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const databaseData = yield (0, database_1.default)(`select * from registeredUsers where email = '${user.toLowerCase()}' or userName = '${user.toLowerCase()}';`);
         if (databaseData.length === 0) {
-            throw new Error("The user is not in the database.");
+            throw AuthConstants_1.AUTHERRORS.MissingUser;
         }
         const userData = databaseData[0];
         if (!(yield (0, generators_1.comparePasswords)(password, userData.userPassword))) {
-            throw new Error("Incorrect password provided.");
+            throw AuthConstants_1.AUTHERRORS.IncorrectPassword;
         }
-        const { userId, firstName, lastName, username, email, mobile } = userData;
+        const { userId, firstName, lastName, username, email, mobile, validRefreshTokens, } = userData;
         if (userData.verifiedEmail !== 1) {
+            const name = firstName + " " + lastName;
             const session = yield setUpEmailSession({
-                name: firstName + " " + lastName,
-                email,
                 userId,
+                name,
+                email,
+                validRefreshTokens,
             });
             return {
                 requireConfirmation: {
@@ -108,25 +109,30 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.signin = signin;
-// name: {type: GraphQLString},
-//     success: {type: GraphQLBoolean},
-//     session: {type: GraphQLString}
 const signup = ({ username, email, mobile, password, firstName, lastName, }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const validEmail = isValidEmail(email);
         const passwordStrength = isPasswordStrong(password);
         if (!validEmail)
-            throw new Error("The email you have entered is invalid");
+            throw AuthConstants_1.AUTHERRORS.InvalidEmail;
         if (!passwordStrength)
-            throw new Error("The password must be eight characters long, contain atleast 1 uppercase, lowercase, number and a special character !#?()$%£");
+            throw AuthConstants_1.AUTHERRORS.PasswordCriteria;
         const userId = (0, generators_1.generateRandomAlphanumeric)(10);
         const passHash = yield (0, generators_1.hashPassword)(password);
         const query = `insert into registeredUsers(userId, firstName, lastName, username, email, mobile, userPassword, validRefreshTokens) values(\
-        '${userId}', '${firstName.trim()}', '${lastName.trim()}', '${username
-            .toLowerCase()
-            .trim()}', '${email.toLowerCase().trim()}', '${mobile ? mobile.toLowerCase().trim() : ""}', '${passHash}', '[]')`;
+        '${userId}', '${firstName.trim().toUpperCase()}', '${lastName
+            .trim()
+            .toUpperCase()}', 
+        '${username.toLowerCase().trim()}', '${email.toLowerCase().trim()}', '${mobile ? mobile.toLowerCase().trim() : ""}', '${passHash}', '{"tokens": []}')`;
         yield (0, database_1.default)(query);
-        const session = yield setUpEmailSession({ name: firstName, email, userId });
+        const session = yield setUpEmailSession({
+            name: firstName,
+            email,
+            userId,
+            validRefreshTokens: {
+                tokens: [],
+            },
+        });
         return {
             requireConfirmation: {
                 firstName,
@@ -140,25 +146,29 @@ const signup = ({ username, email, mobile, password, firstName, lastName, }) => 
     }
 });
 exports.signup = signup;
-const setUpEmailSession = ({ userId, name, email, }) => __awaiter(void 0, void 0, void 0, function* () {
-    const code = (0, generators_1.generateRandomAlphanumeric)(6).toUpperCase();
-    const session = (0, generators_1.generateRandomAlphanumeric)(16);
-    yield (0, index_1.sendConfirmCode)({ email, name, code });
-    (0, redis_1.redisAddString)(session, JSON.stringify({
-        code,
-        userId,
-    }));
-    return session;
+const setUpEmailSession = ({ userId, name, email, validRefreshTokens, }) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const code = (0, generators_1.generateRandomAlphanumeric)(6).toUpperCase();
+        const session = (0, generators_1.generateRandomAlphanumeric)(16);
+        (0, index_1.sendConfirmCode)(email, name, code);
+        (0, redis_1.redisAddString)(session, JSON.stringify({
+            code,
+            userId,
+            validRefreshTokens,
+        }));
+        return session;
+    }
+    catch (e) {
+        console.error(e);
+    }
 });
 const verifyEmail = (session, code) => __awaiter(void 0, void 0, void 0, function* () {
     const findCode = yield (0, redis_1.redisGetString)(session);
-    if (!findCode) {
-        throw Error("The session you have sent is invalid.");
-    }
+    if (!findCode)
+        throw AuthConstants_1.AUTHERRORS.InvalidSession;
     const data = JSON.parse(findCode);
-    if (code !== data.code) {
-        throw new Error("The code you sent is incorrect");
-    }
+    if (code !== data.code)
+        throw AuthConstants_1.AUTHERRORS.IncorrectCode;
     const m = (yield (0, database_1.default)(`select * from registeredUsers where userId = '${data.userId}';`));
     const { userId, fullName, username, email, mobile } = m[0];
     const { refreshToken, token } = yield generateTokens(username, email, fullName, mobile, userId);
@@ -180,9 +190,8 @@ const verifyEmail = (session, code) => __awaiter(void 0, void 0, void 0, functio
 exports.verifyEmail = verifyEmail;
 const resetStartHandler = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const dbUser = yield (0, database_1.default)(`SELECT * FROM registeredUsers WHERE username = '${user}' or email = '${user}';`);
-    if (dbUser.length === 0) {
-        throw new Error("The user was not found in the database");
-    }
+    if (dbUser.length === 0)
+        throw AuthConstants_1.AUTHERRORS.MissingUser;
     const { userId, email, fullName, mobile, username } = dbUser[0];
     const code = (0, generators_1.generateRandomAlphanumeric)(6).toUpperCase();
     const session = (0, generators_1.generateRandomAlphanumeric)(16);
@@ -201,13 +210,11 @@ exports.resetStartHandler = resetStartHandler;
 const resetCodeHandler = (session, code) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const g = yield (0, redis_1.redisGetString)(session);
-        if (!g) {
-            throw new Error("The session is either expired or the invalid");
-        }
+        if (!g)
+            throw AuthConstants_1.AUTHERRORS.InvalidSession;
         const data = JSON.parse(g);
-        if (data.code !== code) {
-            throw new Error("The code you have sent is incorrect");
-        }
+        if (data.code !== code)
+            throw AuthConstants_1.AUTHERRORS.IncorrectCode;
         const newSession = (0, generators_1.generateRandomAlphanumeric)(24);
         (0, redis_1.redisAddString)(newSession, JSON.stringify(data));
         (0, redis_1.redisDeleteString)(session);
@@ -222,7 +229,7 @@ const resetPasswordHandler = (session, password) => __awaiter(void 0, void 0, vo
     try {
         const sessionData = yield (0, redis_1.redisGetString)(session);
         if (!sessionData)
-            throw new Error("This session is invalid or expired.");
+            throw AuthConstants_1.AUTHERRORS.InvalidSession;
         const { userId, username, email, name, mobile } = JSON.parse(sessionData);
         const hash = yield (0, generators_1.hashPassword)(password);
         yield (0, database_1.default)(`
@@ -251,9 +258,8 @@ const refreshHandler = (userId, refreshToken) => __awaiter(void 0, void 0, void 
     try {
         const user = yield (0, database_1.default)(`select * from registeredUsers where userId = "${userId}";`);
         const { username, email, fullName, mobile, validRefreshTokens } = user[0];
-        if (!validRefreshTokens.tokens.includes(refreshToken)) {
-            throw new Error("The refresh token you are using is invalid");
-        }
+        if (!validRefreshTokens.tokens.includes(refreshToken))
+            throw AuthConstants_1.AUTHERRORS.IncorrectRefreshToken;
         const tokenData = {
             username,
             email,

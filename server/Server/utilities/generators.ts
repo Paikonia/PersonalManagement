@@ -15,7 +15,7 @@ export const generateRandomAlphanumeric = (length: number) => {
 };
 
 export const hashPassword = async (password: string) => {
-  const saltRounds = 14;
+  const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   return hashedPassword;
 };

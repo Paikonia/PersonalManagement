@@ -79,7 +79,6 @@ export const deleteBudgetItemController = async (
 ) => {
   try {
     const { budgetIds } = req.body.data;
-    console.log(budgetIds);
     const {userId} = req.body.user
     if (!Array.isArray(budgetIds)) {
       throw new Error("The data provided is not an array");

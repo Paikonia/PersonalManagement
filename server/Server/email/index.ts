@@ -18,18 +18,14 @@ const transportCreator = () => {
 
 console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
 
-export const sendConfirmCode = async ({
-  email,
-  name,
-  code,
-}: {
-  email: string;
-  name: string;
-  code: string;
-}) => {
+export const sendConfirmCode = async (
+  email: string,
+  name: string,
+  code: string
+) => {
   try {
     const transporter = transportCreator();
-    return await transporter.sendMail({
+    const sentObject = {
       from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>', // sender address
       to: email,
       subject: "Confirmation Email",
@@ -37,7 +33,9 @@ export const sendConfirmCode = async ({
       Welcome to the Aikos personal management App. You please enter the code to confirm your email.
       Code: ${code}
       Best regards.`,
-    });
+    };
+    console.log(sentObject);
+    return await transporter.sendMail(sentObject);
   } catch (e: any) {
     const error = {
       status: 500,

@@ -15,16 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserDataMiddleWare = void 0;
 const generators_1 = require("../utilities/generators");
 const database_1 = __importDefault(require("../database"));
+const AuthConstants_1 = require("../Constants/AuthConstants");
 const getUserDataMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const authHeader = req.headers["authorization"];
         if (authHeader) {
             const token = authHeader.split(" ")[1];
             if (!token) {
-                res.status(401).json({
-                    error: "Invalid Authorisation Format",
-                    message: "You are supposed to include your auth token as: Bearer token",
-                });
+                next(AuthConstants_1.AUTHERRORS.InvalidTokenFormat);
             }
             const userData = (yield (0, generators_1.verifyAuthToken)(token));
             const userIds = yield (0, database_1.default)(`select userId from registeredUsers where username = '${userData.username}'`);

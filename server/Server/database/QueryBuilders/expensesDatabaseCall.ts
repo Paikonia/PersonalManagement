@@ -1,9 +1,7 @@
-import { generateRandomAlphanumeric } from "../../utilities/generators";
-
 export const insertExpenseQueryBuilder = (
   expenseObjects: ExpenseType[],
   userId: string
-): { query: string; failed: ExpenseType[] } => {
+): { query: string; failed: ExpenseType[]; params: Array<any> } => {
   try {
     const data: {
       success: ExpenseType[];
@@ -21,14 +19,16 @@ export const insertExpenseQueryBuilder = (
       }
     });
 
-    const parsedString = data.success
-      .map((success) => insertExpenseQueryString(success, userId))
-      .join();
-    const query = `INSERT INTO expensesTable(expenseId, budgetId, item, amount, expenseDate, paymentMethod, expenseCategory, expensePrivacy, creator) \
-    VALUES ${parsedString};`;
+    const params = data.success.map((success) =>
+      insertExpenseQueryString(success, userId)
+    );
+    const placeHolder = data.success.map(() => "(?,?,?,?,?,?,?,?)").join(", ");
+    const query = `INSERT INTO expensesTable(budgetId, item, amount, expenseDate, paymentMethod, expenseCategory, expensePrivacy, creator) \
+    VALUES ${placeHolder};`;
     return {
-      query: parsedString !== "" ? query : "",
+      query: params.length > 0 ? query : "",
       failed: data.failed,
+      params,
     };
   } catch (error) {
     throw error;
@@ -36,8 +36,8 @@ export const insertExpenseQueryBuilder = (
 };
 
 const parseExpenseInsertObject = (expense: ExpenseType): boolean => {
-  expense.amount = Number(expense.amount)
-  
+  expense.amount = Number(expense.amount);
+
   if (
     typeof expense.item !== "string" ||
     expense.item.trim() === "" ||
@@ -55,65 +55,74 @@ const parseExpenseInsertObject = (expense: ExpenseType): boolean => {
 };
 
 const insertExpenseQueryString = (expense: ExpenseType, userId: string) => {
-  const expenseId = generateRandomAlphanumeric(6);
+  const expenseDate = expense.expenseDate
+    ? expense.expenseDate.toISOString().split("T")[0]
+    : new Date(Date.now()).toISOString().split("T")[0];
   const budgetId = expense.budgetId ? `"${expense.budgetId}"` : null;
-  return `("${expenseId}", ${budgetId}, "${expense.item}", ${
-    expense.amount
-  }, "${
-    expense.expenseDate
-      ? expense.expenseDate.toISOString().split("T")[0]
-      : new Date(Date.now()).toISOString().split("T")[0]
-  }", "${expense.paymentMethod}", "${expense.expenseCategory}", "${
-    expense.expensePrivacy
-  }", "${userId}")`;
+  return [
+    budgetId,
+    expense.item,
+    expense.amount,
+    expenseDate,
+    expense.paymentMethod,
+    expense.expenseCategory,
+    expense.expensePrivacy,
+    userId,
+  ];
 };
 
 export const updateExpense = (
   expenseId: string,
   updatedExpense: Partial<ExpenseType>,
   userId: string
-): string | null => {
+): { query: string; params: any } | null => {
   try {
     const parsed = parseExpenseUpdateObject(updatedExpense);
     if (Object.keys(parsed).length === 0) {
       return null;
     }
-
-    return `UPDATE expensesTable SET ${parsed} WHERE expenseId = "${expenseId}" and creator = '${userId}';`;
+    return {
+      query: `UPDATE expensesTable SET ${parsed.placeholder} WHERE expenseId = ? and creator = ?;`,
+      params: [...parsed.updateFields, expenseId, userId],
+    };
   } catch (error) {
     throw error;
   }
 };
 
 const parseExpenseUpdateObject = (expense: Partial<ExpenseType>) => {
-  const updateFields = [];
+  let updateFields = [];
+  let placeholder = [];
   if (
     "budgetId" in expense &&
     typeof expense.budgetId === "string" &&
     expense.budgetId !== null
   ) {
-    updateFields.push(
-      `budgetId = ${expense.budgetId ? `"${expense.budgetId}"` : "NULL"}`
-    );
+    placeholder.push("budgetId = ?");
+    updateFields.push(expense.budgetId);
   }
   if (typeof expense.item === "string") {
-    updateFields.push(`item = "${expense.item}"`);
+    placeholder.push("item = ?");
+    updateFields.push(expense.item);
   }
   if (typeof expense.amount === "number" && !isNaN(expense.amount)) {
-    updateFields.push(`amount = ${expense.amount}`);
+    placeholder.push("amount = ?");
+    updateFields.push(expense.amount);
   }
   if (expense.expenseDate instanceof Date) {
-    updateFields.push(
-      `expenseDate = '${
-        new Date(expense.expenseDate).toISOString().split("T")[0]
-      }'`
-    );
+    const expenseDate = new Date(expense.expenseDate)
+      .toISOString()
+      .split("T")[0];
+
+    placeholder.push("expenseDate = ?");
+    updateFields.push(expenseDate);
   }
   if (
     typeof expense.paymentMethod === "string" &&
     ["Cash", "Card", "Credit"].includes(expense.paymentMethod)
   ) {
-    updateFields.push(`paymentMethod = "${expense.paymentMethod}"`);
+    placeholder.push("paymentMethod = ?");
+    updateFields.push(expense.paymentMethod);
   }
   if (
     typeof expense.expenseCategory === "string" &&
@@ -121,21 +130,28 @@ const parseExpenseUpdateObject = (expense: Partial<ExpenseType>) => {
       expense.expenseCategory
     )
   ) {
-    updateFields.push(`expenseCategory = "${expense.expenseCategory}"`);
+    placeholder.push("expenseCategory = ?");
+    updateFields.push(expense.expenseCategory);
   }
   if (
     typeof expense.expensePrivacy === "string" &&
     ["private", "public"].includes(expense.expensePrivacy)
   ) {
-    updateFields.push(`expensePrivacy = "${expense.expensePrivacy}"`);
+    placeholder.push("expensePrivacy = ?");
+    updateFields.push(expense.expensePrivacy);
   }
 
-  return updateFields.join(", ");
+  return { placeholder: placeholder.join(", "), updateFields };
 };
 
-export const getAllExpensesQuery = (userId: string): string => {
+export const getAllExpensesQuery = (
+  userId: string
+): { query: string; params: Array<string> } => {
   try {
-    return `SELECT * FROM expensesTable where creator = '${userId}';`;
+    return {
+      query: `SELECT * FROM expensesTable where creator = ?;`,
+      params: [userId],
+    };
   } catch (error) {
     throw error;
   }
@@ -144,9 +160,12 @@ export const getAllExpensesQuery = (userId: string): string => {
 export const getExpenseByIdQuery = (
   expenseId: string,
   userId: string
-): string => {
+): { query: string; params: Array<string> } => {
   try {
-    return `SELECT * FROM expensesTable WHERE expenseId = "${expenseId}" and creator = '${userId}';`;
+    return {
+      query: "SELECT * FROM expensesTable WHERE expenseId = ? and creator = ?;",
+      params: [expenseId, userId],
+    };
   } catch (error) {
     console.error(error);
     throw error;
@@ -156,12 +175,14 @@ export const getExpenseByIdQuery = (
 export const deleteExpenseByIdQuery = (
   expenseIds: string[],
   userId: string
-): { delete: string; data: string }=> {
+): { delete: string; data: string; params: Array<string> } => {
   try {
-    const params = constructDeleteParams(expenseIds);
+    const condition = expenseIds.map((id) => `?`).join(", ");
+    
     return {
-      delete: `DELETE FROM expensesTable WHERE (${params}) and creator = '${userId}';`,
-      data: `SELECT * FROM expensesTable WHERE (${params}) and creator = '${userId}';`,
+      delete: `DELETE FROM expensesTable WHERE expenseId in (${condition}) and creator = ?;`,
+      data: `SELECT * FROM expensesTable WHERE expenseId in (${condition}) and creator = ?;`,
+      params: [...expenseIds, userId],
     };
   } catch (error) {
     throw error;

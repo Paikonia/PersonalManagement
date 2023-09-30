@@ -10,6 +10,8 @@ import {
   signoutHandler,
 } from "./handlers";
 import { verifyAuthToken } from "../utilities/generators";
+import { verifyUserData } from "./functions";
+import { AUTHERRORS } from "../Constants/AuthConstants";
 
 export const signinController = async (
   req: Request,
@@ -28,7 +30,6 @@ export const signinController = async (
         "You must provide both a username and password to make this request"
       );
     }
-
     const data = await signin(body.user, body.password);
     res.json(data);
   } catch (error) {
@@ -42,30 +43,34 @@ export const signupController = async (
   next: NextFunction
 ) => {
   try {
-    const { firstName, lastName, username, email, mobile, password, confirmPassword } =
-      req.body;
-    if (
-      !(
-        firstName &&
-        firstName.trim() !== "" &&
-        lastName &&
-        lastName.trim() !== "" &&
-        username &&
-        username.trim() !== "" &&
-        email &&
-        email.trim() !== "" &&
-        password &&
-        password.trim() !== ""
-      )
-    ) {
-      throw new Error(
-        "The fields name, username, email, password, confirmPassword are required"
-      );
+    const body = req.body;
+    const { data, message } = verifyUserData(body);
+    if (message !== "") {
+      const missigParts = AUTHERRORS.MissingData;
+      missigParts.message = message;
+      throw missigParts;
     }
+    const {
+      password,
+      confirmPassword,
+      firstName,
+      lastName,
+      username,
+      email,
+      mobile,
+    } = data;
+
     if (password !== confirmPassword) {
-      throw new Error("The password do not match.");
+      throw AUTHERRORS.PasswordMissmatch;
     }
-    const session = await signup({ firstName, lastName, username, email, mobile, password });
+    const session = await signup({
+      firstName,
+      lastName,
+      username,
+      email,
+      mobile,
+      password,
+    });
 
     res.json({ session });
   } catch (error) {
@@ -81,7 +86,9 @@ export const verifyUserEmailController = async (
   try {
     const { session, code } = req.body;
     if (!(session && session.trim() !== "" && code && code.trim() !== "")) {
-      throw new Error("Both the session and code are required!");
+      const missingData = AUTHERRORS.MissingData
+      missingData.message = "Both the session and code are required!";
+      throw missingData;
     }
     const ret = await verifyEmail(session, code);
     res.json(ret);
@@ -97,6 +104,11 @@ export const resetStartController = async (
 ) => {
   try {
     const user = req.body.user;
+    if (!(user && user.trim() !== "")) {
+      const missingData = AUTHERRORS.MissingData;
+      missingData.message = "This request requires either a username or email address!";
+      throw missingData;
+    }
     const g = await resetStartHandler(user);
     res.json(g);
   } catch (error) {
@@ -111,6 +123,13 @@ export const resetCodeController = async (
 ) => {
   try {
     const { session, code } = req.body;
+
+    if (!(session && session.trim() !== "" && code && code.trim() !== "")) {
+      const missingData = AUTHERRORS.MissingData;
+      missingData.message = "Both the session and code are required!";
+      throw missingData;
+    }
+
     const data = await resetCodeHandler(session, code);
     res.json(data);
   } catch (error) {
@@ -126,7 +145,7 @@ export const resetPasswordController = async (
   try {
     const { session, password, confirmPassword } = req.body;
     if (password !== confirmPassword) {
-      throw new Error("The password you have entered do not match");
+      throw AUTHERRORS.PasswordMissmatch;
     }
 
     const result = await resetPasswordHandler(session, password);
@@ -155,15 +174,19 @@ export const refreshController = async (
   }
 };
 
-export const signoutController = async (req:Request, res:Response, next:NextFunction) => {
+export const signoutController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const {refreshToken} = req.body;
-    const data = await verifyAuthToken(refreshToken)
-    const { audience } = data as unknown as { audience:string };
-    
-    const result = await signoutHandler(audience, refreshToken)
-    res.json(result)
+    const { refreshToken } = req.body;
+    const data = await verifyAuthToken(refreshToken);
+    const { audience } = data as unknown as { audience: string };
+
+    const result = await signoutHandler(audience, refreshToken);
+    res.json(result);
   } catch (error) {
     next(error);
   }
-}
+};

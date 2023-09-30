@@ -72,18 +72,18 @@ const updateExpenseItemController = (req, res, next) => __awaiter(void 0, void 0
     }
 });
 exports.updateExpenseItemController = updateExpenseItemController;
-const deleteExpenseItemController = (req, res, next) => {
+const deleteExpenseItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { user, data } = req.body;
         const { expenseIds } = data;
         if (!expenseIds || !Array.isArray(expenseIds)) {
             throw new Error('Please provide and array of expense IDs to delete!');
         }
-        const returnedData = (0, handler_1.deleteExpenseHandler)(expenseIds, user.userId);
+        const returnedData = yield (0, handler_1.deleteExpenseHandler)(expenseIds, user.userId);
         res.json(returnedData);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.deleteExpenseItemController = deleteExpenseItemController;

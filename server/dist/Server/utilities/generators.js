@@ -28,7 +28,7 @@ const generateRandomAlphanumeric = (length) => {
 };
 exports.generateRandomAlphanumeric = generateRandomAlphanumeric;
 const hashPassword = (password) => __awaiter(void 0, void 0, void 0, function* () {
-    const saltRounds = 14;
+    const saltRounds = 10;
     const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
     return hashedPassword;
 });

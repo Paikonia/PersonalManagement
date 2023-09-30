@@ -1,16 +1,16 @@
-import makeQueries from "../database";
+import makeQueries, { makeQueriesWithParams } from "../database";
 import {
   deleteExpenseByIdQuery,
   getAllExpensesQuery,
   getExpenseByIdQuery,
   insertExpenseQueryBuilder,
-  updateExpense
+  updateExpense,
 } from "../database/QueryBuilders/expensesDatabaseCall";
 
 export const getAllExpensesHandler = async (userId: string) => {
   try {
     const query = getAllExpensesQuery(userId);
-    return await makeQueries(query);
+    return await makeQueriesWithParams(query.query, query.params);
   } catch (error) {
     throw error;
   }
@@ -21,7 +21,7 @@ export const getExpenseByIdHandler = async (
 ) => {
   try {
     const query = getExpenseByIdQuery(expenseId, userId);
-    const data = await makeQueries(query);
+    const data = await makeQueriesWithParams(query.query, query.params);
     return data[0];
   } catch (error) {
     throw error;
@@ -30,13 +30,13 @@ export const getExpenseByIdHandler = async (
 
 export const createExpenseHandler = async (expenses: any[], userId: string) => {
   try {
-    const { query, failed } = insertExpenseQueryBuilder(expenses, userId);
-    
-    console.log({ query, failed });
-    console.log({ query, failed });
-    await makeQueries(query);
+    const { query, failed, params } = insertExpenseQueryBuilder(
+      expenses,
+      userId
+    );
+
+    await makeQueriesWithParams(query, params.flat());
     return {
-      query,
       failed: failed,
       success:
         failed.length > 0 && query !== ""
@@ -50,26 +50,32 @@ export const createExpenseHandler = async (expenses: any[], userId: string) => {
   }
 };
 
-export const updateExpenseHandler = async (updates:{[key:string]: any}, userId:string) => {
+export const updateExpenseHandler = async (
+  updates: { [key: string]: any },
+  userId: string
+) => {
   try {
     const returnedData: UpdateReturnType = {
       failed: [],
       message: "",
       success: "",
     };
-    const expenseIds = Object.keys(updates)
-    const updateQueries = expenseIds.map(expId =>{
-        const query = updateExpense(expId, updates[expId], userId);
-        if(!query){
-            returnedData.failed.push(updates[expId]);
-        }
-        return query
-    })
-    const madeQueries = updateQueries.filter(query=> query!== null)
-    madeQueries.forEach(query=>{
-        makeQueries(query|| '')
-    })
-    return returnedData
+    const expenseIds = Object.keys(updates);
+    const updateQueries = expenseIds.map((expId) => {
+      const query = updateExpense(expId, updates[expId], userId);
+      if (!query) {
+        returnedData.failed.push(updates[expId]);
+      }
+      return query;
+    });
+    updateQueries.forEach((query) => {
+        
+          if (query) makeQueriesWithParams(query?.query, query?.params).catch((err) => {
+            //TODO: handle the foreign key failure error here. 
+          });
+      
+    });
+    return returnedData;
   } catch (error) {
     throw error;
   }
@@ -81,9 +87,10 @@ export const deleteExpenseHandler = async (
 ) => {
   try {
     const queries = deleteExpenseByIdQuery(expenseIds, userId);
-    const result = await makeQueries(queries.data)
-    makeQueries(queries.delete);
-    return result
+    const result = await makeQueriesWithParams(queries.data, queries.params).catch(err => {console.error(err);});
+    makeQueriesWithParams(queries.delete, queries.params).catch(error => {console.log(error)});
+    
+    return result;
   } catch (error) {
     /**TODO: send notification on failure */
     throw error;

@@ -64,7 +64,6 @@ exports.updateBudgetItemController = updateBudgetItemController;
 const deleteBudgetItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { budgetIds } = req.body.data;
-        console.log(budgetIds);
         const { userId } = req.body.user;
         if (!Array.isArray(budgetIds)) {
             throw new Error("The data provided is not an array");

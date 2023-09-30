@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAuthToken } from "../utilities/generators";
 import makeQueries from "../database";
+import { AUTHERRORS } from "../Constants/AuthConstants";
 
 export const getUserDataMiddleWare = async (
   req: Request,
@@ -13,11 +14,7 @@ export const getUserDataMiddleWare = async (
       const token = authHeader.split(" ")[1];
 
       if (!token) {
-        res.status(401).json({
-          error: "Invalid Authorisation Format",
-          message:
-            "You are supposed to include your auth token as: Bearer token",
-        });
+        next(AUTHERRORS.InvalidTokenFormat)
       }
       const userData = (await verifyAuthToken(token)) as LoggedinData;
 

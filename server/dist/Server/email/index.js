@@ -27,10 +27,10 @@ const transportCreator = () => {
     });
 };
 console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
-const sendConfirmCode = ({ email, name, code, }) => __awaiter(void 0, void 0, void 0, function* () {
+const sendConfirmCode = (email, name, code) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const transporter = transportCreator();
-        return yield transporter.sendMail({
+        const sentObject = {
             from: '"Aikos Personal Management" <aikospersonalmanagement@aikosnotes.info>',
             to: email,
             subject: "Confirmation Email",
@@ -38,7 +38,9 @@ const sendConfirmCode = ({ email, name, code, }) => __awaiter(void 0, void 0, vo
       Welcome to the Aikos personal management App. You please enter the code to confirm your email.
       Code: ${code}
       Best regards.`,
-        });
+        };
+        console.log(sentObject);
+        return yield transporter.sendMail(sentObject);
     }
     catch (e) {
         const error = {

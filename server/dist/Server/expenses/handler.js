@@ -8,17 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteExpenseHandler = exports.updateExpenseHandler = exports.createExpenseHandler = exports.getExpenseByIdHandler = exports.getAllExpensesHandler = void 0;
-const database_1 = __importDefault(require("../database"));
+const database_1 = require("../database");
 const expensesDatabaseCall_1 = require("../database/QueryBuilders/expensesDatabaseCall");
 const getAllExpensesHandler = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const query = (0, expensesDatabaseCall_1.getAllExpensesQuery)(userId);
-        return yield (0, database_1.default)(query);
+        return yield (0, database_1.makeQueriesWithParams)(query.query, query.params);
     }
     catch (error) {
         throw error;
@@ -28,7 +25,7 @@ exports.getAllExpensesHandler = getAllExpensesHandler;
 const getExpenseByIdHandler = (expenseId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const query = (0, expensesDatabaseCall_1.getExpenseByIdQuery)(expenseId, userId);
-        const data = yield (0, database_1.default)(query);
+        const data = yield (0, database_1.makeQueriesWithParams)(query.query, query.params);
         return data[0];
     }
     catch (error) {
@@ -38,12 +35,9 @@ const getExpenseByIdHandler = (expenseId, userId) => __awaiter(void 0, void 0, v
 exports.getExpenseByIdHandler = getExpenseByIdHandler;
 const createExpenseHandler = (expenses, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query, failed } = (0, expensesDatabaseCall_1.insertExpenseQueryBuilder)(expenses, userId);
-        console.log({ query, failed });
-        console.log({ query, failed });
-        yield (0, database_1.default)(query);
+        const { query, failed, params } = (0, expensesDatabaseCall_1.insertExpenseQueryBuilder)(expenses, userId);
+        yield (0, database_1.makeQueriesWithParams)(query, params.flat());
         return {
-            query,
             failed: failed,
             success: failed.length > 0 && query !== ""
                 ? "Partial"
@@ -65,16 +59,18 @@ const updateExpenseHandler = (updates, userId) => __awaiter(void 0, void 0, void
             success: "",
         };
         const expenseIds = Object.keys(updates);
-        const updateQueries = expenseIds.map(expId => {
+        const updateQueries = expenseIds.map((expId) => {
             const query = (0, expensesDatabaseCall_1.updateExpense)(expId, updates[expId], userId);
             if (!query) {
                 returnedData.failed.push(updates[expId]);
             }
             return query;
         });
-        const madeQueries = updateQueries.filter(query => query !== null);
-        madeQueries.forEach(query => {
-            (0, database_1.default)(query || '');
+        updateQueries.forEach((query) => {
+            if (query)
+                (0, database_1.makeQueriesWithParams)(query === null || query === void 0 ? void 0 : query.query, query === null || query === void 0 ? void 0 : query.params).catch((err) => {
+                    //TODO: handle the foreign key failure error here. 
+                });
         });
         return returnedData;
     }
@@ -86,8 +82,8 @@ exports.updateExpenseHandler = updateExpenseHandler;
 const deleteExpenseHandler = (expenseIds, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const queries = (0, expensesDatabaseCall_1.deleteExpenseByIdQuery)(expenseIds, userId);
-        const result = yield (0, database_1.default)(queries.data);
-        (0, database_1.default)(queries.delete);
+        const result = yield (0, database_1.makeQueriesWithParams)(queries.data, queries.params).catch(err => { console.error(err); });
+        (0, database_1.makeQueriesWithParams)(queries.delete, queries.params).catch(error => { console.log(error); });
         return result;
     }
     catch (error) {

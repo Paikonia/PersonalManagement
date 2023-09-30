@@ -13,7 +13,7 @@ import {
   redisGetString,
 } from "../database/redis";
 import { sendConfirmCode } from "../email/index";
-import { isConditionalExpression } from "typescript";
+import { AUTHERRORS } from "../Constants/AuthConstants";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -72,14 +72,12 @@ const generateTokens = async (
       refreshTokens[0].validRefreshTokens &&
       refreshTokens[0].validRefreshTokens.tokens
     ) {
-      console.log(refreshTokens[0].validRefreshTokens.tokens);
       currentTokens = {
         tokens: [...refreshTokens[0].validRefreshTokens.tokens],
       };
     }
   }
   currentTokens = { tokens: [...currentTokens.tokens, refreshToken] };
-  console.log(currentTokens.tokens.join(""));
   makeQueries(
     `UPDATE registeredUsers SET validRefreshTokens = '${JSON.stringify(
       currentTokens
@@ -95,21 +93,29 @@ export const signin = async (user: string, password: string) => {
       `select * from registeredUsers where email = '${user.toLowerCase()}' or userName = '${user.toLowerCase()}';`
     );
     if (databaseData.length === 0) {
-      throw new Error("The user is not in the database.");
+      throw AUTHERRORS.MissingUser;
     }
     const userData = databaseData[0];
 
     if (!(await comparePasswords(password, userData.userPassword))) {
-      throw new Error("Incorrect password provided.");
+      throw AUTHERRORS.IncorrectPassword;
     }
-
-    const { userId, firstName, lastName, username, email, mobile } = userData;
-
+    const {
+      userId,
+      firstName,
+      lastName,
+      username,
+      email,
+      mobile,
+      validRefreshTokens,
+    } = userData;
     if (userData.verifiedEmail !== 1) {
+      const name = firstName + " " + lastName;
       const session = await setUpEmailSession({
-        name: firstName + " " + lastName,
-        email,
         userId,
+        name,
+        email,
+        validRefreshTokens,
       });
       return {
         requireConfirmation: {
@@ -144,10 +150,6 @@ export const signin = async (user: string, password: string) => {
   }
 };
 
-// name: {type: GraphQLString},
-//     success: {type: GraphQLBoolean},
-//     session: {type: GraphQLString}
-
 export const signup = async ({
   username,
   email,
@@ -160,23 +162,28 @@ export const signup = async ({
     const validEmail = isValidEmail(email);
     const passwordStrength = isPasswordStrong(password);
 
-    if (!validEmail) throw new Error("The email you have entered is invalid");
-    if (!passwordStrength)
-      throw new Error(
-        "The password must be eight characters long, contain atleast 1 uppercase, lowercase, number and a special character !#?()$%£"
-      );
+    if (!validEmail) throw AUTHERRORS.InvalidEmail;
+    if (!passwordStrength) throw AUTHERRORS.PasswordCriteria;
 
     const userId = generateRandomAlphanumeric(10);
     const passHash = await hashPassword(password);
 
     const query = `insert into registeredUsers(userId, firstName, lastName, username, email, mobile, userPassword, validRefreshTokens) values(\
-        '${userId}', '${firstName.trim()}', '${lastName.trim()}', '${username
-      .toLowerCase()
-      .trim()}', '${email.toLowerCase().trim()}', '${
+        '${userId}', '${firstName.trim().toUpperCase()}', '${lastName
+      .trim()
+      .toUpperCase()}', 
+        '${username.toLowerCase().trim()}', '${email.toLowerCase().trim()}', '${
       mobile ? mobile.toLowerCase().trim() : ""
-    }', '${passHash}', '[]')`;
+    }', '${passHash}', '{"tokens": []}')`;
     await makeQueries(query);
-    const session = await setUpEmailSession({ name: firstName, email, userId });
+    const session = await setUpEmailSession({
+      name: firstName,
+      email,
+      userId,
+      validRefreshTokens: {
+        tokens: [],
+      },
+    });
     return {
       requireConfirmation: {
         firstName,
@@ -193,34 +200,39 @@ const setUpEmailSession = async ({
   userId,
   name,
   email,
+  validRefreshTokens,
 }: {
   userId: string;
   name: string;
   email: string;
+  validRefreshTokens: { tokens: Array<string> };
 }) => {
-  const code = generateRandomAlphanumeric(6).toUpperCase();
-  const session = generateRandomAlphanumeric(16);
-  await sendConfirmCode({ email, name, code });
-  redisAddString(
-    session,
-    JSON.stringify({
-      code,
-      userId,
-    })
-  );
-  return session;
+  try {
+    const code = generateRandomAlphanumeric(6).toUpperCase();
+    const session = generateRandomAlphanumeric(16);
+
+    sendConfirmCode(email, name, code);
+    redisAddString(
+      session,
+      JSON.stringify({
+        code,
+        userId,
+        validRefreshTokens,
+      })
+    );
+    return session;
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 export const verifyEmail = async (session: string, code: string) => {
   const findCode = await redisGetString(session);
-  if (!findCode) {
-    throw Error("The session you have sent is invalid.");
-  }
+  if (!findCode) throw AUTHERRORS.InvalidSession
+
   const data = JSON.parse(findCode);
 
-  if (code !== data.code) {
-    throw new Error("The code you sent is incorrect");
-  }
+  if (code !== data.code) throw AUTHERRORS.IncorrectCode
 
   const m = (await makeQueries(
     `select * from registeredUsers where userId = '${data.userId}';`
@@ -259,13 +271,16 @@ export const resetStartHandler = async (user: string) => {
   const dbUser = await makeQueries(
     `SELECT * FROM registeredUsers WHERE username = '${user}' or email = '${user}';`
   );
-  if (dbUser.length === 0) {
-    throw new Error("The user was not found in the database");
-  }
+  if (dbUser.length === 0) throw AUTHERRORS.MissingUser
+
   const { userId, email, fullName, mobile, username } = dbUser[0];
+  
   const code = generateRandomAlphanumeric(6).toUpperCase();
+  
   const session = generateRandomAlphanumeric(16);
+  
   await sendResetCode(code, email, "", fullName);
+  
   redisAddString(
     session,
     JSON.stringify({
@@ -283,16 +298,18 @@ export const resetStartHandler = async (user: string) => {
 export const resetCodeHandler = async (session: string, code: string) => {
   try {
     const g = await redisGetString(session);
-    if (!g) {
-      throw new Error("The session is either expired or the invalid");
-    }
+    if (!g) throw AUTHERRORS.InvalidSession
+
     const data = JSON.parse(g);
-    if (data.code !== code) {
-      throw new Error("The code you have sent is incorrect");
-    }
+    
+    if (data.code !== code) throw AUTHERRORS.IncorrectCode
+
     const newSession = generateRandomAlphanumeric(24);
+    
     redisAddString(newSession, JSON.stringify(data));
+    
     redisDeleteString(session);
+    
     return { session: newSession };
   } catch (error) {
     throw error;
@@ -305,9 +322,11 @@ export const resetPasswordHandler = async (
 ) => {
   try {
     const sessionData = await redisGetString(session);
-    if (!sessionData) throw new Error("This session is invalid or expired.");
+    if (!sessionData) throw AUTHERRORS.InvalidSession;
     const { userId, username, email, name, mobile } = JSON.parse(sessionData);
+    
     const hash = await hashPassword(password);
+
     await makeQueries(`
       update registeredUsers set userPassword = '${hash}' where userId = '${userId}';
     `);
@@ -319,7 +338,9 @@ export const resetPasswordHandler = async (
       mobile,
       userId
     );
+    
     redisDeleteString(session);
+    
     return {
       userToken: token,
       user: {
@@ -344,16 +365,17 @@ export const refreshHandler = async (userId: string, refreshToken: string) => {
 
     const { username, email, fullName, mobile, validRefreshTokens } = user[0];
 
-    if (!validRefreshTokens.tokens.includes(refreshToken)) {
-      throw new Error("The refresh token you are using is invalid");
-    }
+    if (!validRefreshTokens.tokens.includes(refreshToken)) throw AUTHERRORS.IncorrectRefreshToken
+
     const tokenData = {
       username,
       email,
       name: fullName,
       mobile,
     } as unknown as LoggedinData;
+    
     const token = await generateAuthToken(tokenData, { expiresIn: "15m" });
+    
     return { token };
   } catch (error) {
     throw error;
