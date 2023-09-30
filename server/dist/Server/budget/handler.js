@@ -57,8 +57,8 @@ exports.postBudgetItemsHandler = postBudgetItemsHandler;
 const deleteBudgetById = (ids, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const queries = (0, budgetDatabaseCalls_1.deleteBudgetByIdsQuery)(ids, userId);
-        const result = yield (0, database_1.makeQueriesWithParams)(queries.data, queries.params);
-        (0, database_1.makeQueriesWithParams)(queries.delete, queries.params);
+        const result = yield (0, database_1.makeQueriesWithParams)(queries.data, queries.params).catch(err => { console.log(err); });
+        (0, database_1.makeQueriesWithParams)(queries.delete, queries.params).catch(err => console.log(err));
         return result;
     }
     catch (error) {
@@ -79,7 +79,10 @@ const updateBudgetHandler = (update, userId) => __awaiter(void 0, void 0, void 0
             return query;
         });
         queries.forEach((query) => {
-            (0, database_1.makeQueriesWithParams)(query.query, query.params);
+            (0, database_1.makeQueriesWithParams)(query.query, query.params).catch(error => {
+                //TODO: Implement notification error for this.
+                console.log(error);
+            });
         });
         return {
             success: "Partial",

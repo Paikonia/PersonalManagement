@@ -59,8 +59,8 @@ export const deleteBudgetById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteBudgetByIdsQuery(ids, userId);
 
-    const result = await makeQueriesWithParams(queries.data, queries.params);
-    makeQueriesWithParams(queries.delete, queries.params);
+    const result = await makeQueriesWithParams(queries.data, queries.params).catch(err => {console.log(err)});
+    makeQueriesWithParams(queries.delete, queries.params).catch(err=> console.log(err));
     return result;
   } catch (error) {
     throw error;
@@ -84,7 +84,10 @@ export const updateBudgetHandler = async (
       return query;
     });
     queries.forEach((query:any) => {
-      makeQueriesWithParams(query.query, query.params);
+      makeQueriesWithParams(query.query, query.params).catch(error=> {
+        //TODO: Implement notification error for this.
+        console.log(error);
+      });
     });
 
     return {
