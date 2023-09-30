@@ -1,16 +1,43 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
 import { useAuthContext } from "../Contexts/authContext";
 import { Card } from "../Components/ui/card";
+import { FetchError, baseUrl } from "../utils/fetch";
 const Verify = () => {
+  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<FetchError | null>(null);
+
   const { state } = useLocation();
   const [code, setCode] = useState("");
   const session = state.requireConfirmation.session;
-  const { verifyEmail } = useAuthContext();
+  const { setLogginResult } = useAuthContext();
   const verifyHandler = () => {
     verifyEmail(session, code);
+  };
+
+  const verifyEmail = async (session: string, code: string) => {
+    setIsLoading(true);
+    setError(null);
+    const response = await fetch(`${baseUrl}/auth/verify/email`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session, code }),
+    });
+    if (!response.ok) {
+      if (response.status >= 400 && response.status < 500) {
+        setError(await response.json());
+      }
+      setIsLoading(false);
+      return;
+    }
+    const res = await response.json();
+    setLogginResult(res);
+    navigate("/");
+    setIsLoading(false);
+    setError(null);
   };
 
   return (
@@ -21,6 +48,7 @@ const Verify = () => {
           src={require("../Resources/aikos-logo.png")}
           alt="Logo"
         />
+        {error && <p className="px-4 text-red-500">{error.message}</p>}
         <LabelledInput
           label="Code"
           id="sessionCode"

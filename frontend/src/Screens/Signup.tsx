@@ -1,12 +1,13 @@
 import { Card } from "../Components/ui/card";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
-import { RegisterUser, useAuthContext } from "../Contexts/authContext";
+import { RegisterUser} from "../Contexts/authContext";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FetchError, baseUrl } from "../utils/fetch";
 
 const Login = () => {
-  const { signup } = useAuthContext();
+  const navigate = useNavigate()
   const [signupData, setSignupData] = useState<RegisterUser>({
     username: "",
     password: "",
@@ -16,6 +17,9 @@ const Login = () => {
     lastName: "",
     mobile: ""
   });
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<FetchError | null>(null);
   const handleOnInputChange = (e: any) => {
     const { name, value } = e.target;
     setSignupData((prev) => ({
@@ -24,17 +28,50 @@ const Login = () => {
     }));
   };
 
-  const handleSignin = () => {
-    signup(signupData);
+  const handleSignin =async () => {
+      try {
+        setError(null);
+        setIsLoading(true);
+        const response = await fetch(`${baseUrl}/auth/signup`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(signupData),
+        });
+
+        if (!response.ok) {
+          if (response.status >= 400 && response.status < 500) {
+            setError(await response.json());
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        setIsLoading(false);
+        setError(null);
+        if (data.session.requireConfirmation) {
+          navigate("/auth/verify", {
+            state: data.session,
+          });
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    
+
   };
   return (
     <div className="w-full p-2 h-full flex bg-gray-100 justify-center items-center">
+      
       <Card className="w-full lg:w-8/12 shadow-2xl">
         <img
           className="w-42 h-36 mx-auto"
           src={require("../Resources/aikos-logo.png")}
           alt="Logo"
         />
+        {error && <p className="text-red-400">{error.message}</p>}
         <div className="lg:grid lg:grid-cols-2">
           <LabelledInput
             label="First Name"

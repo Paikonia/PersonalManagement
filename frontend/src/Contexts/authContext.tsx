@@ -1,10 +1,6 @@
-import {
-  useContext,
-  createContext,
-  useState,
-  useEffect
-} from "react";
+import { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FetchError } from "../utils/fetch";
 
 export interface RegisterUser {
   firstName: string;
@@ -23,19 +19,20 @@ interface authData {
   requireConfirmation: string | null;
 }
 
-const baseUrl = "https://pm.aikosnotes.info/api";
-//const baseUrl = "http://localhost:8080";
+//const baseUrl = "https://pm.aikosnotes.info/api";
+const baseUrl = "http://localhost:8080";
 
 interface AuthContextType extends authData {
-  verifyEmail: (session:string, code:string) => void;
-  signin: (user: string, password: string) => void;
+  verifyEmail: (session: string, code: string) => void;
   signout: () => void;
   signup: (data: RegisterUser) => void;
   setAuthToken: (token: string) => void;
-};
+  error: FetchError | null;
+  isLoading: boolean;
+  setLogginResult: (res: any) => void;
+}
 const AuthContext = createContext<AuthContextType>({
   verifyEmail: () => null,
-  signin: () => null,
   signout: () => null,
   signup: () => null,
   setAuthToken: (token: string) => null,
@@ -43,6 +40,9 @@ const AuthContext = createContext<AuthContextType>({
   userToken: "",
   refreshToken: "",
   requireConfirmation: "",
+  error: null,
+  isLoading: false,
+  setLogginResult: (res) => null,
 });
 
 export const AuthContextProvider = ({ children }: { children: any }) => {
@@ -54,96 +54,37 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
     requireConfirmation: null,
   });
 
-  
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<FetchError | null>(null);
+
   useEffect(() => {
     const getting = async () => {
       const data = await localStorage.getItem("userData");
-      if (data !== null && data !== '') {
+      if (data !== null && data !== "") {
         setAuthData(JSON.parse(data));
         navigate("/");
       }
-      
     };
     getting();
   }, []);
 
-  const signin = async (user: string, password: string) => {
-    try {
-      const response = await fetch(`${baseUrl}/auth/signin`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          user,
-          password,
-        }),
-      });
-      const data = await response.json();
-      if (data.requireConfirmation) {
-        navigate("/auth/verify", {
-          state: data
-        });
-        return;
-      }
-      setAuthData(data);
-      navigate("/");
-      localStorage.setItem("userData", JSON.stringify(data));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const signup = async(user: RegisterUser) => {
-    try {
-      const response = await fetch(
-        `${baseUrl}/auth/signup`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(user),
-        }
-      );
-      const data = await response.json();
-      
-      if (data.session.requireConfirmation) {
-        navigate("/auth/verify", {
-          state: data.session,
-        });
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const setLogginResult = async (res: any) => {
+    setAuthData(res);
+    localStorage.setItem("userData", JSON.stringify(res));
   };
 
   const signout = async () => {
-      await fetch(`${baseUrl}/auth/signout`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ refreshToken: authData.refreshToken }),
-      });
-      localStorage.setItem("userData", '')
-      navigate(0)
-  };
-
-  const verifyEmail = async(session:string, code:string) => {
-    
-    const response = await fetch(
-      `${baseUrl}/auth/verify/email`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({session, code}),
-      }
-    );
-
-    const res = await response.json()
-    
-    setAuthData(res)
-    localStorage.setItem("userData", JSON.stringify(res));
-    navigate('/')
+    await fetch(`${baseUrl}/auth/signout`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ refreshToken: authData.refreshToken }),
+    });
+    localStorage.setItem("userData", "");
+    navigate(0);
   };
 
   const setAuthToken = (token: string) => {
-    const newData = { ...authData, userToken: token };
+    const newData = { ...authData, userToken: token, isLoading, error };
     setAuthData(newData);
     localStorage.setItem("userData", JSON.stringify(newData));
   };
@@ -152,12 +93,10 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
     <AuthContext.Provider
       value={
         {
-          verifyEmail,
-          signin,
           signout,
-          signup,
           setAuthToken,
           ...authData,
+          setLogginResult,
         } as unknown as AuthContextType
       }
     >

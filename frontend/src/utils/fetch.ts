@@ -2,8 +2,13 @@ import { useAuthContext } from "../Contexts/authContext";
 import jwt_decode from "jwt-decode";
 import dayjs from "dayjs";
 
-const baseUrl = "https://pm.aikosnotes.info/api";
-//const baseUrl = "http://localhost:8080";
+//const baseUrl = "https://pm.aikosnotes.info/api";
+export const baseUrl = "http://localhost:8080";
+
+export interface FetchError {
+  error:string;
+  message:string;
+}
 
 const returnedContent = async (response: Response) => {
   const contentType = response.headers.get("content-type");
@@ -36,6 +41,7 @@ const useFetch = (): ((url: string, options?: object) => Promise<any>) => {
           refreshToken
         })
       })
+      
       const refresh = await fetchRequest.json()
       setAuthToken(refresh.token)
       token = refresh.token
@@ -50,14 +56,16 @@ const useFetch = (): ((url: string, options?: object) => Promise<any>) => {
     try {
       
       const combUrl = encodeURI(baseUrl + url.toString());
-      console.log(parsedOption)
       const response = await fetch(combUrl, parsedOption);
       if (!response.ok) {
+        if(response.status >= 400 && response.status < 500){
+          return await response.json()
+        }
         throw new Error(JSON.stringify(await returnedContent(response)));
       }
       return await returnedContent(response);
     } catch (error: any) {
-      console.log("Fetch error: ", error);
+
       throw error;
     }
   };
