@@ -64,10 +64,9 @@ const Login = () => {
   };
   return (
     <div className="w-full p-2 h-full flex bg-gray-100 justify-center items-center">
-      
       <Card className="w-full lg:w-8/12 shadow-2xl">
         <img
-          className="w-42 h-36 mx-auto"
+          className="w-42 paikonia1h-36 mx-auto"
           src={require("../Resources/aikos-logo.png")}
           alt="Logo"
         />
