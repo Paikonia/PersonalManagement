@@ -5,7 +5,7 @@ interface MonthlyGoalType {
   goal: string;
   urgency: number;
   importance: number;
-  tasksInGoal: any; // You can specify the appropriate type for tasksInGoal
+  tasksInGoal: any; 
   estimatePeriodPerDay: number;
   complete: boolean;
   goalPriority: number;
@@ -44,11 +44,12 @@ export const insertMonthlyGoalQueryBuilder = (
       }
     });
 
+    const placeholder = data.success.map(()=> "(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ")
     const parsedString = data.success
       .map((success) => insertMonthlyGoalQueryString(success, userId))
-      .join();
-    const query = `INSERT INTO monthlyGoals(mGoalId, goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete, goalPriority, goalCategory, username, monthStart, privacy, creator) \
-    VALUES ${parsedString};`;
+      .flat();
+    const query = `INSERT INTO monthlyGoals(goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete, goalPriority, goalCategory, monthStart, privacy, creator) \
+    VALUES ${placeholder};`;
     return {
       query,
       failed: data.failed,
@@ -61,7 +62,7 @@ export const insertMonthlyGoalQueryBuilder = (
 const parseMonthlyGoalInsertObject = (goal: MonthlyGoalType): boolean => {
   if (
     typeof goal.goal !== "string" ||
-    goal.goal.trim() === "" || // Check if goal name is not empty
+    goal.goal.trim() === "" ||
     typeof goal.urgency !== "number" ||
     typeof goal.importance !== "number" ||
     typeof goal.estimatePeriodPerDay !== "number" ||
@@ -75,13 +76,11 @@ const parseMonthlyGoalInsertObject = (goal: MonthlyGoalType): boolean => {
       "project",
       "health",
       "other",
-    ].includes(goal.goalCategory) || // Check if goalCategory is one of the valid values
-    typeof goal.username !== "string" ||
+    ].includes(goal.goalCategory) || 
     typeof goal.monthStart !== "object" ||
     !(goal.monthStart instanceof Date) ||
-    isNaN(goal.monthStart.getTime()) || // Check if monthStart is a valid Date
-    !["private", "public"].includes(goal.privacy) || // Check if privacy is one of the valid values
-    typeof goal.creator !== "string"
+    isNaN(goal.monthStart.getTime()) || 
+    !["private", "public"].includes(goal.privacy) 
   ) {
     return false;
   }
@@ -92,14 +91,7 @@ const insertMonthlyGoalQueryString = (
   goal: MonthlyGoalType,
   userId: string
 ) => {
-  const mGoalId = generateRandomAlphanumeric(5);
-  return `("${mGoalId}", "${goal.goal}", ${goal.urgency}, ${
-    goal.importance
-  }, '${JSON.stringify(goal.tasksInGoal)}', ${goal.estimatePeriodPerDay}, ${
-    goal.complete ? 1 : 0
-  }, ${goal.goalPriority}, "${goal.goalCategory}", "${
-    goal.username
-  }", "${goal.monthStart.toISOString()}", "${goal.privacy}", "${userId}")`;
+  return [ goal.goal,goal.urgency, goal.importance, JSON.stringify(goal.tasksInGoal || '[]'), goal.estimatePeriodPerDay, goal.complete ? 1 : 0, goal.goalPriority, goal.goalCategory, goal.username, goal.monthStart.toISOString(), goal.privacy, userId];
 };
 
 export const updateMonthlyGoal = (

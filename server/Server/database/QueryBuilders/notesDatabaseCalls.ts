@@ -1,5 +1,3 @@
-import { generateRandomAlphanumeric } from "../../utilities/generators";
-
 export const insertNoteQueryBuilder = (
   noteObjects: NoteType[],
   userId: string

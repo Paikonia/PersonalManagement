@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTaskByIdQuery = exports.getAllTasksQuery = exports.deleteTaskByIdQuery = exports.updateTask = exports.insertTaskQueryBuilder = void 0;
-const generators_1 = require("../../utilities/generators");
 const insertTaskQueryBuilder = (taskObjects, userId) => {
     try {
         const data = {
@@ -16,11 +15,14 @@ const insertTaskQueryBuilder = (taskObjects, userId) => {
                 data.failed.push(task);
             }
         });
-        const parsedString = data.success
+        const placeholder = data.success
+            .map(() => "(?, ?, ?, ?, ?, ?, ?, ?)")
+            .join(", ");
+        const params = data.success
             .map((success) => insertTaskQueryString(success, userId))
-            .join();
-        const query = `INSERT INTO tasks(task, taskDate, startingTime, complete, estimatedDuration, goalId, progress, privacy, creator) \
-    VALUES ${parsedString};`;
+            .flat();
+        const query = `INSERT INTO tasks(task, taskDate, startingTime, estimatedDuration, goalId, progress, privacy, creator) \
+    VALUES ${placeholder};`;
         return {
             query,
             failed: data.failed,
@@ -50,10 +52,16 @@ const parseTaskInsertObject = (task) => {
     }
     return true;
 };
-const insertTaskQueryString = (task, userId) => {
-    const taskId = (0, generators_1.generateRandomAlphanumeric)(5);
-    return `("${taskId}", "${task.task}", "${task.taskDate.toISOString()}", "${task.startingTime.toISOString()}", ${task.complete ? 1 : 0}, ${task.estimatedDuration}, "${task.goalId}", "${task.progress}", "${task.privacy}", "${userId}")`;
-};
+const insertTaskQueryString = (task, userId) => [
+    task.task,
+    task.taskDate.toISOString(),
+    task.startingTime.toISOString(),
+    task.estimatedDuration,
+    task.goalId,
+    task.progress,
+    task.privacy,
+    userId,
+];
 const updateTask = (taskId, updatedTask, userId) => {
     try {
         const parsed = parseTaskUpdateObject(updatedTask);

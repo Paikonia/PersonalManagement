@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMonthlyGoalByIdQuery = exports.getAllMonthlyGoalsQuery = exports.deleteMonthlyGoalByIdQuery = exports.updateMonthlyGoal = exports.insertMonthlyGoalQueryBuilder = void 0;
-const generators_1 = require("../../utilities/generators");
 const insertMonthlyGoalQueryBuilder = (monthlyGoalObjects, userId) => {
     try {
         const data = {
@@ -16,11 +15,12 @@ const insertMonthlyGoalQueryBuilder = (monthlyGoalObjects, userId) => {
                 data.failed.push(goal);
             }
         });
+        const placeholder = data.success.map(() => "(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
         const parsedString = data.success
             .map((success) => insertMonthlyGoalQueryString(success, userId))
-            .join();
-        const query = `INSERT INTO monthlyGoals(mGoalId, goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete, goalPriority, goalCategory, username, monthStart, privacy, creator) \
-    VALUES ${parsedString};`;
+            .flat();
+        const query = `INSERT INTO monthlyGoals(goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete, goalPriority, goalCategory, monthStart, privacy, creator) \
+    VALUES ${placeholder};`;
         return {
             query,
             failed: data.failed,
@@ -33,7 +33,7 @@ const insertMonthlyGoalQueryBuilder = (monthlyGoalObjects, userId) => {
 exports.insertMonthlyGoalQueryBuilder = insertMonthlyGoalQueryBuilder;
 const parseMonthlyGoalInsertObject = (goal) => {
     if (typeof goal.goal !== "string" ||
-        goal.goal.trim() === "" || // Check if goal name is not empty
+        goal.goal.trim() === "" ||
         typeof goal.urgency !== "number" ||
         typeof goal.importance !== "number" ||
         typeof goal.estimatePeriodPerDay !== "number" ||
@@ -47,20 +47,17 @@ const parseMonthlyGoalInsertObject = (goal) => {
             "project",
             "health",
             "other",
-        ].includes(goal.goalCategory) || // Check if goalCategory is one of the valid values
-        typeof goal.username !== "string" ||
+        ].includes(goal.goalCategory) ||
         typeof goal.monthStart !== "object" ||
         !(goal.monthStart instanceof Date) ||
-        isNaN(goal.monthStart.getTime()) || // Check if monthStart is a valid Date
-        !["private", "public"].includes(goal.privacy) || // Check if privacy is one of the valid values
-        typeof goal.creator !== "string") {
+        isNaN(goal.monthStart.getTime()) ||
+        !["private", "public"].includes(goal.privacy)) {
         return false;
     }
     return true;
 };
 const insertMonthlyGoalQueryString = (goal, userId) => {
-    const mGoalId = (0, generators_1.generateRandomAlphanumeric)(5);
-    return `("${mGoalId}", "${goal.goal}", ${goal.urgency}, ${goal.importance}, '${JSON.stringify(goal.tasksInGoal)}', ${goal.estimatePeriodPerDay}, ${goal.complete ? 1 : 0}, ${goal.goalPriority}, "${goal.goalCategory}", "${goal.username}", "${goal.monthStart.toISOString()}", "${goal.privacy}", "${userId}")`;
+    return [goal.goal, goal.urgency, goal.importance, JSON.stringify(goal.tasksInGoal || '[]'), goal.estimatePeriodPerDay, goal.complete ? 1 : 0, goal.goalPriority, goal.goalCategory, goal.username, goal.monthStart.toISOString(), goal.privacy, userId];
 };
 const updateMonthlyGoal = (mGoalId, updatedGoal, userId) => {
     try {

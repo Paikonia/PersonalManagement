@@ -16,11 +16,11 @@ interface TaskType {
 export const insertTaskQueryBuilder = (
   taskObjects: TaskType[],
   userId: string
-): { query: string, failed: TaskType[] } => {
+): { query: string; failed: TaskType[] } => {
   try {
     const data: {
-      success: TaskType[],
-      failed: TaskType[],
+      success: TaskType[];
+      failed: TaskType[];
     } = {
       success: [],
       failed: [],
@@ -33,12 +33,14 @@ export const insertTaskQueryBuilder = (
         data.failed.push(task);
       }
     });
-
-    const parsedString = data.success
+    const placeholder = data.success
+      .map(() => "(?, ?, ?, ?, ?, ?, ?, ?)")
+      .join(", ");
+    const params = data.success
       .map((success) => insertTaskQueryString(success, userId))
-      .join();
-    const query = `INSERT INTO tasks(task, taskDate, startingTime, complete, estimatedDuration, goalId, progress, privacy, creator) \
-    VALUES ${parsedString};`;
+      .flat();
+    const query = `INSERT INTO tasks(task, taskDate, startingTime, estimatedDuration, goalId, progress, privacy, creator) \
+    VALUES ${placeholder};`;
     return {
       query,
       failed: data.failed,
@@ -69,17 +71,16 @@ const parseTaskInsertObject = (task: TaskType): boolean => {
   return true;
 };
 
-
-const insertTaskQueryString = (task: TaskType, userId: string) => {
-  const taskId = generateRandomAlphanumeric(5);
-  return `("${taskId}", "${
-    task.task
-  }", "${task.taskDate.toISOString()}", "${task.startingTime.toISOString()}", ${
-    task.complete ? 1 : 0
-  }, ${task.estimatedDuration}, "${task.goalId}", "${task.progress}", "${
-    task.privacy
-  }", "${userId}")`;
-};
+const insertTaskQueryString = (task: TaskType, userId: string) => [
+  task.task,
+  task.taskDate.toISOString(),
+  task.startingTime.toISOString(),
+  task.estimatedDuration,
+  task.goalId,
+  task.progress,
+  task.privacy,
+  userId,
+];
 
 export const updateTask = (
   taskId: number,
