@@ -38,11 +38,12 @@ exports.getBudgetByIdHandler = getBudgetByIdHandler;
 const postBudgetItemsHandler = (data, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { query, failed, params } = (0, budgetDatabaseCalls_1.insertBudgetQueryBuilder)(data, userId);
-        yield (0, database_1.makeQueriesWithParams)(query, params.flat());
+        if (query !== '')
+            yield (0, database_1.makeQueriesWithParams)(query, params.flat());
         return {
             success: failed.length > 0 && query !== ""
                 ? "Partially successful"
-                : query === "" && query.length > 0
+                : query === "" && failed.length > 0
                     ? "Failed parse data"
                     : "Success",
             failed,

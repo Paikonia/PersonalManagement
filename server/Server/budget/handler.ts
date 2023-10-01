@@ -40,12 +40,12 @@ export const postBudgetItemsHandler = async (
   try {
     const { query, failed, params } = insertBudgetQueryBuilder(data, userId);
     
-    await makeQueriesWithParams(query, params.flat());
+    if(query !== '') await makeQueriesWithParams(query, params.flat());
     return {
       success:
         failed.length > 0 && query !== ""
           ? "Partially successful"
-          : query === "" && query.length > 0
+          : query === "" && failed.length > 0
           ? "Failed parse data"
           : "Success",
       failed,
@@ -58,7 +58,6 @@ export const postBudgetItemsHandler = async (
 export const deleteBudgetById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteBudgetByIdsQuery(ids, userId);
-
     const result = await makeQueriesWithParams(queries.data, queries.params).catch(err => {console.log(err)});
     makeQueriesWithParams(queries.delete, queries.params).catch(err=> console.log(err));
     return result;

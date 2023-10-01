@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.4caa0bd1.css",
-    "main.js": "/static/js/main.86e76971.js",
+    "main.css": "/static/css/main.dad0a136.css",
+    "main.js": "/static/js/main.47d532a7.js",
     "static/media/aikos-logo.png": "/static/media/aikos-logo.e46897a9d9504c9f075a.png",
     "index.html": "/index.html",
-    "main.4caa0bd1.css.map": "/static/css/main.4caa0bd1.css.map",
-    "main.86e76971.js.map": "/static/js/main.86e76971.js.map"
+    "main.dad0a136.css.map": "/static/css/main.dad0a136.css.map",
+    "main.47d532a7.js.map": "/static/js/main.47d532a7.js.map"
   },
   "entrypoints": [
-    "static/css/main.4caa0bd1.css",
-    "static/js/main.86e76971.js"
+    "static/css/main.dad0a136.css",
+    "static/js/main.47d532a7.js"
   ]
 }

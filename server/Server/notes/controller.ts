@@ -47,7 +47,7 @@ export const postNoteItemController = async (
       throw err
     }
     const result = await createNoteHandler(data, user.userId);
-    res.json({ success: true, data: result });
+    res.json(result);
   } catch (error) {
     next(error);
   }

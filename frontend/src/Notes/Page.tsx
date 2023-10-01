@@ -25,7 +25,9 @@ const NotesPage = () => {
     setAddEdit({ edit: "add" });
   
   };
-  const changeToDisplay = () => {
+  const changeToDisplay =async () => {
+    const data = await fetch("/notes");
+    setNotes(data);
     setAddEdit({ edit: null });
   };
   const fetch = useFetch();
@@ -33,7 +35,6 @@ const NotesPage = () => {
     const getNotes = async () => {
       const data = await fetch("/notes");
       setNotes(data);
-      console.log(data);
     };
     getNotes();
   }, []);

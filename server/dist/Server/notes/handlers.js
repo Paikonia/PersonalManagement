@@ -21,7 +21,11 @@ const createNoteHandler = (noteData, userId) => __awaiter(void 0, void 0, void 0
             notes = yield (0, database_1.makeQueriesWithParams)(query, params.flat());
         }
         return {
-            notes,
+            success: failed.length > 0 && query !== ""
+                ? "Partially successful"
+                : query === "" && failed.length > 0
+                    ? "Failed parse data"
+                    : "Success",
             failed,
         };
     }

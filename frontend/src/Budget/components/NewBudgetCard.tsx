@@ -12,12 +12,11 @@ interface NewBudgetCardProps {
 const NewBudgetCard = ({ changeToDisplay }: NewBudgetCardProps) => {
   const [newBudget, setNewBudget] = useState({
     dateOfPayment: "",
-
-    expenseCategeory: "",
+    expenseCategory: "",
     budgetPrivacy: "private",
     goalId: "",
     budget: "",
-    amount: "",
+    amount: 0,
     paid: false,
   });
   const fetch = useFetch();
@@ -31,12 +30,13 @@ const NewBudgetCard = ({ changeToDisplay }: NewBudgetCardProps) => {
 
   const submitBudget = async () => {
     try {
-      await fetch("/budget", {
+      const data = await fetch("/budget", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify([newBudget]),
       });
       changeToDisplay();
+      console.log(data)
     } catch (error) {
       console.error(error);
     }
@@ -59,8 +59,8 @@ const NewBudgetCard = ({ changeToDisplay }: NewBudgetCardProps) => {
             label="Budget Amount*"
             id="amount"
             required
-            type="number"
-            name="amount in number"
+            name="amount"
+            placeholder="Amount in number"
             onChange={onChangeHandler}
             value={newBudget.amount}
           />
@@ -84,8 +84,8 @@ const NewBudgetCard = ({ changeToDisplay }: NewBudgetCardProps) => {
           <div className="w-full mx-4 p-2">
             <select
               id="category"
-              name="expenseCategeory"
-              value={newBudget.expenseCategeory}
+              name="expenseCategory"
+              value={newBudget.expenseCategory}
               onChange={onChangeHandler}
               className="py-4 px-4 w-full mr-2 rounded-lg"
             >

@@ -22,12 +22,13 @@ export const insertBudgetQueryBuilder = (
     const params = data.success.map((success) =>
       insertQueryString(success, userId)
     );
-    const placeholder = data.success
-      .map(() => "(?, ?, ?, ?, ?, ?, ?)")
-      .join(", ");
+    
+      const placeholder = data.success
+        .map(() => "(?, ?, ?, ?, ?, ?, ?)")
+        .join(", ");
     const query = `INSERT INTO budgetTable(budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) value${placeholder};`;
     return {
-      query,
+      query: placeholder.trim()!== ''? query:'',
       params,
       failed: data.failed,
     };
@@ -37,13 +38,16 @@ export const insertBudgetQueryBuilder = (
 };
 
 const parseBudgetInsertObject = (budget: any): boolean => {
+  console.log(budget)
   if (
     "budget" in budget &&
     typeof budget.budget === "string" &&
+    budget.budget.trim() !== "" &&
     "amount" in budget &&
-    typeof budget.amount === "number" &&
+    (typeof budget.amount === "string" || typeof budget.amount === "number") &&
     "dateOfPayment" in budget &&
     typeof budget.dateOfPayment === "string" &&
+    String(budget.dateOfPayment).trim() !== "" &&
     "goalId" in budget &&
     "expenseCategory" in budget &&
     (budget.expenseCategory === "Food" ||
@@ -55,7 +59,12 @@ const parseBudgetInsertObject = (budget: any): boolean => {
     "budgetPrivacy" in budget &&
     (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")
   ) {
-    return true;
+    try {      
+      Number(budget.amount)
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
   return false;
 };
@@ -63,9 +72,9 @@ const parseBudgetInsertObject = (budget: any): boolean => {
 const insertQueryString = (budget: any, userId: string) => {
   return [
     budget.budget,
-    budget.amount,
+    Number(budget.amount),
     budget.dateOfPayment,
-    budget.goalId !== "" ? budget.goalId : null,
+    budget.goalId.trim() !== "" ? budget.goalId : null,
     budget.expenseCategory,
     budget.budgetPrivacy,
     userId,
@@ -84,7 +93,7 @@ export const updateBudget = (
     }
     return {
       query: `UPDATE budgetTable SET ${parsed.placeholder} WHERE budgetId = ? and creator = ?;`,
-      params: [...parsed.updateFields, budgetId,  userId ],
+      params: [...parsed.updateFields, budgetId, userId],
     };
   } catch (error) {
     throw error;
@@ -114,7 +123,7 @@ const parseBudgetUpdateObject = (budget: object) => {
     placeHolder.push("goalId= ?");
   }
   if ("expenseCategory" in budget) {
-    updateFields = [...updateFields,budget.expenseCategory];
+    updateFields = [...updateFields, budget.expenseCategory];
     placeHolder.push("expenseCategory = ?");
   }
   if (
@@ -135,13 +144,13 @@ const parseBudgetUpdateObject = (budget: object) => {
 export const deleteBudgetByIdsQuery = (
   budgetId: string[],
   userId: string
-): { delete: string; data: string, params: Array<string> } => {
+): { delete: string; data: string; params: Array<string> } => {
   try {
     const condition = budgetId.map(() => `?`).join(", ");
     return {
       delete: `DELETE FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
       data: `SELECT * FROM budgcetTable WHERE budgetId in (${condition}) and creator = ?;`,
-      params: [...budgetId, userId]
+      params: [...budgetId, userId],
     };
   } catch (error) {
     throw error;

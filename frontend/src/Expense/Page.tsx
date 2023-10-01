@@ -24,7 +24,9 @@ const Expense = () => {
   const changeToAdd = () => {
     setAddEdit({ edit: "add" });
   };
-  const changeToDisplay = () => {
+  const changeToDisplay =async () => {
+    const data = await fetch("/expense");
+    setExpenses(data);
     setAddEdit({ edit: null });
   };
   const fetch = useFetch();

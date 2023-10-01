@@ -10,7 +10,7 @@ import {
 export const createNoteHandler = async (
   noteData: NoteType[],
   userId: string
-): Promise<{ notes: NoteType[]; failed: any }> => {
+): Promise<{ success:string; failed: any }> => {
   try {
     
     const { query, failed, params } = insertNoteQueryBuilder(noteData, userId);
@@ -20,7 +20,12 @@ export const createNoteHandler = async (
       notes = await makeQueriesWithParams(query, params.flat());
     }
     return {
-      notes,
+      success:
+        failed.length > 0 && query !== ""
+          ? "Partially successful"
+          : query === "" && failed.length > 0
+          ? "Failed parse data"
+          : "Success",
       failed,
     };
   } catch (error) {

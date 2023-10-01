@@ -47,7 +47,7 @@ const postNoteItemController = (req, res, next) => __awaiter(void 0, void 0, voi
             throw err;
         }
         const result = yield (0, handlers_1.createNoteHandler)(data, user.userId);
-        res.json({ success: true, data: result });
+        res.json(result);
     }
     catch (error) {
         next(error);

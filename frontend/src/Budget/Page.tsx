@@ -24,7 +24,9 @@ const BudgetPage = () => {
   const changeToAdd = () => {
     setAddEdit({ edit: "add" });
   };
-  const changeToDisplay = () => {
+  const changeToDisplay =async () => {
+    const data = await fetch("/budget");
+    setBudgets(data);
     setAddEdit({ edit: null });
   };
   const fetch = useFetch();

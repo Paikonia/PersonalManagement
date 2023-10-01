@@ -40,7 +40,7 @@ const postBudgetItemController = (req, res, next) => __awaiter(void 0, void 0, v
         const user = req.body.user;
         const data = req.body.data;
         const result = yield (0, handler_1.postBudgetItemsHandler)(data, user.userId);
-        res.json({ success: true, data: result });
+        res.json(result);
     }
     catch (error) {
         next(error);

@@ -47,7 +47,7 @@ export const postBudgetItemController = async (
     const user = req.body.user;
     const data = req.body.data;
     const result = await postBudgetItemsHandler(data, user.userId);
-    res.json({ success: true, data: result });
+    res.json( result );
   } catch (error) {
     next(error);
   }

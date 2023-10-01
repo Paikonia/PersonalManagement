@@ -21,7 +21,7 @@ const insertBudgetQueryBuilder = (budgetObjects, userId) => {
             .join(", ");
         const query = `INSERT INTO budgetTable(budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) value${placeholder};`;
         return {
-            query,
+            query: placeholder.trim() !== '' ? query : '',
             params,
             failed: data.failed,
         };
@@ -32,12 +32,15 @@ const insertBudgetQueryBuilder = (budgetObjects, userId) => {
 };
 exports.insertBudgetQueryBuilder = insertBudgetQueryBuilder;
 const parseBudgetInsertObject = (budget) => {
+    console.log(budget);
     if ("budget" in budget &&
         typeof budget.budget === "string" &&
+        budget.budget.trim() !== "" &&
         "amount" in budget &&
-        typeof budget.amount === "number" &&
+        (typeof budget.amount === "string" || typeof budget.amount === "number") &&
         "dateOfPayment" in budget &&
         typeof budget.dateOfPayment === "string" &&
+        String(budget.dateOfPayment).trim() !== "" &&
         "goalId" in budget &&
         "expenseCategory" in budget &&
         (budget.expenseCategory === "Food" ||
@@ -48,16 +51,22 @@ const parseBudgetInsertObject = (budget) => {
             budget.expenseCategory === "Travel") &&
         "budgetPrivacy" in budget &&
         (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")) {
-        return true;
+        try {
+            Number(budget.amount);
+            return true;
+        }
+        catch (error) {
+            return false;
+        }
     }
     return false;
 };
 const insertQueryString = (budget, userId) => {
     return [
         budget.budget,
-        budget.amount,
+        Number(budget.amount),
         budget.dateOfPayment,
-        budget.goalId !== "" ? budget.goalId : null,
+        budget.goalId.trim() !== "" ? budget.goalId : null,
         budget.expenseCategory,
         budget.budgetPrivacy,
         userId,
@@ -122,7 +131,7 @@ const deleteBudgetByIdsQuery = (budgetId, userId) => {
         return {
             delete: `DELETE FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
             data: `SELECT * FROM budgcetTable WHERE budgetId in (${condition}) and creator = ?;`,
-            params: [...budgetId, userId]
+            params: [...budgetId, userId],
         };
     }
     catch (error) {
