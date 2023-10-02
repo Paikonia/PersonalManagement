@@ -162,6 +162,7 @@ const deleteWeeklyGoalsById = (ids, userId) => __awaiter(void 0, void 0, void 0,
 exports.deleteWeeklyGoalsById = deleteWeeklyGoalsById;
 const postTaskItemHanlder = (body, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { query, params, failed } = (0, tasksDatabaseCalls_1.insertTaskQueryBuilder)(body, userId);
+    console.log({ query, params, failed });
     if (query !== '')
         yield (0, database_1.makeQueriesWithParams)(query, params);
     return {

@@ -179,7 +179,7 @@ export const postTaskItemHanlder = async (
   userId: string
 ) => {
   const { query, params, failed } = insertTaskQueryBuilder(body, userId);
-    
+  console.log({ query, params, failed });
   if(query !== '')await makeQueriesWithParams(query, params);
   return {
     success:

@@ -28,7 +28,7 @@ export const insertTaskQueryBuilder = (
     VALUES ${placeholder};`;
     return {
       params,
-      query,
+      query: params.length > 0 ? query : "",
       failed: data.failed,
     };
   } catch (error) {
@@ -39,13 +39,13 @@ export const insertTaskQueryBuilder = (
 const parseTaskInsertObject = (task: TaskType): boolean => {
   if (
     typeof task.task === "string" &&
-    task.task.trim() === "" &&
+    task.task.trim() !== "" &&
     typeof task.startingTime === "string" &&
     String(task.startingTime).trim() !== "" &&
     (typeof task.estimatedDuration === "number" ||
       typeof task.estimatedDuration === "string") &&
     typeof task.goalId === "string" &&
-    task.goalId.trim() === "" &&
+    task.goalId.trim() !== "" &&
     ["In progress", "Completed", "Not Started"].includes(task.progress) &&
     ["private", "public"].includes(task.privacy)
   ) {
@@ -54,16 +54,21 @@ const parseTaskInsertObject = (task: TaskType): boolean => {
   return false;
 };
 
-const insertTaskQueryString = (task: TaskType, userId: string) => [
-  task.task,
-  new Date(task.taskDate).toISOString().split("T")[0],
-  new Date(task.startingTime).toISOString(),
-  task.estimatedDuration,
-  task.goalId,
-  task.progress,
-  task.privacy,
-  userId,
-];
+const insertTaskQueryString = (task: TaskType, userId: string) => {
+  const datetime = new Date(task.startingTime).toISOString();
+  const res = `${datetime.split('T')[0]} ${(datetime.split('T')[1]).split('.')[0]}`
+  
+  return [
+    task.task,
+    new Date(task.taskDate).toISOString().split("T")[0],
+    res,
+    task.estimatedDuration,
+    task.goalId,
+    task.progress,
+    task.privacy,
+    userId,
+  ];
+};
 
 export const updateTask = (
   taskId: number | string,
@@ -99,8 +104,13 @@ const parseTaskUpdateObject = (task: Partial<TaskType>) => {
     placeholder.push("taskDate = ?");
   }
   if (typeof task.startingTime === "string") {
+    
+  
     const startingTime = new Date(task.startingTime).toISOString();
-    updateFields.push(startingTime);
+    const res = `${startingTime.split("T")[0]} ${
+      startingTime.split("T")[1].split(".")[0]
+    }`;
+    updateFields.push(res);
     placeholder.push("startingTime = ?");
   }
   if (
