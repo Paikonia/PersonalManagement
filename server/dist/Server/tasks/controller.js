@@ -9,43 +9,66 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemByIdController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemController = void 0;
+exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemByIdController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemByIdController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemByIdController = exports.getWeeklyGoalItemController = void 0;
 const handler_1 = require("./handler");
-const getWeeklyGoalItemController = (req, res, next) => {
+const getWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Get Weekly Goal Item");
+        const user = JSON.parse(req.headers.user);
+        const data = yield (0, handler_1.getAllWeeklyGoalsHandler)(user.userId);
+        res.json(data);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.getWeeklyGoalItemController = getWeeklyGoalItemController;
-const postWeeklyGoalItemController = (req, res, next) => {
+const getWeeklyGoalItemByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Post Weekly Goal Item");
+        const user = JSON.parse(req.headers.user);
+        const wGoalId = req.params["wGoalId"];
+        const data = yield (0, handler_1.getWeeklyGoalByIdHandler)(wGoalId, user.userId);
+        res.json(data[0]);
     }
     catch (error) {
         next(error);
     }
-};
+});
+exports.getWeeklyGoalItemByIdController = getWeeklyGoalItemByIdController;
+const postWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const body = req.body.data;
+        const userId = req.body.user.userId;
+        const data = yield (0, handler_1.postWeekGoalItemHanlder)(body, userId);
+        res.json(data);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.postWeeklyGoalItemController = postWeeklyGoalItemController;
-const updateWeeklyGoalItemController = (req, res, next) => {
+const updateWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("update Weekly Goal Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.updateWeeklyGoalsHandler)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.updateWeeklyGoalItemController = updateWeeklyGoalItemController;
-const deleteWeeklyGoalItemController = (req, res, next) => {
+const deleteWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Delete Weekly Goal Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.deleteWeeklyGoalsById)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.deleteWeeklyGoalItemController = deleteWeeklyGoalItemController;
 const getMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -61,9 +84,8 @@ exports.getMonthlyGoalItemController = getMonthlyGoalItemController;
 const getMonthlyGoalItemByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = JSON.parse(req.headers.user);
-        console.log(user);
-        const budgetId = req.params["mGoalId"];
-        const result = yield (0, handler_1.getMonthlyGoalByIdHandler)(budgetId, user.userId);
+        const mGoalId = req.params["mGoalId"];
+        const result = yield (0, handler_1.getMonthlyGoalByIdHandler)(mGoalId, user.userId);
         res.json(result);
     }
     catch (error) {
@@ -107,39 +129,62 @@ const deleteMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, vo
     }
 });
 exports.deleteMonthlyGoalItemController = deleteMonthlyGoalItemController;
-const getTaskItemController = (req, res, next) => {
+const getTaskItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Get task Item");
+        const user = JSON.parse(req.headers.user);
+        const data = yield (0, handler_1.getAllTasksHandler)(user.userId);
+        res.json(data);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.getTaskItemController = getTaskItemController;
-const postTaskItemController = (req, res, next) => {
+const getTaskItemByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Post task Item");
+        const user = JSON.parse(req.headers.user);
+        const mGoalId = req.params["mGoalId"];
+        const result = yield (0, handler_1.getTaskByIdHandler)(mGoalId, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
+exports.getTaskItemByIdController = getTaskItemByIdController;
+const postTaskItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const body = req.body.data;
+        const userId = req.body.user.userId;
+        const query = yield (0, handler_1.postTaskItemHanlder)(body, userId);
+        res.json(query);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.postTaskItemController = postTaskItemController;
-const updateTaskItemController = (req, res, next) => {
+const updateTaskItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("update task Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.updateTasksHandler)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.updateTaskItemController = updateTaskItemController;
-const deleteTaskItemController = (req, res, next) => {
+const deleteTaskItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Delete task Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.deleteTasksById)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.deleteTaskItemController = deleteTaskItemController;

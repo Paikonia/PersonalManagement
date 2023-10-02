@@ -1,22 +1,7 @@
-import { generateRandomAlphanumeric } from "../../utilities/generators";
-
-interface TaskType {
-  taskId: number;
-  task: string;
-  taskDate: Date;
-  startingTime: Date;
-  complete: boolean;
-  estimatedDuration: number;
-  goalId: string;
-  progress: "In progress" | "Completed" | "Not Started";
-  privacy: "private" | "public";
-  creator: string;
-}
-
 export const insertTaskQueryBuilder = (
   taskObjects: TaskType[],
   userId: string
-): { query: string; failed: TaskType[], params: Array<any> } => {
+): { query: string; failed: TaskType[]; params: Array<any> } => {
   try {
     const data: {
       success: TaskType[];
@@ -71,8 +56,8 @@ const parseTaskInsertObject = (task: TaskType): boolean => {
 
 const insertTaskQueryString = (task: TaskType, userId: string) => [
   task.task,
-  task.taskDate.toISOString(),
-  task.startingTime.toISOString(),
+  new Date(task.taskDate).toISOString().split("T")[0],
+  new Date(task.startingTime).toISOString(),
   task.estimatedDuration,
   task.goalId,
   task.progress,
@@ -81,17 +66,20 @@ const insertTaskQueryString = (task: TaskType, userId: string) => [
 ];
 
 export const updateTask = (
-  taskId: number,
+  taskId: number | string,
   updatedTask: Partial<TaskType>,
   userId: string
-): string | null => {
+): { query: string; params: any[] } | null => {
   try {
     const parsed = parseTaskUpdateObject(updatedTask);
     if (Object.keys(parsed).length === 0) {
       return null;
     }
 
-    return `UPDATE tasks SET ${parsed} WHERE taskId = ${taskId} and creator = '${userId}';`;
+    return {
+      query: `UPDATE tasks SET ${parsed.placeholder} WHERE taskId = ? and creator = ?;`,
+      params: [...parsed.updateFields, Number(taskId), userId],
+    };
   } catch (error) {
     console.error(error);
     throw error;
@@ -100,54 +88,99 @@ export const updateTask = (
 
 const parseTaskUpdateObject = (task: Partial<TaskType>) => {
   const updateFields = [];
+  const placeholder = [];
   if (typeof task.task === "string") {
-    updateFields.push(`task = "${task.task}"`);
+    updateFields.push(task.task);
+    placeholder.push("task = ?");
   }
-  if (task.taskDate instanceof Date) {
-    updateFields.push(`taskDate = '${task.taskDate.toISOString()}'`);
+  if (typeof task.taskDate === "string") {
+    const taskDate = new Date(task.taskDate).toISOString().split("T")[0];
+    updateFields.push(taskDate);
+    placeholder.push("taskDate = ?");
   }
-  if (task.startingTime instanceof Date) {
-    updateFields.push(`startingTime = '${task.startingTime.toISOString()}'`);
+  if (typeof task.startingTime === "string") {
+    const startingTime = new Date(task.startingTime).toISOString();
+    updateFields.push(startingTime);
+    placeholder.push("startingTime = ?");
   }
-  if (typeof task.complete === "boolean") {
-    updateFields.push(`complete = ${task.complete ? 1 : 0}`);
-  }
-  if (typeof task.estimatedDuration === "number") {
-    updateFields.push(`estimatedDuration = ${task.estimatedDuration}`);
+  if (
+    typeof task.estimatedDuration === "number" ||
+    typeof task.estimatedDuration === "string"
+  ) {
+    updateFields.push(Number(task.estimatedDuration));
+    placeholder.push("estimatedDuration = ?");
   }
   if (typeof task.goalId === "string") {
-    updateFields.push(`goalId = "${task.goalId}"`);
+    updateFields.push(task.goalId);
+    placeholder.push("goalId = ?");
   }
   if (typeof task.progress === "string") {
-    updateFields.push(`progress = "${task.progress}"`);
+    updateFields.push(task.progress);
+    placeholder.push("progress = ?");
   }
   if (typeof task.privacy === "string") {
-    updateFields.push(`privacy = "${task.privacy}"`);
+    updateFields.push(task.privacy);
+    placeholder.push("privacy = ?");
   }
 
-  return updateFields.join(", ");
+  return {
+    updateFields,
+    placeholder: placeholder.join(", "),
+  };
 };
 
-export const deleteTaskByIdQuery = (taskId: number, userId: string): string => {
+export const deleteTaskByIdQuery = (
+  taskId: string[],
+  userId: string
+): {
+  delete: string;
+  data: string;
+  params: any[];
+} => {
   try {
-    return `DELETE FROM tasks WHERE taskId = ${taskId} and creator = '${userId}';`;
+    const tasks: number[] = [];
+    const condition: string[] = [];
+    taskId.forEach((id) => {
+      tasks.push(Number(id));
+      condition.push(`?`);
+    });
+    return {
+      delete: `DELETE FROM tasks WHERE mGoalId in (${condition.join(
+        ", "
+      )}) and creator = ?;`,
+      data: `select * FROM tasks WHERE mGoalId in (${condition.join(
+        ", "
+      )}) and creator = ?;`,
+      params: [...tasks, userId],
+    };
   } catch (error) {
     throw error;
   }
 };
 
-export const getAllTasksQuery = (userId: string): string => {
+export const getAllTasksQuery = (
+  userId: string
+): { query: string; params: Array<any> } => {
   try {
-    return `SELECT * FROM tasks where creator = '${userId}';`;
+    return {
+      query: `SELECT * FROM tasks where creator = ?;`,
+      params: [userId],
+    };
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
 
-export const getTaskByIdQuery = (taskId: number, userId: string): string => {
+export const getTaskByIdQuery = (
+  taskId: number | string,
+  userId: string
+): { query: string; params: Array<any> } => {
   try {
-    return `SELECT * FROM tasks WHERE taskId = ${taskId} and creator = '${userId}';`;
+    return {
+      query: `SELECT * FROM tasks WHERE taskId = ? and creator = ?;`,
+      params: [Number(taskId), userId],
+    };
   } catch (error) {
     console.error(error);
     throw error;

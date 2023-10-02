@@ -50,3 +50,33 @@ interface UpdateReturnType {
   message: string;
   failed: any[];
 }
+
+interface TaskType {
+  taskId: number;
+  task: string;
+  taskDate: string;
+  startingTime: string;
+  estimatedDuration: number;
+  goalId: string;
+  progress: "In progress" | "Completed" | "Not Started";
+  privacy: "private" | "public";
+  creator: string;
+}
+
+interface WeeklyGoalType {
+  wGoalId: string;
+  goal: string;
+  urgency: number;
+  importance: number;
+  weekStart: string;
+  weekEnd: string;
+  completed: boolean;
+  monthlyGoalId: string;
+  goalPriority: number;
+  tasks: any;
+  privacy: "private" | "public";
+  creator: string;
+}
+
+
+
