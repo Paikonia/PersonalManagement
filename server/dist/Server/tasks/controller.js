@@ -1,8 +1,16 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemController = void 0;
+exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemByIdController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemController = void 0;
 const handler_1 = require("./handler");
-const typeCheckers_1 = require("./typeCheckers");
 const getWeeklyGoalItemController = (req, res, next) => {
     try {
         res.send("Get Weekly Goal Item");
@@ -39,49 +47,65 @@ const deleteWeeklyGoalItemController = (req, res, next) => {
     }
 };
 exports.deleteWeeklyGoalItemController = deleteWeeklyGoalItemController;
-const getMonthlyGoalItemController = (req, res, next) => {
+const getMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Get Monthly Goal Item");
+        const user = JSON.parse(req.headers.user);
+        const goals = yield (0, handler_1.getAllMonthlyGoalsHandler)(user.userId);
+        res.json(goals);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.getMonthlyGoalItemController = getMonthlyGoalItemController;
-const postMonthlyGoalItemController = (req, res, next) => {
+const getMonthlyGoalItemByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = JSON.parse(req.headers.user);
+        console.log(user);
+        const budgetId = req.params["mGoalId"];
+        const result = yield (0, handler_1.getMonthlyGoalByIdHandler)(budgetId, user.userId);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getMonthlyGoalItemByIdController = getMonthlyGoalItemByIdController;
+const postMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = req.body.data;
-        const data = (0, typeCheckers_1.verifyBodyForPostMonthly)(body);
-        if (data.success.length > 0) {
-            const query = (0, handler_1.postMonthlyGoalItemHanlder)(data.success);
-            console.log(query);
-            //res.send({ query });
-        }
-        res.json(data);
-        const returnedData = { success: 'Partial', erroredInputs: data.failed, };
+        const userId = req.body.user.userId;
+        const query = yield (0, handler_1.postMonthlyGoalItemHanlder)(body, userId);
+        res.json(query);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.postMonthlyGoalItemController = postMonthlyGoalItemController;
-const updateMonthlyGoalItemController = (req, res, next) => {
+const updateMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("update Monthly Goal Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.updateMonthlyGoalsHandler)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.updateMonthlyGoalItemController = updateMonthlyGoalItemController;
-const deleteMonthlyGoalItemController = (req, res, next) => {
+const deleteMonthlyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.send("Delete Monthly Goal Item");
+        const data = req.body.data;
+        const user = req.body.user;
+        const result = yield (0, handler_1.deleteMonthlyGoalsById)(data, user.userId);
+        res.json(result);
     }
     catch (error) {
         next(error);
     }
-};
+});
 exports.deleteMonthlyGoalItemController = deleteMonthlyGoalItemController;
 const getTaskItemController = (req, res, next) => {
     try {

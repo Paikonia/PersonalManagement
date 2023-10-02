@@ -11,6 +11,7 @@ goalRoutes.get("/week", controller_1.getWeeklyGoalItemController);
 goalRoutes.post("/week", controller_1.postWeeklyGoalItemController);
 goalRoutes.patch("/week", controller_1.updateWeeklyGoalItemController);
 goalRoutes.delete("/week", controller_1.deleteWeeklyGoalItemController);
+goalRoutes.get("/month/:mGoalId", controller_1.getMonthlyGoalItemByIdController);
 goalRoutes.get("/month", controller_1.getMonthlyGoalItemController);
 goalRoutes.post("/month", controller_1.postMonthlyGoalItemController);
 goalRoutes.patch("/month", controller_1.updateMonthlyGoalItemController);

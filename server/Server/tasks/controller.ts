@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response, response } from "express";
-import { postMonthlyGoalItemHanlder } from "./handler";
-import {
-  verifyBodyForPostMonthly,
-  verifyMonthlyGoalsType,
-} from "./typeCheckers";
+import { deleteMonthlyGoalsById, getAllMonthlyGoalsHandler, getMonthlyGoalByIdHandler, postMonthlyGoalItemHanlder, updateMonthlyGoalsHandler } from "./handler";
+
 
 export const getWeeklyGoalItemController = (
   req: Request,
@@ -53,58 +50,79 @@ export const deleteWeeklyGoalItemController = (
   }
 };
 
-export const getMonthlyGoalItemController = (
+export const getMonthlyGoalItemController = async(
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    res.send("Get Monthly Goal Item");
+    const user = JSON.parse(req.headers.user as string);
+    const goals = await getAllMonthlyGoalsHandler(user.userId)
+    res.json(goals);
   } catch (error) {
     next(error);
   }
 };
 
-export const postMonthlyGoalItemController = (
+export const getMonthlyGoalItemByIdController = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = JSON.parse(req.headers.user as string);
+    console.log(user);
+    const budgetId = req.params["mGoalId"];
+    const result = await getMonthlyGoalByIdHandler(budgetId, user.userId)
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const postMonthlyGoalItemController = async(
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const body = req.body.data;
-    const data = verifyBodyForPostMonthly(body);
-    if (data.success.length > 0) {
-      const query = postMonthlyGoalItemHanlder(data.success);
-      console.log(query);
-      //res.send({ query });
-    }
-    res.json(data)
+    const userId = req.body.user.userId
+    const query = await postMonthlyGoalItemHanlder(body, userId);
+    
+    res.json(query);
 
-    const returnedData = {success: 'Partial', erroredInputs: data.failed, } 
   } catch (error) {
     next(error);
   }
 };
 
-export const updateMonthlyGoalItemController = (
+export const updateMonthlyGoalItemController = async(
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    res.send("update Monthly Goal Item");
+    const data = req.body.data
+    const user = req.body.user
+    
+    const result = await updateMonthlyGoalsHandler(data, user.userId)
+    res.json(result)
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteMonthlyGoalItemController = (
+export const deleteMonthlyGoalItemController =async  (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    res.send("Delete Monthly Goal Item");
+    const data = req.body.data
+    const user = req.body.user
+    const result = await deleteMonthlyGoalsById(data, user.userId)
+    res.json(result)
   } catch (error) {
     next(error);
   }

@@ -15,15 +15,18 @@ const insertMonthlyGoalQueryBuilder = (monthlyGoalObjects, userId) => {
                 data.failed.push(goal);
             }
         });
-        const placeholder = data.success.map(() => "(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
-        const parsedString = data.success
+        const placeholder = data.success
+            .map(() => "(?,?, ?, ?, ?, ?, ?, ?, ?, ?,?)")
+            .join(", ");
+        const params = data.success
             .map((success) => insertMonthlyGoalQueryString(success, userId))
             .flat();
-        const query = `INSERT INTO monthlyGoals(goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete, goalPriority, goalCategory, monthStart, privacy, creator) \
+        const query = `INSERT INTO monthlyGoals(goal, urgency, importance, tasksInGoal, estimatePeriodPerDay, complete,  goalCategory, monthStart, estimatedDuration, privacy, creator) \
     VALUES ${placeholder};`;
         return {
-            query,
+            query: placeholder !== '' ? query : '',
             failed: data.failed,
+            params,
         };
     }
     catch (error) {
@@ -32,14 +35,17 @@ const insertMonthlyGoalQueryBuilder = (monthlyGoalObjects, userId) => {
 };
 exports.insertMonthlyGoalQueryBuilder = insertMonthlyGoalQueryBuilder;
 const parseMonthlyGoalInsertObject = (goal) => {
-    if (typeof goal.goal !== "string" ||
-        goal.goal.trim() === "" ||
-        typeof goal.urgency !== "number" ||
-        typeof goal.importance !== "number" ||
-        typeof goal.estimatePeriodPerDay !== "number" ||
-        typeof goal.complete !== "boolean" ||
-        typeof goal.goalPriority !== "number" ||
-        ![
+    if (typeof goal.goal === "string" &&
+        goal.goal.trim() !== "" &&
+        typeof goal.estimatedDuration === "string" &&
+        goal.estimatedDuration.trim() !== "" &&
+        (typeof goal.urgency === "number" || typeof goal.urgency === "string") &&
+        (typeof goal.importance === "number" ||
+            typeof goal.importance === "string") &&
+        (typeof goal.estimatePeriodPerDay === "number" ||
+            typeof goal.estimatePeriodPerDay === "string") &&
+        typeof goal.complete === "boolean" &&
+        [
             "personal",
             "fitness",
             "family",
@@ -47,17 +53,27 @@ const parseMonthlyGoalInsertObject = (goal) => {
             "project",
             "health",
             "other",
-        ].includes(goal.goalCategory) ||
-        typeof goal.monthStart !== "object" ||
-        !(goal.monthStart instanceof Date) ||
-        isNaN(goal.monthStart.getTime()) ||
-        !["private", "public"].includes(goal.privacy)) {
-        return false;
+        ].includes(goal.goalCategory) &&
+        typeof goal.monthStart === "string" &&
+        ["private", "public"].includes(goal.privacy)) {
+        return true;
     }
-    return true;
+    return false;
 };
 const insertMonthlyGoalQueryString = (goal, userId) => {
-    return [goal.goal, goal.urgency, goal.importance, JSON.stringify(goal.tasksInGoal || '[]'), goal.estimatePeriodPerDay, goal.complete ? 1 : 0, goal.goalPriority, goal.goalCategory, goal.username, goal.monthStart.toISOString(), goal.privacy, userId];
+    return [
+        goal.goal,
+        goal.urgency,
+        goal.importance,
+        JSON.stringify(goal.tasksInGoal || "[]"),
+        goal.estimatePeriodPerDay,
+        goal.complete ? 1 : 0,
+        goal.goalCategory,
+        new Date(goal.monthStart).toISOString().split("T")[0],
+        goal.estimatedDuration,
+        goal.privacy,
+        userId,
+    ];
 };
 const updateMonthlyGoal = (mGoalId, updatedGoal, userId) => {
     try {
@@ -65,7 +81,10 @@ const updateMonthlyGoal = (mGoalId, updatedGoal, userId) => {
         if (Object.keys(parsed).length === 0) {
             return null;
         }
-        return `UPDATE monthlyGoals SET ${parsed} WHERE mGoalId = "${mGoalId}" and creator = '${userId}';`;
+        return {
+            query: `UPDATE monthlyGoals SET ${parsed.placeholder} WHERE mGoalId = ? and creator = ?;`,
+            params: [...parsed.updateFields, mGoalId, userId],
+        };
     }
     catch (error) {
         console.error(error);
@@ -75,23 +94,31 @@ const updateMonthlyGoal = (mGoalId, updatedGoal, userId) => {
 exports.updateMonthlyGoal = updateMonthlyGoal;
 const parseMonthlyGoalUpdateObject = (goal) => {
     const updateFields = [];
+    const placeholder = [];
     if (typeof goal.goal === "string") {
-        updateFields.push(`goal = "${goal.goal}"`);
+        updateFields.push(goal.goal);
+        placeholder.push("goal = ?");
     }
-    if (typeof goal.urgency === "number") {
-        updateFields.push(`urgency = ${goal.urgency}`);
+    if (typeof goal.urgency === "number" || typeof goal.urgency === "string") {
+        updateFields.push(Number(goal.urgency));
+        placeholder.push("urgency = ?");
     }
-    if (typeof goal.importance === "number") {
-        updateFields.push(`importance = ${goal.importance}`);
+    if (typeof goal.importance === "number" ||
+        typeof goal.importance === "string") {
+        updateFields.push(Number(goal.importance));
+        placeholder.push("importance = ?");
     }
     if (typeof goal.estimatePeriodPerDay === "number") {
-        updateFields.push(`estimatePeriodPerDay = ${goal.estimatePeriodPerDay}`);
+        updateFields.push(goal.estimatePeriodPerDay);
+        placeholder.push("estimatePeriodPerDay = ?");
     }
     if (typeof goal.complete === "boolean") {
-        updateFields.push(`complete = ${goal.complete ? 1 : 0}`);
+        updateFields.push(goal.complete);
+        placeholder.push("complete = ?");
     }
     if (typeof goal.goalPriority === "number") {
-        updateFields.push(`goalPriority = ${goal.goalPriority}`);
+        updateFields.push(goal.goalPriority);
+        placeholder.push("goalPriority = ?");
     }
     if (typeof goal.goalCategory === "string" &&
         [
@@ -103,22 +130,30 @@ const parseMonthlyGoalUpdateObject = (goal) => {
             "health",
             "other",
         ].includes(goal.goalCategory)) {
-        updateFields.push(`goalCategory = "${goal.goalCategory}"`);
+        updateFields.push(goal.goalCategory);
+        placeholder.push("goalCategory = ?");
     }
-    if (typeof goal.username === "string") {
-        updateFields.push(`username = "${goal.username}"`);
-    }
-    if (goal.monthStart instanceof Date) {
-        updateFields.push(`monthStart = '${goal.monthStart.toISOString()}'`);
+    if (typeof goal.monthStart === "string") {
+        // updateFields.push(
+        //   `monthStart = '${new Date(goal.monthStart).toISOString()}'`
+        // );
+        updateFields.push(goal.monthStart);
+        placeholder.push("monthStart = ?");
     }
     if (typeof goal.privacy === "string") {
-        updateFields.push(`privacy = "${goal.privacy}"`);
+        updateFields.push(goal.privacy);
+        placeholder.push("privacy = ?");
     }
-    return updateFields.join(", ");
+    return { updateFields, placeholder: placeholder.join(", ") };
 };
 const deleteMonthlyGoalByIdQuery = (mGoalId, userId) => {
     try {
-        return `DELETE FROM monthlyGoals WHERE mGoalId = "${mGoalId}" and creator = '${userId}';`;
+        const condition = mGoalId.map(() => `?`).join(", ");
+        return {
+            delete: `DELETE FROM monthlyGoals WHERE mGoalId in (${condition}) and creator = ?;`,
+            data: `select * FROM monthlyGoals WHERE mGoalId in (${condition}) and creator = ?;`,
+            params: [...mGoalId, userId],
+        };
     }
     catch (error) {
         throw error;
@@ -127,20 +162,24 @@ const deleteMonthlyGoalByIdQuery = (mGoalId, userId) => {
 exports.deleteMonthlyGoalByIdQuery = deleteMonthlyGoalByIdQuery;
 const getAllMonthlyGoalsQuery = (userId) => {
     try {
-        return `SELECT * FROM monthlyGoals where creator = '${userId}';`;
+        return {
+            query: `SELECT * FROM monthlyGoals where creator = ?;`,
+            params: [userId],
+        };
     }
     catch (error) {
-        console.error(error);
         throw error;
     }
 };
 exports.getAllMonthlyGoalsQuery = getAllMonthlyGoalsQuery;
 const getMonthlyGoalByIdQuery = (mGoalId, userId) => {
     try {
-        return `SELECT * FROM monthlyGoals WHERE mGoalId = "${mGoalId}" and creator = '${userId}';`;
+        return {
+            query: `SELECT * FROM monthlyGoals WHERE mGoalId = ? and creator = ?;`,
+            params: [mGoalId, userId],
+        };
     }
     catch (error) {
-        console.error(error);
         throw error;
     }
 };

@@ -19,6 +19,8 @@ const AuthConstants_1 = require("../Constants/AuthConstants");
 const getUserDataMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const authHeader = req.headers["authorization"];
+        if (!authHeader)
+            return next(AuthConstants_1.AUTHERRORS.MissingToken);
         if (authHeader) {
             const token = authHeader.split(" ")[1];
             if (!token) {

@@ -53,5 +53,9 @@ export const AUTHERRORS: { [key: string]: ServerExceptions } = {
       "Invalid refresh Token. Make sure the code you have sent is correct",
     status: 401,
   },
-  
+  MissingToken: {
+    name: "Missing Access Token",
+    message:"Missing authentication token",
+    status: 401,
+  },
 };

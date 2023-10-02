@@ -24,6 +24,7 @@ const insertTaskQueryBuilder = (taskObjects, userId) => {
         const query = `INSERT INTO tasks(task, taskDate, startingTime, estimatedDuration, goalId, progress, privacy, creator) \
     VALUES ${placeholder};`;
         return {
+            params,
             query,
             failed: data.failed,
         };
@@ -34,23 +35,19 @@ const insertTaskQueryBuilder = (taskObjects, userId) => {
 };
 exports.insertTaskQueryBuilder = insertTaskQueryBuilder;
 const parseTaskInsertObject = (task) => {
-    if (typeof task.task !== "string" ||
-        task.task.trim() === "" || // Check if task name is not empty
-        !(task.taskDate instanceof Date) ||
-        isNaN(task.taskDate.getTime()) || // Check if taskDate is a valid Date
-        !(task.startingTime instanceof Date) ||
-        isNaN(task.startingTime.getTime()) || // Check if startingTime is a valid Date
-        typeof task.complete !== "boolean" ||
-        typeof task.estimatedDuration !== "number" ||
-        isNaN(task.estimatedDuration) ||
-        typeof task.goalId !== "string" ||
-        task.goalId.trim() === "" || // Check if goalId is not empty
-        !["In progress", "Completed", "Not Started"].includes(task.progress) || // Check if progress is one of the valid values
-        !["private", "public"].includes(task.privacy) // Check if privacy is one of the valid values
-    ) {
-        return false;
+    if (typeof task.task === "string" &&
+        task.task.trim() === "" &&
+        typeof task.startingTime === "string" &&
+        String(task.startingTime).trim() !== "" &&
+        (typeof task.estimatedDuration === "number" ||
+            typeof task.estimatedDuration === "string") &&
+        typeof task.goalId === "string" &&
+        task.goalId.trim() === "" &&
+        ["In progress", "Completed", "Not Started"].includes(task.progress) &&
+        ["private", "public"].includes(task.privacy)) {
+        return true;
     }
-    return true;
+    return false;
 };
 const insertTaskQueryString = (task, userId) => [
     task.task,

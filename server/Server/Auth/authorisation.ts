@@ -10,6 +10,8 @@ export const getUserDataMiddleWare = async (
 ) => {
   try {
     const authHeader = req.headers["authorization"];
+    if(!authHeader) return next(AUTHERRORS.MissingToken);
+
     if (authHeader) {
       const token = authHeader.split(" ")[1];
 
