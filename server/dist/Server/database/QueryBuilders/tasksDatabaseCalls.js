@@ -155,7 +155,7 @@ exports.getAllTasksQuery = getAllTasksQuery;
 const getTaskByIdQuery = (taskId, userId) => {
     try {
         return {
-            query: `SELECT * FROM tasks WHERE taskId = ? and creator = ?;`,
+            query: `SELECT * FROM tasks WHERE tasksId = ? and creator = ?;`,
             params: [Number(taskId), userId],
         };
     }
