@@ -215,7 +215,7 @@ exports.getAllTasksHandler = getAllTasksHandler;
 const getTaskByIdHandler = (mGoalId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { query, params } = (0, tasksDatabaseCalls_1.getTaskByIdQuery)(mGoalId, userId);
-        return yield (0, database_1.makeQueriesWithParams)(query, params);
+        return (yield (0, database_1.makeQueriesWithParams)(query, params))[0];
     }
     catch (error) {
         throw error;

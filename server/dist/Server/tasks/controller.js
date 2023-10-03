@@ -143,7 +143,7 @@ exports.getTaskItemController = getTaskItemController;
 const getTaskItemByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = JSON.parse(req.headers.user);
-        const mGoalId = req.params["mGoalId"];
+        const mGoalId = req.params["taskId"];
         const result = yield (0, handler_1.getTaskByIdHandler)(mGoalId, user.userId);
         res.json(result);
     }

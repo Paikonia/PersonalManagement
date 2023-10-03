@@ -174,7 +174,7 @@ export const getTaskItemByIdController = async(
 ) => {
   try {
     const user = JSON.parse(req.headers.user as string);
-    const mGoalId = req.params["mGoalId"];
+    const mGoalId = req.params["taskId"];
     const result = await getTaskByIdHandler(mGoalId, user.userId);
     res.json(result);
   } catch (error) {
@@ -224,7 +224,7 @@ export const deleteTaskItemController = async(
     const user = req.body.user;
     const result = await deleteTasksById(data, user.userId);
     res.json(result);
-    
+
   } catch (error) {
     next(error);
   }

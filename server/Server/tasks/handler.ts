@@ -235,7 +235,7 @@ export const getAllTasksHandler = async (userId:string) => {
 export const getTaskByIdHandler = async (mGoalId:string, userId: string) => {
   try {
     const { query, params } = getTaskByIdQuery(mGoalId, userId);
-    return await makeQueriesWithParams(query, params);
+    return (await makeQueriesWithParams(query, params))[0];
   } catch (error) {
     throw error;
   }
