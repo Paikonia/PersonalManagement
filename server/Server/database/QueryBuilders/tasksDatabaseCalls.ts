@@ -188,7 +188,7 @@ export const getTaskByIdQuery = (
 ): { query: string; params: Array<any> } => {
   try {
     return {
-      query: `SELECT * FROM tasks WHERE taskId = ? and creator = ?;`,
+      query: `SELECT * FROM tasks WHERE tasksId = ? and creator = ?;`,
       params: [Number(taskId), userId],
     };
   } catch (error) {
