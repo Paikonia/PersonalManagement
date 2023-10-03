@@ -10,6 +10,7 @@ import { NavContextProvider } from "./Contexts/sidebarContext";
 import NotesPage from "./Notes/Page";
 import ExpensePage from "./Expense/Page";
 import BudgetPage from "./Budget/Page";
+import Projects from "./Projects/page";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
               <Route path="/notes" element={<NotesPage />} />
               <Route path="/expense" element={<ExpensePage />} />
               <Route path="/budget" element={<BudgetPage />} />
+              <Route path="/projects" element={<Projects />} />
             </Route>
             <Route path="/auth/signin" element={<Login />} />
             <Route path="/auth/verify" element={<Verify />} />

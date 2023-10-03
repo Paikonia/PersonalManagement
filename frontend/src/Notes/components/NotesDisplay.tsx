@@ -15,7 +15,7 @@ const NotesDisplay = ({ noteId, title, dateCreated, displayClick }: DisplayNotes
       }}
       className="border-2 hover:bg-slate-200 overflow-hidden rounded-xl p-2 flex  mb-4 justify-between"
     >
-      <div className="flex  w-10/12 sm:w-10/12 md:w-11/12 xl:w-5/6 px-1 py-0 left-0 justify-start items-center">
+      <div className="flex w-10/12 sm:w-10/12 md:w-11/12 xl:w-5/6 px-1 py-0 left-0 justify-start items-center">
         <input
           type="checkbox"
           className="mx-1"

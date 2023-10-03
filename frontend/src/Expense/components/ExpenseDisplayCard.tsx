@@ -1,45 +1,61 @@
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
-import React from "react";
-import { PartialExpenseType } from "../dataTypesAndUtilities";
+import { ExpenseType, PartialExpenseType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 
 const ExpenseDisplayCard = ({
   expense,
   handleClick,
+  currentExpense,
 }: {
   expense: PartialExpenseType;
-  handleClick: (id:string) => void
+  handleClick: (id: string) => void;
+  currentExpense: ExpenseType | null | undefined;
 }) => {
-  console.log(expense);
+
+
   return (
     <Card
       onClick={() => {
         handleClick(expense.expenseId);
       }}
-      className="border-2 hover:bg-gray-300 overflow-hidden w-full rounded-xl p-2 flex  mb-4 justify-between"
+      className="border-2 bg-gray-200 hover:bg-gray-300 overflow-hidden w-full rounded-xl p-2 mb-4"
     >
-      <div className="flex w-full px-1 py-0 left-0 justify-start items-center">
-        <input
-          type="checkbox"
-          className="mx-1 w-4"
-          name={expense.expenseId}
-          id={expense.expenseId}
-        />
-        <div className=" w-ful grid-expense-card">
-          <p className="ml-2 w-30  sm:w-42 max-w-xs mr-2 truncate">
-            {expense.item}
-          </p>
-          <h3 className="mr-2 w-20">{expense.paymentMethod}</h3>
-          <h3 className="w-30 text-sm hidden sm:inline-block truncate sm:w-36 text-center ">
-            {
-              new Date(expense?.expenseDate || Date.now())
-                .toISOString()
-                .split("T")[0]
-            }
-          </h3>
+      <div className="flex justify-between">
+        <div className="flex w-full px-1 py-0 left-0 justify-start items-center">
+          <input
+            type="checkbox"
+            className="mx-1 w-4"
+            name={expense.expenseId}
+            id={expense.expenseId}
+          />
+          <div className="flex justify-between w-full">
+            <p className="ml-2 w-30  sm:w-42 max-w-xs mr-2 truncate">
+              {expense.item}
+            </p>
+            <h3 className="mr-2">Amount: {expense.amount}</h3>
+          </div>
         </div>
+        <EditDeleteButtons />
       </div>
-      <EditDeleteButtons />
+      {currentExpense && currentExpense?.expenseId === expense.expenseId && (
+        <Card className="p-2 bg-gray-100">
+          <div className="flex justify-between mb-2">
+            <p>Category: {currentExpense.expenseCategory}</p>
+            <p>Privacy: {currentExpense.expensePrivacy}</p>
+          </div>
+          <div className="flex justify-between mb-2">
+            <p>Payment Method: {currentExpense.paymentMethod}</p>
+            <p>
+              Date:{" "}
+              {
+                new Date(currentExpense?.expenseDate || Date.now())
+                  .toISOString()
+                  .split("T")[0]
+              }
+            </p>
+          </div>
+        </Card>
+      )}
     </Card>
   );
 };

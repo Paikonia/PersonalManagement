@@ -96,7 +96,7 @@
 }
 
 .side-bar-small-screen {
-  @apply mt-16 flex w-full
+  @apply mt-16 flex w-full md:mt-0 md:w-64 lg:w-48
 }
 
 .nav-bar-container {

@@ -1,24 +1,23 @@
 import React from "react";
 import {
-  ListTodo,
-  ListChecks,
-  LayoutList,
   Receipt,
   Banknote,
   StickyNote,
   Home,
+  File,
 } from "lucide-react";
-import { Link, useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { useNavContext } from "../Contexts/sidebarContext";
 
 const Sidebar = () => {
-  const { isCollapsed } = useNavContext();
+  const { isCollapsed, handleIsCollapsed } = useNavContext();
   const navigation = useNavigate();
   const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     const link = event.currentTarget.getAttribute("href");
     navigation(link ?? "/");
+    handleIsCollapsed(true)
   };
 
   return (
@@ -29,12 +28,12 @@ const Sidebar = () => {
     >
       <div className="border-t-2 pt-4 w-full border-t-teal">
         <ul className=" p-4 border-t-4 w-full">
-          <li className="mb-4 text-lg hover:text-blue-400 px-1 flex justify-start align-center">
+          <li className="mb-4 w-full text-lg hover:text-blue-400 px-1 flex justify-start align-center">
             <NavLink
               onClick={handleLinkClick}
               to="/"
               className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
+                `flex justify-center w-full px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""
                 }`
               }
@@ -50,7 +49,7 @@ const Sidebar = () => {
               onClick={handleLinkClick}
               to="/notes"
               className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
+                `flex justify-center w-full px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""
                 }`
               }
@@ -64,7 +63,7 @@ const Sidebar = () => {
               onClick={handleLinkClick}
               to="/expense"
               className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
+                `flex w-full justify-center px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""
                 }`
               }
@@ -78,7 +77,7 @@ const Sidebar = () => {
               onClick={handleLinkClick}
               to="/budget"
               className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
+                `flex justify-center w-full px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""
                 }`
               }
@@ -89,46 +88,18 @@ const Sidebar = () => {
           </li>
         </ul>
         <ul className=" p-4 border-t-4 w-full">
-          <li className="mb-4 text-lg hover:text-blue-400 flex justify-start align-center">
-            <NavLink
-              onClick={handleLinkClick}
-              to="/tasks"
-              className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
-                  isActive ? "border-2 border-blue-400 text-blue-400" : ""
-                }`
-              }
-            >
-              <ListChecks />
-              <span className=" ml-2">Tasks</span>
-            </NavLink>
-          </li>
           <li className="mb-4 text-lg hover:text-blue-400 flex justify-start align-center ">
             <NavLink
               onClick={handleLinkClick}
-              to="/wgoals"
+              to="/projects"
               className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
+                `flex w-full justify-center px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""
                 }`
               }
             >
-              <ListTodo />
-              <span className=" ml-2">Weekly goals</span>
-            </NavLink>
-          </li>
-          <li className="mb-4 text-lg hover:text-blue-400 flex justify-start align-center ">
-            <NavLink
-              onClick={handleLinkClick}
-              to="/mgoals"
-              className={({ isActive }) =>
-                `flex justify-center px-4 py-1 rounded-lg items-center ${
-                  isActive ? "border-2 border-blue-400 text-blue-400" : ""
-                }`
-              }
-            >
-              <LayoutList />
-              <span className=" ml-2">Monthly Goal</span>
+              <File />
+              <span className=" ml-2">Projects</span>
             </NavLink>
           </li>
         </ul>
