@@ -22,7 +22,7 @@ const DisplayProjects = ({
   
   return (
     <div className="w-full">
-      <Button disabled onClick={changeToAdd}>
+      <Button onClick={changeToAdd}>
         <Pencil /> Add Project
       </Button>
       <div className={`${project ? "main-displays" : ""} my-2`}>

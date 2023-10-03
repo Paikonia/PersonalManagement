@@ -18,7 +18,7 @@ const Login = () => {
     mobile: ""
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | null>(null);
   const handleOnInputChange = (e: any) => {
     const { name, value } = e.target;

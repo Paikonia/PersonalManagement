@@ -42,6 +42,8 @@ const NewBudgetCard = ({ changeToDisplay }: NewBudgetCardProps) => {
     }
   };
 
+  
+
   return (
     <div className="p-2 grid">
       <div>

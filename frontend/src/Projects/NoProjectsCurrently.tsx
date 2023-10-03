@@ -13,7 +13,7 @@ const NoProjectsCurrently = ({changeToAdd}: NoProjectsCurrentlyProps) => {
       </div>
 
       <h1 className="text-4xl my-4">There are no Projects to display currently display</h1>
-      <Button disabled onClick={changeToAdd} className="my-5">Add New Project</Button>
+      <Button onClick={changeToAdd} className="my-5">Add New Project</Button>
     </div>
   
   );
