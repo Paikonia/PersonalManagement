@@ -149,7 +149,7 @@ export const deleteBudgetByIdsQuery = (
     const condition = budgetId.map(() => `?`).join(", ");
     return {
       delete: `DELETE FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
-      data: `SELECT * FROM budgcetTable WHERE budgetId in (${condition}) and creator = ?;`,
+      data: `SELECT * FROM budgetTable WHERE budgetId in (${condition}) and creator = ?;`,
       params: [...budgetId, userId],
     };
   } catch (error) {

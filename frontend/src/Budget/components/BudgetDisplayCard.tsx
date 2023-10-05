@@ -2,6 +2,9 @@ import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import React from "react";
 import { BudgetType, PartialBudgetType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
+import useFetch from "../../utils/fetch";
+
+
 
 const BudgetDisplayCard = ({
   budget,
@@ -12,7 +15,21 @@ const BudgetDisplayCard = ({
   handleClick: (id: string) => void;
   currentBudget: BudgetType | null | undefined;
 }) => {
-  console.log(budget);
+  const fetch = useFetch();
+
+  const deleteHanler = async () => {
+    const body = JSON.stringify({budgetIds:[budget.budgetId]})
+    console.log('Clicked deleteing button', body)
+    const deleted = await fetch('/budget', {
+      method: 'DELETE',
+      headers: {'content-type': 'application/json'},
+      body: body
+    })
+    console.log(deleted)
+  };
+
+  const handleEdit = () => {};
+
   return (
     <Card
       onClick={() => {
@@ -28,7 +45,10 @@ const BudgetDisplayCard = ({
             <p>Amount: {budget.amount}</p>
           </div>
         </div>
-        <EditDeleteButtons />
+        <EditDeleteButtons
+          deleteHandler={deleteHanler}
+          editHandler={handleEdit}
+        />
       </div>
       {currentBudget && currentBudget.budgetId === budget.budgetId ? (
         <Card className="p-2 my-2">

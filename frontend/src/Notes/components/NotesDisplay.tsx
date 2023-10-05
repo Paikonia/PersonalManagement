@@ -2,12 +2,21 @@ import React from "react";
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { PartialNoteType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
+import useFetch from "../../utils/fetch";
 
 interface DisplayNotesProps extends PartialNoteType {
-  displayClick: (id:number) => void 
+  displayClick: (id: number) => void;
 }
 
-const NotesDisplay = ({ noteId, title, dateCreated, displayClick }: DisplayNotesProps) => {
+const NotesDisplay = ({
+  noteId,
+  title,
+  dateCreated,
+  displayClick,
+}: DisplayNotesProps) => {
+  const fetch = useFetch();
+  const onDeleteNoteClick = () => {};
+  const onEditNoteClick = () => {};
   return (
     <Card
       onClick={() => {
@@ -31,7 +40,10 @@ const NotesDisplay = ({ noteId, title, dateCreated, displayClick }: DisplayNotes
           }
         </h3>
       </div>
-      <EditDeleteButtons />
+      <EditDeleteButtons
+        editHandler={onEditNoteClick}
+        deleteHandler={onDeleteNoteClick}
+      />
     </Card>
   );
 };

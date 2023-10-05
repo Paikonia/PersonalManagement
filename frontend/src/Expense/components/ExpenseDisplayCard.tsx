@@ -1,6 +1,7 @@
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { ExpenseType, PartialExpenseType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
+import useFetch from "../../utils/fetch";
 
 const ExpenseDisplayCard = ({
   expense,
@@ -11,8 +12,10 @@ const ExpenseDisplayCard = ({
   handleClick: (id: string) => void;
   currentExpense: ExpenseType | null | undefined;
 }) => {
+  const fetch = useFetch();
+  const handleDelete = () => {};
 
-
+  const handleEdit = () => {};
   return (
     <Card
       onClick={() => {
@@ -35,7 +38,10 @@ const ExpenseDisplayCard = ({
             <h3 className="mr-2">Amount: {expense.amount}</h3>
           </div>
         </div>
-        <EditDeleteButtons />
+        <EditDeleteButtons
+          deleteHandler={handleDelete}
+          editHandler={handleEdit}
+        />
       </div>
       {currentExpense && currentExpense?.expenseId === expense.expenseId && (
         <Card className="p-2 bg-gray-100">

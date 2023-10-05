@@ -1,3 +1,4 @@
+import useFetch from "../../utils/fetch";
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { Card } from "../../Components/ui/card";
 
@@ -8,7 +9,6 @@ interface ProjectDisplayProps {
   goalPriority: string;
   projectId: string;
   handleProjectClick: (id: string) => void;
-  
 }
 
 const ProjectDisplay = ({
@@ -19,6 +19,11 @@ const ProjectDisplay = ({
   estimateDuration,
   handleProjectClick,
 }: ProjectDisplayProps) => {
+  const fetch = useFetch();
+
+  const handleDeleteProject = () => {};
+  const handleEditProject = () => {};
+
   return (
     <Card
       onClick={() => {
@@ -38,7 +43,10 @@ const ProjectDisplay = ({
           <h3 className="mr-2 w-20">{estimateDuration}</h3>
           <p>{goalPriority}</p>
         </div>
-        <EditDeleteButtons />
+        <EditDeleteButtons
+          deleteHandler={handleDeleteProject}
+          editHandler={handleEditProject}
+        />
       </div>
     </Card>
   );
