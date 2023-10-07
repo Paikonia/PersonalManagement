@@ -3,6 +3,7 @@ import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { PartialNoteType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
+import { useNavigate } from "react-router-dom";
 
 interface DisplayNotesProps extends PartialNoteType {
   displayClick: (id: number) => void;
@@ -15,8 +16,19 @@ const NotesDisplay = ({
   displayClick,
 }: DisplayNotesProps) => {
   const fetch = useFetch();
-  const onDeleteNoteClick = () => {};
-  const onEditNoteClick = () => {};
+  const onDeleteNoteClick = async () => {
+    const deleted = await fetch('/notes', {
+      method: 'DELETE',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({noteIds: [noteId]}),
+    })
+    console.log(deleted) 
+    window.location.reload()
+  };
+  const navigate = useNavigate()
+  const onEditNoteClick = () => {
+    navigate("/notes/edit", { state: [noteId] });
+  };
   return (
     <Card
       onClick={() => {

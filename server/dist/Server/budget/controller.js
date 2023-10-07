@@ -51,6 +51,7 @@ const updateBudgetItemController = (req, res, next) => __awaiter(void 0, void 0,
     try {
         const data = req.body.data;
         const user = req.body.user;
+        console.log(data);
         if (!data || !(data instanceof Object) || Array.isArray(data)) {
             const err = OtherErrorDefinitions_1.GENERALERRORS.MalformedRequest;
             err.message =

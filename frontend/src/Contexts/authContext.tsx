@@ -1,5 +1,5 @@
 import { useContext, createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FetchError } from "../utils/fetch";
 
 export interface RegisterUser {
@@ -56,13 +56,14 @@ export const AuthContextProvider = ({ children }: { children: any }) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | null>(null);
-
+  const location = useLocation()
   useEffect(() => {
     const getting = async () => {
       const data = await localStorage.getItem("userData");
       if (data !== null && data !== "") {
         setAuthData(JSON.parse(data));
-        navigate("/");
+        const route = location.state?.from?.pathname || '/'
+        navigate(route);
       }
     };
     getting();

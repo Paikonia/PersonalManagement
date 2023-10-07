@@ -7,7 +7,7 @@ import MarkdownEditor from "./components/MarkDownEditor";
 export interface NoteType {
   noteId: number;
   title: string;
-  note: string | null;
+  note: string;
   dateCreated: Date | null;
   media: any;
   notePrivacy: "private" | "public";

@@ -6,7 +6,6 @@ import {
   postBudgetItemsHandler,
   updateBudgetHandler,
 } from "./handler";
-import { AUTHERRORS } from "../Constants/AuthConstants";
 import { GENERALERRORS } from "../Constants/OtherErrorDefinitions";
 
 export const getBudgetItemController = async (
@@ -61,7 +60,8 @@ export const updateBudgetItemController = async (
   try {
     const data = req.body.data;
     const user = req.body.user;
-
+    console.log(data);
+    
     if (!data || !(data instanceof Object) || Array.isArray(data)) {
       const err = GENERALERRORS.MalformedRequest;
       err.message =

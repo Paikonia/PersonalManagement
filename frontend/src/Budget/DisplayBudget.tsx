@@ -5,7 +5,6 @@ import { Card } from "../Components/ui/card";
 import { Button } from "../Components/ui/button";
 import { Pencil } from 'lucide-react'
 import BudgetDisplayCard from "./components/BudgetDisplayCard";
-import BudgetDetailsDisplay from "./components/BudgetDetailsDisplayCard";
 
 
 const DisplayBudget = ({

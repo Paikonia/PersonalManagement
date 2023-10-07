@@ -22,13 +22,13 @@ export const insertBudgetQueryBuilder = (
     const params = data.success.map((success) =>
       insertQueryString(success, userId)
     );
-    
-      const placeholder = data.success
-        .map(() => "(?, ?, ?, ?, ?, ?, ?)")
-        .join(", ");
+
+    const placeholder = data.success
+      .map(() => "(?, ?, ?, ?, ?, ?, ?)")
+      .join(", ");
     const query = `INSERT INTO budgetTable(budget, amount, dateOfPayment, goalId, expenseCategory, budgetPrivacy, creator) value${placeholder};`;
     return {
-      query: placeholder.trim()!== ''? query:'',
+      query: placeholder.trim() !== "" ? query : "",
       params,
       failed: data.failed,
     };
@@ -38,7 +38,7 @@ export const insertBudgetQueryBuilder = (
 };
 
 const parseBudgetInsertObject = (budget: any): boolean => {
-  console.log(budget)
+  console.log(budget);
   if (
     "budget" in budget &&
     typeof budget.budget === "string" &&
@@ -59,8 +59,8 @@ const parseBudgetInsertObject = (budget: any): boolean => {
     "budgetPrivacy" in budget &&
     (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")
   ) {
-    try {      
-      Number(budget.amount)
+    try {
+      Number(budget.amount);
       return true;
     } catch (error) {
       return false;
@@ -107,34 +107,40 @@ const parseBudgetUpdateObject = (budget: object) => {
     updateFields.push(budget.budget);
     placeHolder.push("budget = ?");
   }
-  if ("amount" in budget && typeof budget.amount === "number") {
-    updateFields = [...updateFields, budget.amount];
+  if (
+    "amount" in budget &&
+    (typeof budget.amount === "number" || typeof budget.amount === "string")
+  ) {
+    updateFields.push(Number(budget.amount));
     placeHolder.push("amount = ?");
   }
   if ("dateOfPayment" in budget && typeof budget.dateOfPayment === "string") {
     const dateOfPayment = new Date(budget.dateOfPayment)
       .toISOString()
       .split("T")[0];
-    updateFields = [...updateFields, dateOfPayment];
+    updateFields.push(dateOfPayment);
     placeHolder.push("dateOfPayment = ?");
   }
-  if ("goalId" in budget) {
-    updateFields = [...updateFields, budget.goalId];
+  if ("goalId" in budget && typeof budget.goalId === 'string') {
+    updateFields.push(budget.goalId);
     placeHolder.push("goalId= ?");
   }
   if ("expenseCategory" in budget) {
-    updateFields = [...updateFields, budget.expenseCategory];
+    updateFields.push(budget.expenseCategory);
     placeHolder.push("expenseCategory = ?");
   }
   if (
     "budgetPrivacy" in budget &&
     (budget.budgetPrivacy === "public" || budget.budgetPrivacy === "private")
   ) {
-    updateFields = [...updateFields, budget.budgetPrivacy];
+    updateFields.push(budget.budgetPrivacy);
     placeHolder.push("budgetPrivacy = ?");
   }
-  if ("paid" in budget && typeof budget.paid === "number") {
-    updateFields = [...updateFields, budget.paid];
+  if (
+    "paid" in budget &&
+    (typeof budget.paid === "number" || typeof budget.paid === "boolean")
+  ) {
+    updateFields.push(budget.paid);
     placeHolder.push("paid = ?");
   }
 

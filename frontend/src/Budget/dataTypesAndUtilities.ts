@@ -2,11 +2,11 @@ export interface PartialBudgetType {
   budgetId: string;
   budget: string;
   amount: number;
-  paid: boolean;
+  paid: number;
 }
 
 export interface BudgetType extends PartialBudgetType {
-  dateOfPayment: Date;
+  dateOfPayment: string;
   goalId: string;
   expenseCategory:
     | "Food"

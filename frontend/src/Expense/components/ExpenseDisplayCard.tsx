@@ -2,6 +2,7 @@ import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { ExpenseType, PartialExpenseType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
+import { useNavigate } from "react-router-dom";
 
 const ExpenseDisplayCard = ({
   expense,
@@ -13,9 +14,24 @@ const ExpenseDisplayCard = ({
   currentExpense: ExpenseType | null | undefined;
 }) => {
   const fetch = useFetch();
-  const handleDelete = () => {};
+  const handleDelete = async() => {
+    const body = JSON.stringify({expenseIds: [expense.expenseId]})
+    const result = await fetch('/expense', {
+      method: 'DELETE',
+      headers: {'content-type':'application/json'},
+      body: body
+    })
+    console.log(result)
+    window.location.reload()
+  };
 
-  const handleEdit = () => {};
+  const navigate = useNavigate();
+
+  const handleEdit = () => {
+    navigate('/expense/edit', {state: [expense.expenseId]})
+  };
+
+
   return (
     <Card
       onClick={() => {

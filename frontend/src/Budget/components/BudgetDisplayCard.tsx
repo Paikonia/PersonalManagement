@@ -3,6 +3,7 @@ import React from "react";
 import { BudgetType, PartialBudgetType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -19,16 +20,18 @@ const BudgetDisplayCard = ({
 
   const deleteHanler = async () => {
     const body = JSON.stringify({budgetIds:[budget.budgetId]})
-    console.log('Clicked deleteing button', body)
-    const deleted = await fetch('/budget', {
+    await fetch('/budget', {
       method: 'DELETE',
       headers: {'content-type': 'application/json'},
       body: body
     })
-    console.log(deleted)
   };
-
-  const handleEdit = () => {};
+  const navigate = useNavigate()
+  const handleEdit = () => {
+    navigate("/budget/edit/", {
+      state: [budget.budgetId]
+    })
+  };
 
   return (
     <Card
@@ -64,7 +67,7 @@ const BudgetDisplayCard = ({
             </p>
           </div>
           <div className="flex justify-between">
-            <p>Paid: {budget.paid ? "Pending" : "Paid"}</p>
+            <p>Paid: {(budget.paid === 0)? "Pending" : "Paid"}</p>
             <p>Privacy: {currentBudget.budgetPrivacy}</p>
           </div>
         </Card>

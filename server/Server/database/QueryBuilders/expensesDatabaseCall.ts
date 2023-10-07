@@ -105,15 +105,15 @@ const parseExpenseUpdateObject = (expense: Partial<ExpenseType>) => {
     placeholder.push("item = ?");
     updateFields.push(expense.item);
   }
-  if (typeof expense.amount === "number" && !isNaN(expense.amount)) {
+  if (expense.amount !== null && (typeof expense.amount === "number" || typeof expense.amount === 'string')) {
+    
     placeholder.push("amount = ?");
     updateFields.push(expense.amount);
   }
-  if (expense.expenseDate instanceof Date) {
+  if (typeof expense.expenseDate === 'string') {
     const expenseDate = new Date(expense.expenseDate)
       .toISOString()
       .split("T")[0];
-
     placeholder.push("expenseDate = ?");
     updateFields.push(expenseDate);
   }

@@ -1,5 +1,4 @@
 import { Card } from "../../Components/ui/card";
-import React from "react";
 import { BudgetType } from "../dataTypesAndUtilities";
 
 const BudgetDetailsDisplay = ({ budget }: { budget: BudgetType }) => {
@@ -12,7 +11,7 @@ const BudgetDetailsDisplay = ({ budget }: { budget: BudgetType }) => {
           <p className="text-slate-400 text-sm">{budget.budgetPrivacy}</p>
         </div>
         <span className="text-slate-600 text-sm">
-          {new Date(budget.dateOfPayment as Date).toISOString().split("T")[0]}
+          {new Date(budget.dateOfPayment).toISOString().split("T")[0]}
         </span>
       </div>
       <div className="px-2 w-full flex justify-between">
