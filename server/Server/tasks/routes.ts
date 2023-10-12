@@ -1,5 +1,5 @@
 import { Router} from 'express'
-import { deleteMonthlyGoalItemController, deleteTaskItemController, deleteWeeklyGoalItemController, getMonthlyGoalItemByIdController, getMonthlyGoalItemController, getTaskItemByIdController, getTaskItemController, getWeeklyGoalItemByIdController, getWeeklyGoalItemController, postMonthlyGoalItemController, postTaskItemController, postWeeklyGoalItemController, updateMonthlyGoalItemController, updateTaskItemController, updateWeeklyGoalItemController } from './controller';
+import { getWeeklyGoalItemByProjectIdController, deleteMonthlyGoalItemController, deleteTaskItemController, deleteWeeklyGoalItemController, getMonthlyGoalItemByIdController, getMonthlyGoalItemController, getTaskItemByIdController, getTaskItemController, getWeeklyGoalItemByIdController, getWeeklyGoalItemController, postMonthlyGoalItemController, postTaskItemController, postWeeklyGoalItemController, updateMonthlyGoalItemController, updateTaskItemController, updateWeeklyGoalItemController } from './controller';
 
 const goalRoutes = Router()
 
@@ -16,6 +16,7 @@ goalRoutes.delete("/tasks", deleteTaskItemController);
 goalRoutes.get("/week", getWeeklyGoalItemController);
 
 goalRoutes.get("/week/:wGoalId", getWeeklyGoalItemByIdController);
+goalRoutes.get("/week/project/:mGoalId", getWeeklyGoalItemByProjectIdController);
 
 goalRoutes.post("/week", postWeeklyGoalItemController);
 

@@ -1,15 +1,15 @@
-import { Button } from "../../Components/ui/button";
-import LabelledInput from "../../Components/LabelledInput";
+import { Button } from "../../../Components/ui/button";
+import LabelledInput from "../../../Components/LabelledInput";
 import { useState } from "react";
-import useFetch from "../../utils/fetch";
-import { Card } from "../../Components/ui/card";
-import { Input } from "../../Components/ui/input";
+import useFetch from "../../../utils/fetch";
+import { Card } from "../../../Components/ui/card";
+import { Input } from "../../../Components/ui/input";
+import { useNavigate } from "react-router-dom";
+import { useProjects } from "../../../Contexts/useProjects";
 
-type NewProjectProps = {
-  changeToDisplay: () => void;
-};
+// type NewProjectProps = {};
 
-const NewProject = ({ changeToDisplay }: NewProjectProps) => {
+const NewProject = () => {
   const [newProject, setNewProject] = useState({
     goal: "",
     urgency: 1,
@@ -22,24 +22,23 @@ const NewProject = ({ changeToDisplay }: NewProjectProps) => {
     monthStart: "",
   });
 
-  const checkValue = (e:any) => {
-    const {name, checked} = e.target
+  const checkValue = (e: any) => {
+    const { name, checked } = e.target;
     setNewProject((prev) => ({
       ...prev,
-      [name]: checked
+      [name]: checked,
     }));
-  }
+  };
 
-  
   const onChangeValue = (e: any) => {
     const { name, value } = e.target;
-    
+
     setNewProject((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  
+
   const limitedChange = (e: any) => {
     const { name, value } = e.target;
     try {
@@ -55,18 +54,20 @@ const NewProject = ({ changeToDisplay }: NewProjectProps) => {
       }
     } catch (error) {}
   };
-  const fetch = useFetch()
-  
+  const fetch = useFetch();
+  const navigate = useNavigate();
+  const {refreshProjects} = useProjects()
   const handleSubmit = async () => {
-    const data = await fetch("/goal/month", {
+    await fetch("/goal/month", {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify([newProject])
+      body: JSON.stringify([newProject]),
     });
-    console.log(data)
-    changeToDisplay()
+    refreshProjects()
+    navigate("/projects/projects");
+    
   };
-  
+
   return (
     <Card className="p-4">
       <LabelledInput
@@ -172,7 +173,9 @@ const NewProject = ({ changeToDisplay }: NewProjectProps) => {
         </div>
       </div>
 
-      <Button onClick={handleSubmit} className="w-full">Submit Project</Button>
+      <Button onClick={handleSubmit} className="w-full">
+        Submit Project
+      </Button>
     </Card>
   );
 };

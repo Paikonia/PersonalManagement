@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useFetch from "../utils/fetch";
-import { ExpenseType } from "./dataTypesAndUtilities";
 import ExpenseEditor from "./components/ExpenseEditor";
 import { Button } from "../Components/ui/button";
 

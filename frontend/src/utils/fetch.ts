@@ -2,8 +2,8 @@ import { useAuthContext } from "../Contexts/authContext";
 import jwt_decode from "jwt-decode";
 import dayjs from "dayjs";
 
-export const baseUrl = "https://pm.aikosnotes.info/api";
-//export const baseUrl = "http://localhost:8080";
+//export const baseUrl = "https://pm.aikosnotes.info/api";
+export const baseUrl = "http://localhost:8080";
 
 export interface FetchError {
   error:string;

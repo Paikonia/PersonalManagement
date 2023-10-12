@@ -190,3 +190,17 @@ export const getWeeklyGoalByIdQuery = (
     throw error;
   }
 };
+
+export const getWeeklyGoalByMonthlyIdQuery = (
+  mGoalId: string,
+  userId: string
+): { query: string; params: any[] } => {
+  try {
+    return {
+      query: `SELECT weekEnd, weekStart, goal, goalPriority, completed FROM weeklyGoals WHERE monthlyGoalId = ? and creator = ?;`,
+      params: [mGoalId, userId],
+    };
+  } catch (error) {
+    throw error;
+  }
+};

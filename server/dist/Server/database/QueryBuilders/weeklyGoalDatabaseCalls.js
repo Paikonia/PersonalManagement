@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWeeklyGoalByIdQuery = exports.getAllWeeklyGoalsQuery = exports.deleteWeeklyGoalByIdQuery = exports.updateWeeklyGoal = exports.insertWeeklyGoalQueryBuilder = void 0;
+exports.getWeeklyGoalByMonthlyIdQuery = exports.getWeeklyGoalByIdQuery = exports.getAllWeeklyGoalsQuery = exports.deleteWeeklyGoalByIdQuery = exports.updateWeeklyGoal = exports.insertWeeklyGoalQueryBuilder = void 0;
 const insertWeeklyGoalQueryBuilder = (weeklyGoalObjects, userId) => {
     try {
         const data = {
@@ -167,3 +167,15 @@ const getWeeklyGoalByIdQuery = (wGoalId, userId) => {
     }
 };
 exports.getWeeklyGoalByIdQuery = getWeeklyGoalByIdQuery;
+const getWeeklyGoalByMonthlyIdQuery = (mGoalId, userId) => {
+    try {
+        return {
+            query: `SELECT weekEnd, weekStart, goal, goalPriority, completed FROM weeklyGoals WHERE monthlyGoalId = ? and creator = ?;`,
+            params: [mGoalId, userId],
+        };
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getWeeklyGoalByMonthlyIdQuery = getWeeklyGoalByMonthlyIdQuery;

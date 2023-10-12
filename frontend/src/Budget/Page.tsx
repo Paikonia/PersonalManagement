@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useFetch from "../utils/fetch";
 import NoExpenseCurrently from "./NoBudgetCurrently";
-import { PartialBudgetType } from "./dataTypesAndUtilities";
 import NewBudgetCard from "./components/NewBudgetCard";
 import DisplayBudget from "./DisplayBudget";
 

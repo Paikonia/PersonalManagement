@@ -10,6 +10,7 @@ goalRoutes.patch("/tasks", controller_1.updateTaskItemController);
 goalRoutes.delete("/tasks", controller_1.deleteTaskItemController);
 goalRoutes.get("/week", controller_1.getWeeklyGoalItemController);
 goalRoutes.get("/week/:wGoalId", controller_1.getWeeklyGoalItemByIdController);
+goalRoutes.get("/week/project/:mGoalId", controller_1.getWeeklyGoalItemByProjectIdController);
 goalRoutes.post("/week", controller_1.postWeeklyGoalItemController);
 goalRoutes.patch("/week", controller_1.updateWeeklyGoalItemController);
 goalRoutes.delete("/week", controller_1.deleteWeeklyGoalItemController);

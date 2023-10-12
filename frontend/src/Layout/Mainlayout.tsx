@@ -7,7 +7,7 @@ import { NavContextProvider } from "../Contexts/sidebarContext";
 const Mainlayout = () => {
   const { userToken } = useAuthContext();
   const location = useLocation();
-
+  console.log(location)
   return userToken ? (
     <NavContextProvider>
       <Sidebar />

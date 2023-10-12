@@ -2,7 +2,7 @@ import LabelledInput from "../../Components/LabelledInput";
 import { Input } from "../../Components/ui/input";
 import { Label } from "../../Components/ui/label";
 import React from "react";
-import { BudgetType } from "../dataTypesAndUtilities";
+
 
 interface BudgetEditorProps {
   handleChange: (id: string, event: any) => void;

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useFetch from "../utils/fetch";
 import NoExpenseCurrently from "./NoExpenseCurrently";
 import DisplayExpense from "./DisplayExpense";
-import { PartialExpenseType } from "./dataTypesAndUtilities";
 import NewExpenseCard from "./components/NewExpenseCard";
 
 export interface NoteType {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { BudgetType, PartialBudgetType } from "./dataTypesAndUtilities";
 import useFetch from "../utils/fetch";
 import { Card } from "../Components/ui/card";
 import { Button } from "../Components/ui/button";

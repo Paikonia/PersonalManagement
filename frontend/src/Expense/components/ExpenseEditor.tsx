@@ -1,6 +1,6 @@
 import React from 'react'
 import LabelledInput from '../../Components/LabelledInput';
-import { ExpenseType } from '../dataTypesAndUtilities';
+
 
 interface ExpenseEditorProps {
     onChangeHandler: (expenseId: string, e:any)=> void

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { BudgetType } from "./dataTypesAndUtilities";
 import useFetch from "../utils/fetch";
 import { useNavigate, useLocation } from "react-router-dom";
 import BudgetEditor from "./components/BudgetEditor";

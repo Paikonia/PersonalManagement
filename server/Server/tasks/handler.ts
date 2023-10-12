@@ -6,16 +6,29 @@ import {
   insertMonthlyGoalQueryBuilder,
   updateMonthlyGoal,
 } from "../database/QueryBuilders/monthGoalDatabaseCalls";
-import { deleteTaskByIdQuery, getAllTasksQuery, getTaskByIdQuery, insertTaskQueryBuilder, updateTask } from "../database/QueryBuilders/tasksDatabaseCalls";
-import { deleteWeeklyGoalByIdQuery, getAllWeeklyGoalsQuery, getWeeklyGoalByIdQuery, insertWeeklyGoalQueryBuilder, updateWeeklyGoal } from "../database/QueryBuilders/weeklyGoalDatabaseCalls";
+import {
+  deleteTaskByIdQuery,
+  getAllTasksQuery,
+  getTaskByIdQuery,
+  insertTaskQueryBuilder,
+  updateTask,
+} from "../database/QueryBuilders/tasksDatabaseCalls";
+import {
+  deleteWeeklyGoalByIdQuery,
+  getAllWeeklyGoalsQuery,
+  getWeeklyGoalByIdQuery,
+  getWeeklyGoalByMonthlyIdQuery,
+  insertWeeklyGoalQueryBuilder,
+  updateWeeklyGoal,
+} from "../database/QueryBuilders/weeklyGoalDatabaseCalls";
 
 export const postMonthlyGoalItemHanlder = async (
   body: Array<any>,
   userId: string
 ) => {
   const { query, params, failed } = insertMonthlyGoalQueryBuilder(body, userId);
-    
-  if(query !== '')await makeQueriesWithParams(query, params);
+
+  if (query !== "") await makeQueriesWithParams(query, params);
   return {
     success:
       failed.length > 0 && query !== ""
@@ -57,17 +70,20 @@ export const updateMonthlyGoalsHandler = async (
   } catch (error) {}
 };
 
-
-export const getAllMonthlyGoalsHandler = async (userId:string) => {
+export const getAllMonthlyGoalsHandler = async (userId: string) => {
   try {
-    const {query, params} = getAllMonthlyGoalsQuery(userId) 
-    return await makeQueriesWithParams(query, params)   
+    const { query, params } = getAllMonthlyGoalsQuery(userId);
+    console.log(query);
+    return await makeQueriesWithParams(query, params);
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
-export const getMonthlyGoalByIdHandler = async (mGoalId:string, userId: string) => {
+export const getMonthlyGoalByIdHandler = async (
+  mGoalId: string,
+  userId: string
+) => {
   try {
     const { query, params } = getMonthlyGoalByIdQuery(mGoalId, userId);
     return await makeQueriesWithParams(query, params);
@@ -79,10 +95,7 @@ export const getMonthlyGoalByIdHandler = async (mGoalId:string, userId: string) 
 export const deleteMonthlyGoalsById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteMonthlyGoalByIdQuery(ids, userId);
-    const result = await makeQueriesWithParams(
-      queries.data,
-      queries.params
-    )
+    const result = await makeQueriesWithParams(queries.data, queries.params);
     makeQueriesWithParams(queries.delete, queries.params).catch((err) =>
       console.log(err)
     );
@@ -97,8 +110,8 @@ export const postWeekGoalItemHanlder = async (
   userId: string
 ) => {
   const { query, params, failed } = insertWeeklyGoalQueryBuilder(body, userId);
-    
-  if(query !== '')await makeQueriesWithParams(query, params);
+  console.log(body);
+  if (query !== "") await makeQueriesWithParams(query, params);
   return {
     success:
       failed.length > 0 && query !== ""
@@ -140,20 +153,37 @@ export const updateWeeklyGoalsHandler = async (
   } catch (error) {}
 };
 
-
-export const getAllWeeklyGoalsHandler = async (userId:string) => {
+export const getAllWeeklyGoalsHandler = async (userId: string) => {
   try {
-    const {query, params} = getAllWeeklyGoalsQuery(userId) 
-    return await makeQueriesWithParams(query, params)   
-  } catch (error) {
-    throw error
-  }
-}
-
-export const getWeeklyGoalByIdHandler = async (mGoalId:string, userId: string) => {
-  try {
-    const { query, params } = getWeeklyGoalByIdQuery(mGoalId, userId);
+    const { query, params } = getAllWeeklyGoalsQuery(userId);
     return await makeQueriesWithParams(query, params);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getWeeklyGoalByIdHandler = async (
+  wGoalId: string,
+  userId: string
+) => {
+  try {
+    const { query, params } = getWeeklyGoalByIdQuery(wGoalId, userId);
+    const data = await makeQueriesWithParams(query, params);
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const getWeeklyGoalByMonthlyIdHandler = async (
+  mGoalId: string,
+  userId: string
+) => {
+  try {
+    const { query, params } = getWeeklyGoalByMonthlyIdQuery(mGoalId, userId);
+    const data = await makeQueriesWithParams(query, params);
+
+    return data;
   } catch (error) {
     throw error;
   }
@@ -162,10 +192,7 @@ export const getWeeklyGoalByIdHandler = async (mGoalId:string, userId: string) =
 export const deleteWeeklyGoalsById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteWeeklyGoalByIdQuery(ids, userId);
-    const result = await makeQueriesWithParams(
-      queries.data,
-      queries.params
-    )
+    const result = await makeQueriesWithParams(queries.data, queries.params);
     makeQueriesWithParams(queries.delete, queries.params).catch((err) =>
       console.log(err)
     );
@@ -174,13 +201,10 @@ export const deleteWeeklyGoalsById = async (ids: string[], userId: string) => {
     throw error;
   }
 };
-export const postTaskItemHanlder = async (
-  body: Array<any>,
-  userId: string
-) => {
+export const postTaskItemHanlder = async (body: Array<any>, userId: string) => {
   const { query, params, failed } = insertTaskQueryBuilder(body, userId);
   console.log({ query, params, failed });
-  if(query !== '')await makeQueriesWithParams(query, params);
+  if (query !== "") await makeQueriesWithParams(query, params);
   return {
     success:
       failed.length > 0 && query !== ""
@@ -222,17 +246,16 @@ export const updateTasksHandler = async (
   } catch (error) {}
 };
 
-
-export const getAllTasksHandler = async (userId:string) => {
+export const getAllTasksHandler = async (userId: string) => {
   try {
-    const {query, params} = getAllTasksQuery(userId) 
-    return await makeQueriesWithParams(query, params)   
+    const { query, params } = getAllTasksQuery(userId);
+    return await makeQueriesWithParams(query, params);
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
-export const getTaskByIdHandler = async (mGoalId:string, userId: string) => {
+export const getTaskByIdHandler = async (mGoalId: string, userId: string) => {
   try {
     const { query, params } = getTaskByIdQuery(mGoalId, userId);
     return (await makeQueriesWithParams(query, params))[0];
@@ -244,10 +267,7 @@ export const getTaskByIdHandler = async (mGoalId:string, userId: string) => {
 export const deleteTasksById = async (ids: string[], userId: string) => {
   try {
     const queries = deleteTaskByIdQuery(ids, userId);
-    const result = await makeQueriesWithParams(
-      queries.data,
-      queries.params
-    )
+    const result = await makeQueriesWithParams(queries.data, queries.params);
     makeQueriesWithParams(queries.delete, queries.params).catch((err) =>
       console.log(err)
     );

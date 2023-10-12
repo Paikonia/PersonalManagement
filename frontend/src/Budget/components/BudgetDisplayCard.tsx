@@ -1,6 +1,5 @@
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import React from "react";
-import { BudgetType, PartialBudgetType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +42,7 @@ const BudgetDisplayCard = ({
       <div className="flex justify-between">
         <div className="flex w-full px-1 py-0 left-0 justify-start items-center">
           <input type="checkbox" className="w-4" />
-          <div className="w-ful px-2 flex justify-between w-full">
+          <div className=" px-2 flex justify-between w-full">
             <p>{budget.budget}</p>
             <p>Amount: {budget.amount}</p>
           </div>
@@ -53,7 +52,7 @@ const BudgetDisplayCard = ({
           editHandler={handleEdit}
         />
       </div>
-      {currentBudget && currentBudget.budgetId === budget.budgetId ? (
+      {currentBudget && currentBudget.budgetId === budget.budgetId && (
         <Card className="p-2 my-2">
           <div className="flex mb-2 justify-between">
             <p>Category: {currentBudget.expenseCategory}</p>
@@ -71,8 +70,6 @@ const BudgetDisplayCard = ({
             <p>Privacy: {currentBudget.budgetPrivacy}</p>
           </div>
         </Card>
-      ) : (
-        <></>
       )}
     </Card>
   );

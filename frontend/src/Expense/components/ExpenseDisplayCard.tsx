@@ -1,5 +1,4 @@
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
-import { ExpenseType, PartialExpenseType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
 import { useNavigate } from "react-router-dom";

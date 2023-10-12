@@ -9,14 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTasksById = exports.getTaskByIdHandler = exports.getAllTasksHandler = exports.updateTasksHandler = exports.postTaskItemHanlder = exports.deleteWeeklyGoalsById = exports.getWeeklyGoalByIdHandler = exports.getAllWeeklyGoalsHandler = exports.updateWeeklyGoalsHandler = exports.postWeekGoalItemHanlder = exports.deleteMonthlyGoalsById = exports.getMonthlyGoalByIdHandler = exports.getAllMonthlyGoalsHandler = exports.updateMonthlyGoalsHandler = exports.postMonthlyGoalItemHanlder = void 0;
+exports.deleteTasksById = exports.getTaskByIdHandler = exports.getAllTasksHandler = exports.updateTasksHandler = exports.postTaskItemHanlder = exports.deleteWeeklyGoalsById = exports.getWeeklyGoalByMonthlyIdHandler = exports.getWeeklyGoalByIdHandler = exports.getAllWeeklyGoalsHandler = exports.updateWeeklyGoalsHandler = exports.postWeekGoalItemHanlder = exports.deleteMonthlyGoalsById = exports.getMonthlyGoalByIdHandler = exports.getAllMonthlyGoalsHandler = exports.updateMonthlyGoalsHandler = exports.postMonthlyGoalItemHanlder = void 0;
 const database_1 = require("../database");
 const monthGoalDatabaseCalls_1 = require("../database/QueryBuilders/monthGoalDatabaseCalls");
 const tasksDatabaseCalls_1 = require("../database/QueryBuilders/tasksDatabaseCalls");
 const weeklyGoalDatabaseCalls_1 = require("../database/QueryBuilders/weeklyGoalDatabaseCalls");
 const postMonthlyGoalItemHanlder = (body, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { query, params, failed } = (0, monthGoalDatabaseCalls_1.insertMonthlyGoalQueryBuilder)(body, userId);
-    if (query !== '')
+    if (query !== "")
         yield (0, database_1.makeQueriesWithParams)(query, params);
     return {
         success: failed.length > 0 && query !== ""
@@ -58,6 +58,7 @@ exports.updateMonthlyGoalsHandler = updateMonthlyGoalsHandler;
 const getAllMonthlyGoalsHandler = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { query, params } = (0, monthGoalDatabaseCalls_1.getAllMonthlyGoalsQuery)(userId);
+        console.log(query);
         return yield (0, database_1.makeQueriesWithParams)(query, params);
     }
     catch (error) {
@@ -89,7 +90,8 @@ const deleteMonthlyGoalsById = (ids, userId) => __awaiter(void 0, void 0, void 0
 exports.deleteMonthlyGoalsById = deleteMonthlyGoalsById;
 const postWeekGoalItemHanlder = (body, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { query, params, failed } = (0, weeklyGoalDatabaseCalls_1.insertWeeklyGoalQueryBuilder)(body, userId);
-    if (query !== '')
+    console.log(body);
+    if (query !== "")
         yield (0, database_1.makeQueriesWithParams)(query, params);
     return {
         success: failed.length > 0 && query !== ""
@@ -138,16 +140,28 @@ const getAllWeeklyGoalsHandler = (userId) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.getAllWeeklyGoalsHandler = getAllWeeklyGoalsHandler;
-const getWeeklyGoalByIdHandler = (mGoalId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getWeeklyGoalByIdHandler = (wGoalId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query, params } = (0, weeklyGoalDatabaseCalls_1.getWeeklyGoalByIdQuery)(mGoalId, userId);
-        return yield (0, database_1.makeQueriesWithParams)(query, params);
+        const { query, params } = (0, weeklyGoalDatabaseCalls_1.getWeeklyGoalByIdQuery)(wGoalId, userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
+        return data;
     }
     catch (error) {
         throw error;
     }
 });
 exports.getWeeklyGoalByIdHandler = getWeeklyGoalByIdHandler;
+const getWeeklyGoalByMonthlyIdHandler = (mGoalId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { query, params } = (0, weeklyGoalDatabaseCalls_1.getWeeklyGoalByMonthlyIdQuery)(mGoalId, userId);
+        const data = yield (0, database_1.makeQueriesWithParams)(query, params);
+        return data;
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.getWeeklyGoalByMonthlyIdHandler = getWeeklyGoalByMonthlyIdHandler;
 const deleteWeeklyGoalsById = (ids, userId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const queries = (0, weeklyGoalDatabaseCalls_1.deleteWeeklyGoalByIdQuery)(ids, userId);
@@ -163,7 +177,7 @@ exports.deleteWeeklyGoalsById = deleteWeeklyGoalsById;
 const postTaskItemHanlder = (body, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { query, params, failed } = (0, tasksDatabaseCalls_1.insertTaskQueryBuilder)(body, userId);
     console.log({ query, params, failed });
-    if (query !== '')
+    if (query !== "")
         yield (0, database_1.makeQueriesWithParams)(query, params);
     return {
         success: failed.length > 0 && query !== ""

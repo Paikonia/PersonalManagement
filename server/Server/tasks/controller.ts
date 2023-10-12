@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, response } from "express";
-import { deleteMonthlyGoalsById, deleteTasksById, deleteWeeklyGoalsById, getAllMonthlyGoalsHandler, getAllTasksHandler, getAllWeeklyGoalsHandler, getMonthlyGoalByIdHandler, getTaskByIdHandler, getWeeklyGoalByIdHandler, postMonthlyGoalItemHanlder, postTaskItemHanlder, postWeekGoalItemHanlder, updateMonthlyGoalsHandler, updateTasksHandler, updateWeeklyGoalsHandler } from "./handler";
+import { deleteMonthlyGoalsById, deleteTasksById, deleteWeeklyGoalsById, getAllMonthlyGoalsHandler, getAllTasksHandler, getAllWeeklyGoalsHandler, getMonthlyGoalByIdHandler, getTaskByIdHandler, getWeeklyGoalByIdHandler, getWeeklyGoalByMonthlyIdHandler, postMonthlyGoalItemHanlder, postTaskItemHanlder, postWeekGoalItemHanlder, updateMonthlyGoalsHandler, updateTasksHandler, updateWeeklyGoalsHandler } from "./handler";
 
 
 export const getWeeklyGoalItemController = async(
@@ -30,6 +30,26 @@ export const getWeeklyGoalItemByIdController = async(
     next(error);
   }
 };
+
+export const getWeeklyGoalItemByProjectIdController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+
+   try {
+     const user = JSON.parse(req.headers.user as string);
+     const mGoalId = req.params["mGoalId"];
+    
+    
+     const data = await getWeeklyGoalByMonthlyIdHandler(mGoalId, user.userId);
+     res.json(data);
+   } catch (error) {
+     next(error);
+   }
+
+};
+
 
 export const postWeeklyGoalItemController = async (
   req: Request,
@@ -229,3 +249,6 @@ export const deleteTaskItemController = async(
     next(error);
   }
 };
+
+
+

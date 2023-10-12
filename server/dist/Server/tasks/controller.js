@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemByIdController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemByIdController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemByIdController = exports.getWeeklyGoalItemController = void 0;
+exports.deleteTaskItemController = exports.updateTaskItemController = exports.postTaskItemController = exports.getTaskItemByIdController = exports.getTaskItemController = exports.deleteMonthlyGoalItemController = exports.updateMonthlyGoalItemController = exports.postMonthlyGoalItemController = exports.getMonthlyGoalItemByIdController = exports.getMonthlyGoalItemController = exports.deleteWeeklyGoalItemController = exports.updateWeeklyGoalItemController = exports.postWeeklyGoalItemController = exports.getWeeklyGoalItemByProjectIdController = exports.getWeeklyGoalItemByIdController = exports.getWeeklyGoalItemController = void 0;
 const handler_1 = require("./handler");
 const getWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -34,6 +34,18 @@ const getWeeklyGoalItemByIdController = (req, res, next) => __awaiter(void 0, vo
     }
 });
 exports.getWeeklyGoalItemByIdController = getWeeklyGoalItemByIdController;
+const getWeeklyGoalItemByProjectIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = JSON.parse(req.headers.user);
+        const mGoalId = req.params["mGoalId"];
+        const data = yield (0, handler_1.getWeeklyGoalByMonthlyIdHandler)(mGoalId, user.userId);
+        res.json(data);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getWeeklyGoalItemByProjectIdController = getWeeklyGoalItemByProjectIdController;
 const postWeeklyGoalItemController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = req.body.data;

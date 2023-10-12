@@ -1,6 +1,7 @@
-import useFetch from "../../utils/fetch";
-import EditDeleteButtons from "../../Components/EditDeleteButtons";
-import { Card } from "../../Components/ui/card";
+import { Button } from "../../../Components/ui/button";
+import EditDeleteButtons from "../../../Components/EditDeleteButtons";
+import { Card } from "../../../Components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectDisplayProps {
   complete: boolean;
@@ -9,6 +10,7 @@ interface ProjectDisplayProps {
   goalPriority: string;
   projectId: string;
   handleProjectClick: (id: string) => void;
+  currentProject: any;
 }
 
 const ProjectDisplay = ({
@@ -18,11 +20,18 @@ const ProjectDisplay = ({
   goalPriority,
   estimateDuration,
   handleProjectClick,
+  currentProject,
 }: ProjectDisplayProps) => {
-  const fetch = useFetch();
-
   const handleDeleteProject = () => {};
   const handleEditProject = () => {};
+  const navigate = useNavigate();
+  const seeDetails = () => {
+    console.log({projectId, currentProject})
+    navigate("/projects/projects/details", {
+
+      state: { projectId, project: currentProject },
+    });
+  };
 
   return (
     <Card
@@ -48,6 +57,22 @@ const ProjectDisplay = ({
           editHandler={handleEditProject}
         />
       </div>
+      {currentProject && currentProject.mGoalId === projectId && (
+        <Card>
+          <div>
+            <p>Duration: {currentProject.estimatedDuration}</p>
+            <p>Priority: {currentProject.goalPriority}</p>
+          </div>
+          <div>
+            <p>Category: {currentProject.goalCategory}</p>
+            <p>
+              Start Date: 
+              {new Date(currentProject.monthStart).toISOString().split("T")[0]}
+            </p>
+          </div>
+          <Button onClick={seeDetails}>Details</Button>
+        </Card>
+      )}
     </Card>
   );
 };

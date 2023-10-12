@@ -1,5 +1,5 @@
 import { Card } from "../../Components/ui/card";
-import { BudgetType } from "../dataTypesAndUtilities";
+
 
 const BudgetDetailsDisplay = ({ budget }: { budget: BudgetType }) => {
   console.log('Hello World: ', budget.expenseCategory)
