@@ -15,12 +15,11 @@ const ExpenseDisplayCard = ({
   const fetch = useFetch();
   const handleDelete = async() => {
     const body = JSON.stringify({expenseIds: [expense.expenseId]})
-    const result = await fetch('/expense', {
+    await fetch('/expense', {
       method: 'DELETE',
       headers: {'content-type':'application/json'},
       body: body
     })
-    console.log(result)
     window.location.reload()
   };
 

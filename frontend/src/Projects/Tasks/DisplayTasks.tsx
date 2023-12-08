@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 import NoTasksToDisplay from './NoTasksToDisplay';
 import TaskDisplay from './Componets/TaskDisplay';
-import { PartialTaskType, TaskType } from './TaskFunctions';
 
 
 

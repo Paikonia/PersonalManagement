@@ -10,7 +10,7 @@ import {useNavigate} from 'react-router-dom'
 const Login = () => {
   const navigate = useNavigate()
   const { setLogginResult  } = useAuthContext();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | null>(null);
 
   const signin = async (user: string, password: string) => {

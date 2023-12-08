@@ -91,6 +91,7 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
                 },
             };
         }
+        console.log({ token, refreshToken });
         const { token, refreshToken } = yield generateTokens(username, email, firstName + " " + lastName, mobile, userId);
         return {
             userToken: token,
@@ -281,6 +282,10 @@ const signoutHandler = (userId, refreshToken) => __awaiter(void 0, void 0, void 
             const newRefreshTokens = refreshTokens[0].validRefreshTokens.tokens.filter((token) => refreshToken !== token);
             const update = `UPDATE registeredUsers SET validRefreshTokens = '{"tokens":${JSON.stringify(newRefreshTokens)}}', verifiedEmail = 1 WHERE userId = '${userId}';`;
             (0, database_1.default)(update);
+            return {};
+        }
+        else {
+            return {};
         }
     }
     catch (error) {

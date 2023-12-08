@@ -20,7 +20,6 @@ export const NavContextProvider = ({
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
   const handler = (e: any) => {
-    console.log('Changed')
     setIsCollapsed(!isCollapsed);
   };
   

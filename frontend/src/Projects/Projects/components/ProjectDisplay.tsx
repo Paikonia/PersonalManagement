@@ -26,7 +26,6 @@ const ProjectDisplay = ({
   const handleEditProject = () => {};
   const navigate = useNavigate();
   const seeDetails = () => {
-    console.log({projectId, currentProject})
     navigate("/projects/projects/details", {
 
       state: { projectId, project: currentProject },

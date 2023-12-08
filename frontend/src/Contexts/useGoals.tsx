@@ -22,7 +22,6 @@ export const GoalsContextProvider = ({ children }: { children: any }) => {
   useEffect(() => {
     const getNotes = async () => {
       const goals = await fetch("/goal/week");
-      console.log(goals);
       setGoals(goals);
     };
     getNotes();

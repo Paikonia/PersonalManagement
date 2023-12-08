@@ -34,7 +34,6 @@ const NewGoals = () => {
     setNewGoal(prev=> ({...prev, [name]: value}))
   }
 
-  console.log(newGoal)
 
   const limitedChange = (e: any) => {
     const { name, value } = e.target;
@@ -55,12 +54,11 @@ const NewGoals = () => {
   const fetch = useFetch()
   const navigate = useNavigate()
   const handleSubmit = async() => {
-    const data = await fetch("/goal/week", {
+    await fetch("/goal/week", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify([newGoal]),
     });
-    console.log(data)
     
     refreshGoals();
     navigate("/projects/goals");

@@ -27,12 +27,11 @@ const NewExpenseCard = ({ changeToDisplay }: NewExpenseCardProps) => {
 
   const submitExpense = async() => {
     try {
-      const response = await fetch("/expense", {
+       await fetch("/expense", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify([newExpense]),
       });
-      console.log(response);
       changeToDisplay();
     } catch (error) {
       console.error(error)

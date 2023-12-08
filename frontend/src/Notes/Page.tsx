@@ -1,43 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import DisplayNotes from "./DisplayNotes";
 import NoNotesCurrently from "./NoNotesCurrently";
-import useFetch from "../utils/fetch";
 import MarkdownEditor from "./components/MarkDownEditor";
-
-export interface NoteType {
-  noteId: number;
-  title: string;
-  note: string;
-  dateCreated: Date | null;
-  media: any;
-  notePrivacy: "private" | "public";
-  creator: string;
-}
+import useNotes from "../Contexts/useNotes";
 
 const NotesPage = () => {
-  const [notes, setNotes] = useState<NoteType[]>([]);
+  const {notes } = useNotes()
+  // const [notes, setNotes] = useState<NotesType[]>([]);
   const [addEdit, setAddEdit] = useState<{ edit: "edit" | "add" | null }>({
     edit: null,
   });
 
   const changeToAdd = () => {
-    
     setAddEdit({ edit: "add" });
-  
   };
-  const changeToDisplay =async () => {
-    const data = await fetch("/notes");
-    setNotes(data);
-    setAddEdit({ edit: null });
-  };
-  const fetch = useFetch();
-  useEffect(() => {
-    const getNotes = async () => {
-      const data = await fetch("/notes");
-      setNotes(data);
-    };
-    getNotes();
-  }, []);
+  const changeToDisplay =()=> {}
 
   return (
     <div>

@@ -1,5 +1,4 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
-import { TaskType } from "../Projects/Tasks/TaskFunctions";
 import useFetch from "../utils/fetch";
 
 interface ProjectsContextProps {

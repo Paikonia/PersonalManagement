@@ -7,7 +7,7 @@ import { Card } from "../Components/ui/card";
 import { FetchError, baseUrl } from "../utils/fetch";
 const Verify = () => {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | null>(null);
 
   const { state } = useLocation();

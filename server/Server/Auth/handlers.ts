@@ -125,7 +125,7 @@ export const signin = async (user: string, password: string) => {
         },
       };
     }
-
+    console.log({token, refreshToken})
     const { token, refreshToken } = await generateTokens(
       username,
       email,
@@ -396,6 +396,9 @@ export const signoutHandler = async (userId: string, refreshToken: string) => {
         newRefreshTokens
       )}}', verifiedEmail = 1 WHERE userId = '${userId}';`;
       makeQueries(update);
+      return {}
+    }else{
+      return {}
     }
   } catch (error) {
     throw error;

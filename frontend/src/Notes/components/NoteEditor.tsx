@@ -1,10 +1,9 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown';
-import { NoteType } from '../Page';
 import LabelledInput from '../../Components/LabelledInput';
 
 interface NoteEditorProps {
-    note: NoteType
+    note: NotesType
     handleChange: (id:string, event:any) => void
     noteId:string
 }

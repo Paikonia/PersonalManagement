@@ -20,6 +20,8 @@ export const signinController = async (
 ) => {
   try {
     const body = req.body;
+    console.log({body})
+	
     if (
       !body.user ||
       !body.password ||

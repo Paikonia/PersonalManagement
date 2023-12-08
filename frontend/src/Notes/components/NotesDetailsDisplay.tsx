@@ -1,6 +1,5 @@
 import { Card } from "../../Components/ui/card";
 import React from "react";
-import { NotesType } from "../dataTypesAndUtilities";
 import Markdown from "react-markdown";
 
 const NotesDetailsDisplay = ({ note }: { note: NotesType }) => {
@@ -13,7 +12,7 @@ const NotesDetailsDisplay = ({ note }: { note: NotesType }) => {
           <p className="text-slate-400 text-sm">{note.notePrivacy}</p>
         </div>
         <span className="text-slate-600 text-sm">
-          {new Date(note.dateCreated as Date).toISOString().split("T")[0]}
+          {new Date(note.dateCreated).toISOString().split("T")[0]}
         </span>
       </div>
       <div className="px-2 border-1 border-black">

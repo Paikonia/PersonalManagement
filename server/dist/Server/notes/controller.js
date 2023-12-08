@@ -16,6 +16,7 @@ const getNoteItemController = (req, res, next) => __awaiter(void 0, void 0, void
     try {
         const user = JSON.parse(req.headers.user);
         const returnedData = yield (0, handlers_1.getAllNotesHandler)(user.userId);
+        console.log({ user, returnedData });
         res.json(returnedData);
     }
     catch (error) {

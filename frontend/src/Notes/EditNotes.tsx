@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useFetch from "../utils/fetch";
-import { NoteType } from "./Page";
 import { Button } from "../Components/ui/button";
 import NoteEditor from "./components/NoteEditor";
 
 const EditNotes = () => {
   const { state } = useLocation();
   const fetch = useFetch();
-  const [editedNotes, setEditedNotes] = useState<{ [key: string]: NoteType }>();
+  const [editedNotes, setEditedNotes] = useState<{ [key: string]: NotesType }>();
   useState(() => {
     const getter = async () => {
       const note = await fetch(`/notes/${state[0]}`);

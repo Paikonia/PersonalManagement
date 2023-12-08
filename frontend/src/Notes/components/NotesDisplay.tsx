@@ -1,12 +1,14 @@
 import React from "react";
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
-import { PartialNoteType } from "../dataTypesAndUtilities";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
 import { useNavigate } from "react-router-dom";
 
 interface DisplayNotesProps extends PartialNoteType {
   displayClick: (id: number) => void;
+  noteId:string;
+  title:string;
+  dateCreated:string;
 }
 
 const NotesDisplay = ({
@@ -17,12 +19,11 @@ const NotesDisplay = ({
 }: DisplayNotesProps) => {
   const fetch = useFetch();
   const onDeleteNoteClick = async () => {
-    const deleted = await fetch('/notes', {
+    await fetch('/notes', {
       method: 'DELETE',
       headers: {'content-type': 'application/json'},
       body: JSON.stringify({noteIds: [noteId]}),
     })
-    console.log(deleted) 
     window.location.reload()
   };
   const navigate = useNavigate()
@@ -32,7 +33,7 @@ const NotesDisplay = ({
   return (
     <Card
       onClick={() => {
-        displayClick(noteId);
+        displayClick(Number(noteId));
       }}
       className="border-2 hover:bg-slate-200 overflow-hidden rounded-xl p-2 flex  mb-4 justify-between"
     >

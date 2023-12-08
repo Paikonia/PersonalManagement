@@ -4,15 +4,6 @@ import NoExpenseCurrently from "./NoExpenseCurrently";
 import DisplayExpense from "./DisplayExpense";
 import NewExpenseCard from "./components/NewExpenseCard";
 
-export interface NoteType {
-  noteId: number;
-  title: string;
-  note: string | null;
-  dateCreated: Date | null;
-  media: any;
-  notePrivacy: "private" | "public";
-  creator: string;
-}
 
 const Expense = () => {
   const [expenses, setExpenses] = useState<PartialExpenseType[]>([]);
@@ -36,7 +27,6 @@ const Expense = () => {
     };
     getNotes();
   }, []);
-  console.log("Expenses: ", expenses);
   return (
     <div>
       {addEdit.edit === null ? (

@@ -1,13 +1,13 @@
 import { Card } from "../Components/ui/card";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
-import { RegisterUser} from "../Contexts/authContext";
+import { RegisterUser } from "../Contexts/authContext";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FetchError, baseUrl } from "../utils/fetch";
 
 const Login = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [signupData, setSignupData] = useState<RegisterUser>({
     username: "",
     password: "",
@@ -15,7 +15,7 @@ const Login = () => {
     confirmPassword: "",
     firstName: "",
     lastName: "",
-    mobile: ""
+    mobile: "",
   });
 
   const [, setIsLoading] = useState<boolean>(false);
@@ -28,39 +28,37 @@ const Login = () => {
     }));
   };
 
-  const handleSignin =async () => {
-      try {
-        setError(null);
-        setIsLoading(true);
-        const response = await fetch(`${baseUrl}/auth/signup`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(signupData),
-        });
+  const handleSignin = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const response = await fetch(`${baseUrl}/auth/signup`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(signupData),
+      });
 
-        if (!response.ok) {
-          if (response.status >= 400 && response.status < 500) {
-            setError(await response.json());
-          }
-          setIsLoading(false);
-          return;
+      if (!response.ok) {
+        if (response.status >= 400 && response.status < 500) {
+          setError(await response.json());
         }
-
-        const data = await response.json();
-
         setIsLoading(false);
-        setError(null);
-        if (data.session.requireConfirmation) {
-          navigate("/auth/verify", {
-            state: data.session,
-          });
-          return;
-        }
-      } catch (err) {
-        console.error(err);
+        return;
       }
-    
 
+      const data = await response.json();
+
+      setIsLoading(false);
+      setError(null);
+      if (data.session.requireConfirmation) {
+        navigate("/auth/verify", {
+          state: data.session,
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
   return (
     <div className="w-full p-2 h-full flex bg-gray-100 justify-center items-center">

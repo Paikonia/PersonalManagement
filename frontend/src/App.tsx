@@ -11,6 +11,7 @@ import ExpenseRoute from "./Expense/ExpenseRoute";
 import BudgetRoutes from "./Budget/BudgetRoutes";
 import { ProjectContextProvider } from "./Contexts/useProjects";
 import { GoalsContextProvider } from "./Contexts/useGoals";
+import { NotesContextProvider } from "./Contexts/useNotes";
 
 const App = () => {
   return (
@@ -19,16 +20,18 @@ const App = () => {
         <NavContextProvider>
           <ProjectContextProvider>
             <GoalsContextProvider>
-              <Routes>
-                <Route path="/" element={<Mainlayout />}>
-                  <Route index element={<Home />} />
-                  <Route path="/notes/*" element={<NotesRoute />} />
-                  <Route path="/expense/*" element={<ExpenseRoute />} />
-                  <Route path="/projects/*" element={<ProjectRoutes />} />
-                  <Route path="/budget/*" element={<BudgetRoutes />} />
-                </Route>
-                <Route path="/auth/*" element={<AuthRoutes />} />
-              </Routes>
+              <NotesContextProvider>
+                <Routes>
+                  <Route path="/" element={<Mainlayout />}>
+                    <Route index element={<Home />} />
+                    <Route path="/notes/*" element={<NotesRoute />} />
+                    <Route path="/expense/*" element={<ExpenseRoute />} />
+                    <Route path="/projects/*" element={<ProjectRoutes />} />
+                    <Route path="/budget/*" element={<BudgetRoutes />} />
+                  </Route>
+                  <Route path="/auth/*" element={<AuthRoutes />} />
+                </Routes>
+              </NotesContextProvider>
             </GoalsContextProvider>
           </ProjectContextProvider>
         </NavContextProvider>

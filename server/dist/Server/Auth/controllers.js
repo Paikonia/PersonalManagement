@@ -17,6 +17,7 @@ const AuthConstants_1 = require("../Constants/AuthConstants");
 const signinController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = req.body;
+        console.log({ body });
         if (!body.user ||
             !body.password ||
             body.user === "" ||

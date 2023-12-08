@@ -16,7 +16,7 @@ const ProjectDetailsDisplay = () => {
   useEffect(() => {
     const getProject = async () => {
       const proj = await fetch(`/goal/week/project/${state.projectId}`);
-      console.log({ proj });
+      
       setWeeklyGoals(proj);
     };
     getProject();

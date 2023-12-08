@@ -10,6 +10,7 @@ export const getNoteItemController = async (
   try {
     const user = JSON.parse(req.headers.user as string);
     const returnedData = await getAllNotesHandler(user.userId);
+    console.log({user, returnedData});
     res.json(returnedData);
   } catch (error) {
     next(error);

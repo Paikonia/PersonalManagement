@@ -82,4 +82,30 @@ interface GoalsTypes extends PartialGoalsTypes {
 }
 
 
+interface PartialTaskType {
+  tasksId: number;
+  task: string;
+  progress: "In progress" | "Completed" | "Not Started";
+}
+interface TaskType extends PartialTaskType {
+  taskDate: string;
+  startingTime: string;
+  estimatedDuration: number;
+  goalId: string;
+  privacy: "private" | "public";
+}
+
+interface PartialNoteType {
+  noteId: string;
+  title: string;
+  dateCreated: string;
+  note: string;
+  media: any;
+  notePrivacy: "private" | "public";
+  creator: string;
+}
+
+interface NotesType extends PartialNoteType {
+  
+}
 
