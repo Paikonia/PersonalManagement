@@ -125,7 +125,7 @@ export const signin = async (user: string, password: string) => {
         },
       };
     }
-    console.log({token, refreshToken})
+    
     const { token, refreshToken } = await generateTokens(
       username,
       email,

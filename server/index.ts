@@ -33,6 +33,7 @@ app.use((error:any, req:Request, res:Response, next:NextFunction) => {
       message: error.message
     })
   }
+  console.log(error)
   res.status(500).json({
     error: error.message
   })

@@ -91,7 +91,6 @@ const signin = (user, password) => __awaiter(void 0, void 0, void 0, function* (
                 },
             };
         }
-        console.log({ token, refreshToken });
         const { token, refreshToken } = yield generateTokens(username, email, firstName + " " + lastName, mobile, userId);
         return {
             userToken: token,
