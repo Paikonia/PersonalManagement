@@ -1,17 +1,20 @@
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthContextProvider } from "./Contexts/authContext";
-import Mainlayout from "./Layout/Mainlayout";
-import Home from "./Screens/Home";
 import { NavContextProvider } from "./Contexts/sidebarContext";
-import ProjectRoutes from "./Projects/ProjectRoutes";
-import AuthRoutes from "./Screens/AuthRoutes";
-import NotesRoute from "./Notes/NotesRoute";
-import ExpenseRoute from "./Expense/ExpenseRoute";
-import BudgetRoutes from "./Budget/BudgetRoutes";
 import { ProjectContextProvider } from "./Contexts/useProjects";
 import { GoalsContextProvider } from "./Contexts/useGoals";
 import { NotesContextProvider } from "./Contexts/useNotes";
+import Login from "./Screens/Login";
+import Verify from "./Screens/Verify";
+import Signup from "./Screens/Signup";
+import Mainlayout from "./Layout/Mainlayout";
+import Home from "./Screens/Home";
+import NotesPage from "./Notes/Page";
+import MarkdownEditor from "./Notes/components/MarkDownEditor";
+import BudgetPage from "./Budget/Page";
+import ComposeBudget from "./Budget/components/ComposeBudgetComponent";
+import ExpensePage from "./Expense/Page";
+import ComposeExpense from "./Expense/components/ComposeExpense";
 
 const App = () => {
   return (
@@ -24,12 +27,18 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Mainlayout />}>
                     <Route index element={<Home />} />
-                    <Route path="/notes/*" element={<NotesRoute />} />
-                    <Route path="/expense/*" element={<ExpenseRoute />} />
-                    <Route path="/projects/*" element={<ProjectRoutes />} />
-                    <Route path="/budget/*" element={<BudgetRoutes />} />
+                    <Route path="notes" element={<NotesPage />} />
+                    <Route path="notes/compose" element={<MarkdownEditor />} />
+                    <Route path="budget" element={<BudgetPage />} />
+                    <Route path="budget/compose" element={<ComposeBudget />} />
+                    <Route path="expense" element={<ExpensePage />} />
+                    <Route path="expense/compose" element={<ComposeExpense />} />
                   </Route>
-                  <Route path="/auth/*" element={<AuthRoutes />} />
+                  <Route path="/auth">
+                    <Route path="signin" element={<Login />} />
+                    <Route path="verify" element={<Verify />} />
+                    <Route path="signup" element={<Signup />} />
+                  </Route>
                 </Routes>
               </NotesContextProvider>
             </GoalsContextProvider>
@@ -40,6 +49,4 @@ const App = () => {
   );
 };
 
-
-
-export default App
+export default App;

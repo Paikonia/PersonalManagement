@@ -19,21 +19,21 @@ app.use(express.json());
 
 app.use("/auth", authRoute);
 
-app.use(getUserDataMiddleWare)
+app.use(getUserDataMiddleWare);
 
 app.use("/goal", goalRoutes);
-app.use("/budget",  budgetRoutes);
+app.use("/budget", budgetRoutes);
 app.use("/expense", expenseRoutes);
 app.use("/notes", notesRoutes);
 
 app.use((error:any, req:Request, res:Response, next:NextFunction) => {
+  console.log(error)
   if(error.status) {
     return res.status(error.status).json({
       error: error.name,
       message: error.message
     })
   }
-  console.log(error)
   res.status(500).json({
     error: error.message
   })

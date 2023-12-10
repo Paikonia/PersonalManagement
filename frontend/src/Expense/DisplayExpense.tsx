@@ -1,35 +1,30 @@
 import { useState } from "react";
-import useFetch from "../utils/fetch";
-import { Card } from "../Components/ui/card";
-import { Button } from "../Components/ui/button";
 import { Pencil } from "lucide-react";
-import ExpenseDisplayCard from "./components/ExpenseDisplayCard";
 
-const DisplayExpense = ({
-  expenses,
-  changeToAdd,
-}: {
-  expenses: PartialExpenseType[];
-  changeToAdd: () => void;
-}) => {
-  const [currentExpense, setExpense] = useState<ExpenseType>();
-  const fetch = useFetch();
-  const handleNoteClick = async (id: string) => {
-    const specificNote = await fetch(`/expense/${id}`);
-    setExpense(specificNote);
+import { Card } from "../Components/ui/card";
+import ExpenseDisplayCard from "./components/ExpenseDisplayCard";
+import { Link } from "react-router-dom";
+
+const DisplayExpense = ({ expenses }: { expenses: ExpenseType[] }) => {
+  const [currentExpense, setCurrentExpense] = useState<ExpenseType>();
+
+  const handleClick = (id: string) => {
+    const expense = expenses.find((expense) => expense.expenseId === id);
+    setCurrentExpense(expense);
   };
+
   return (
     <div className="w-full">
-      <Button onClick={changeToAdd}>
+      <Link className="btn" to={"compose"}>
         <Pencil /> Add Expense
-      </Button>
+      </Link>
       <div className={`my-2`}>
         <Card className={`mx-1 p-4 w-full border-2`}>
           {expenses.map((expense: PartialExpenseType) => (
             <ExpenseDisplayCard
-              expense={expense}
-              handleClick={handleNoteClick}
               currentExpense={currentExpense}
+              expense={expense}
+              handleClick={handleClick}
             />
           ))}
         </Card>

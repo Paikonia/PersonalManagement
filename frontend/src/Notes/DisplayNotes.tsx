@@ -1,42 +1,35 @@
-import React, { useState } from "react";
-import NotesDisplay from "./components/NotesDisplay";
-import useFetch from "../utils/fetch";
+import { useState } from "react";
 import { Card } from "../Components/ui/card";
 import NotesDetailsDisplay from "./components/NotesDetailsDisplay";
-import { Button } from "../Components/ui/button";
+import {Link} from 'react-router-dom'
 import { Pencil } from 'lucide-react'
 import { Note } from "../Contexts/useNotes";
+import NotesDisplay from "./components/NotesDisplay";
 const DisplayNotes = ({
   notes,
-  changeToAdd,
 }: {
   notes: Note[];
-  changeToAdd: ()=> void;
 }) => {
-  const [note, setNotes] = useState<NotesType>();
-  const fetch = useFetch();
+  const [note, setNote] = useState<NotesType>();
   const handleNoteClick = async (id: number) => {
-    const specificNote = await fetch(`/notes/${id}`);
-    setNotes(specificNote);
+    const n = notes.find(note => String(note.noteId) === String(id))
+    setNote(n);
   };
   return (
     <div className="w-full">
-      <Button onClick={changeToAdd}>
+      <Link className="btn" to="compose">
         <Pencil /> Add Note
-      </Button>
+      </Link>
       <div className={`${note ? "main-displays" : ""} my-2`}>
-        <Card
-          className={`mx-1 p-4  "w-full" `}
-        >
-          {/* {notes.map((note: PartialNoteType) => (
+        <Card className={`mx-1 p-4  "w-full" `}>
+          {notes.map((note: PartialNoteType) => (
             <NotesDisplay
-              key={note.noteId}
-              title={note.title}
-              noteId={note.noteId}
-              dateCreated={note.dateCreated}
               displayClick={handleNoteClick}
+              noteId={note.noteId}
+              title={note.title}
+              dateCreated={note.dateCreated}
             />
-          ))} */}
+          ))}
         </Card>
         <>{note && <NotesDetailsDisplay note={note} />}</>
       </div>

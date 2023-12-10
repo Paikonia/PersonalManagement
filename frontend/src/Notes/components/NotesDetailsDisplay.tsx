@@ -1,5 +1,4 @@
 import { Card } from "../../Components/ui/card";
-import React from "react";
 import Markdown from "react-markdown";
 
 const NotesDetailsDisplay = ({ note }: { note: NotesType }) => {

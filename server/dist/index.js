@@ -23,13 +23,13 @@ app.use("/budget", routes_2.default);
 app.use("/expense", routes_3.default);
 app.use("/notes", routes_4.default);
 app.use((error, req, res, next) => {
+    console.log(error);
     if (error.status) {
         return res.status(error.status).json({
             error: error.name,
             message: error.message
         });
     }
-    console.log(error);
     res.status(500).json({
         error: error.message
     });

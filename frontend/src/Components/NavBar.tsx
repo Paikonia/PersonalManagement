@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronDownCircle, LogOut, Menu,X } from "lucide-react";
 import { useAuthContext } from "../Contexts/authContext";
 import { useNavContext } from "../Contexts/sidebarContext";
@@ -7,7 +7,8 @@ import { Button } from "./ui/button";
 const NavBar = () => {
   const { user, signout } = useAuthContext();
   const {handleIsCollapsed, isCollapsed} = useNavContext()
-  const m = user as unknown as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const m = user as any;
   const [dropDown, setDropDown] =useState(false)
 
   return (

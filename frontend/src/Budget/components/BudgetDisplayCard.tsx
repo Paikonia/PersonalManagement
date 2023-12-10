@@ -1,5 +1,4 @@
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
-import React from "react";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
 import { useNavigate } from "react-router-dom";
@@ -27,9 +26,7 @@ const BudgetDisplayCard = ({
   };
   const navigate = useNavigate()
   const handleEdit = () => {
-    navigate("/budget/edit/", {
-      state: [budget.budgetId]
-    })
+    navigate("compose?bId=" + budget.budgetId)
   };
 
   return (
@@ -66,7 +63,7 @@ const BudgetDisplayCard = ({
             </p>
           </div>
           <div className="flex justify-between">
-            <p>Paid: {(budget.paid === 0)? "Pending" : "Paid"}</p>
+            <p>Paid: {(budget.paid )? "Pending" : "Paid"}</p>
             <p>Privacy: {currentBudget.budgetPrivacy}</p>
           </div>
         </Card>

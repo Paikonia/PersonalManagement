@@ -1,18 +1,66 @@
+import { Button } from "../../Components/ui/button";
 import LabelledInput from "../../Components/LabelledInput";
+import { ChangeEvent, useEffect, useState } from "react";
+import useFetch from "../../utils/fetch";
 import { Input } from "../../Components/ui/input";
 import { Label } from "../../Components/ui/label";
-import React from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+const ComposeBudget = ( ) => {
+  const [newBudget, setNewBudget] = useState<BudgetType>({
+    dateOfPayment: "",
+    expenseCategory: "Living",
+    budgetPrivacy: "private",
+    goalId: "",
+    budget: "",
+    amount: 0,
+    paid: true,
+    creator: '',
+    budgetId : ''
+  });
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  const id = searchParams.get("bId");
+  const fetch = useFetch();
+  useEffect(()=>{
+    const caller = async () => {
+      
+      if(id){
+        setLoading(true);
+        const data = (await fetch(`/budget/${id}`)) as BudgetType
+        setNewBudget(data)
+        setLoading(false)
+      }
+    }
+    caller()
+  }, [id])
+  const onChangeHandler = (e:ChangeEvent<HTMLInputElement>|ChangeEvent<HTMLSelectElement>) => {
+    const { value, name } = e.target;
+    setNewBudget((prev) => {
+      return { ...prev, [name]: value };
+    });
+  };
+
+  const submitBudget = async () => {
+    try {
+      await fetch("/budget", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify([newBudget]),
+      });
+      navigate(0)
+      navigate('budget')
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
 
-interface BudgetEditorProps {
-  handleChange: (id: string, event: any) => void;
-  newBudget: Partial<BudgetType>;
-  id: string;
-}
+  if(loading) {
+    return <h1>Setting up budget edit</h1>
+  }
 
-const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
-  
-  
   return (
     <div className="p-2 grid">
       <div>
@@ -21,9 +69,7 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
           id="budget"
           name="budget"
           required
-          onChange={(e: any) => {
-            handleChange(id, e);
-          }}
+          onChange={onChangeHandler}
           value={newBudget.budget}
           placeholder="Enter the budget item here..."
         />
@@ -34,9 +80,7 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
             required
             name="amount"
             placeholder="Amount in number"
-            onChange={(e: any) => {
-              handleChange(id, e);
-            }}
+            onChange={onChangeHandler}
             value={newBudget.amount}
           />
           <LabelledInput
@@ -45,19 +89,15 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
             name="dateOfPayment"
             type="date"
             placeholder="Please enter date this is supposed to be paid..."
-            onChange={(e: any) => {
-              handleChange(id, e);
-            }}
-            value={String(newBudget.dateOfPayment).split("T")[0]}
+            onChange={onChangeHandler}
+            value={new Date(newBudget.dateOfPayment).toISOString().split('T')[0]}
           />
           <LabelledInput
             label="Goal Id"
             id="goalId"
             name="goalId"
             placeholder="Please enter the monthly goal id this belongs to..."
-            onChange={(e: any) => {
-              handleChange(id, e);
-            }}
+            onChange={onChangeHandler}
             value={newBudget.goalId}
           />
           <div className="w-full mx-4 p-2">
@@ -65,9 +105,7 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
               id="category"
               name="expenseCategory"
               value={newBudget.expenseCategory}
-              onChange={(e: any) => {
-                handleChange(id, e);
-              }}
+              onChange={onChangeHandler}
               className="py-4 px-4 w-full mr-2 rounded-lg"
             >
               <option value="">Select expense category</option>
@@ -84,9 +122,7 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
               id="privacy"
               name="budgetPrivacy"
               value={newBudget.budgetPrivacy}
-              onChange={(e: any) => {
-                handleChange(id, e);
-              }}
+              onChange={onChangeHandler}
               className="py-4 w-full px-4 rounded-lg"
             >
               <option value="private">Private</option>
@@ -102,17 +138,22 @@ const BudgetEditor = ({ newBudget, handleChange, id }: BudgetEditorProps) => {
               name="paid"
               id="paid"
               className="mx-2 text-sm"
-              onChange={(e: any) => {
-                handleChange(id, e);
+              onChange={(e) => {
+                setNewBudget((prev) => ({
+                  ...prev,
+                  paid: e.target.checked,
+                }));
               }}
-              checked={ (newBudget.paid !== 0)}
+              checked={newBudget.paid}
               type="checkbox"
             />
           </div>
         </div>
       </div>
+
+      <Button onClick={submitBudget}>Submit Budget</Button>
     </div>
   );
 };
 
-export default BudgetEditor;
+export default ComposeBudget;

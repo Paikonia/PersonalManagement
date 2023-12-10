@@ -31,7 +31,7 @@ const Sidebar = () => {
           <li className="mb-4 w-full text-lg hover:text-blue-400 px-1 flex justify-start align-center">
             <NavLink
               onClick={handleLinkClick}
-              to="/"
+              to="."
               className={({ isActive }) =>
                 `flex justify-center w-full px-4 py-1 rounded-lg items-center ${
                   isActive ? "border-2 border-blue-400 text-blue-400" : ""

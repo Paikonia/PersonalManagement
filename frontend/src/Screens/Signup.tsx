@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card } from "../Components/ui/card";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
@@ -5,7 +6,7 @@ import { RegisterUser } from "../Contexts/authContext";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FetchError, baseUrl } from "../utils/fetch";
-
+import Logo from "../Resources/aikos-logo.png";
 const Login = () => {
   const navigate = useNavigate();
   const [signupData, setSignupData] = useState<RegisterUser>({
@@ -64,8 +65,8 @@ const Login = () => {
     <div className="w-full p-2 h-full flex bg-gray-100 justify-center items-center">
       <Card className="w-full lg:w-8/12 shadow-2xl">
         <img
-          className="w-42 paikonia1h-36 mx-auto"
-          src={require("../Resources/aikos-logo.png")}
+          className="w-42 h-36 mx-auto"
+          src={Logo}
           alt="Logo"
         />
         {error && <p className="text-red-400">{error.message}</p>}

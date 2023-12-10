@@ -1,24 +1,55 @@
+import { useState, ChangeEvent, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 import { Button } from "../../Components/ui/button";
 import LabelledInput from "../../Components/LabelledInput";
-import { useState, ChangeEvent } from "react";
-import ReactMarkdown from "react-markdown";
 import useFetch from "../../utils/fetch";
+import { Note } from "../Page";
 
-type MarkDownEditorProps = {
-  changeToDisplay: () => void
-};
+// type MarkDownEditorProps = {
+//   changeToDisplay: () => void
+// };
 
-const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
+const MarkdownEditor = () => {
   const [markdownText, setMarkdownText] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [privacy, setPrivacy] = useState<string>("private");
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownText(event.target.value);
   };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
 
   const fetch = useFetch();
+  useEffect(() => {
+    const id = searchParams.get("ei");
+    if (id !== null) {
+      setIsLoading(true)
+      const caller = async () => {
+        try{
+
+          const data = (await fetch('/notes/'+id)) as Note
+          console.log({data});
+          setMarkdownText(data.note)
+          setTitle(data.title)
+          setPrivacy(data.notePrivacy)
+        }catch(e) {
+          console.log(e)
+        }finally {
+          setIsLoading(false)
+        }
+      };
+      caller();
+    }
+  }, []);
 
   const subimitNote = async () => {
+    setSubmitting(true);
     await fetch("/notes", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -27,12 +58,17 @@ const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
           title,
           note: markdownText,
           notePrivacy: privacy,
-          media: []
+          media: [],
         },
       ]),
     });
-    changeToDisplay()
+    setSubmitting(false);
+    navigate("/notes");
   };
+
+  if(isLoading) {
+    return <h1>Data is still loading</h1>
+  }
 
   return (
     <div>
@@ -85,7 +121,11 @@ const MarkdownEditor = ({ changeToDisplay }: MarkDownEditorProps) => {
         </div>
       </div>
       <div className="flex  mt-4">
-        <Button onClick={subimitNote} className="w-full mx-2">
+        <Button
+          disabled={submitting}
+          onClick={subimitNote}
+          className="w-full mx-2"
+        >
           Submit
         </Button>
       </div>

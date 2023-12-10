@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card } from "../Components/ui/card";
 import LabelledInput from "../Components/LabelledInput";
 import { Button } from "../Components/ui/button";
 import { useAuthContext } from "../Contexts/authContext";
 import { Suspense, useState } from "react";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { FetchError, baseUrl } from "../utils/fetch";
-import {useNavigate} from 'react-router-dom'
-
+import { useNavigate } from "react-router-dom";
+import Logo from "../Resources/aikos-logo.png";
 const Login = () => {
-  const navigate = useNavigate()
-  const { setLogginResult  } = useAuthContext();
+  const navigate = useNavigate();
+  const { setLogginResult } = useAuthContext();
   const [, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FetchError | null>(null);
 
@@ -38,6 +39,8 @@ const Login = () => {
         navigate("/");
         localStorage.setItem("userData", JSON.stringify(data));
       } else {
+        const b = await response.json();
+        console.log(b)
         if (response.status >= 400 && response.status < 500) {
           const d = await response.json();
           console.log(d);
@@ -69,11 +72,7 @@ const Login = () => {
     <Suspense>
       <div className="w-full h-[100vh] flex shadow-inner bg-gray-100 justify-center items-center">
         <Card className="w-8/12 shadow-2xl">
-          <img
-            className="w-72 h-64 mx-auto"
-            src={require("../Resources/aikos-logo.png")}
-            alt="Logo"
-          />
+          <img className="w-72 h-64 mx-auto" src={Logo} alt="Logo" />
           {error ? <p className="text-red-400 px-4">{error.message}</p> : <></>}
           <LabelledInput
             label="Username or email"

@@ -27,7 +27,7 @@ interface PartialExpenseType {
   item: string;
   amount: number;
   paymentMethod: "Cash" | "Card" | "Credit";
-  expenseDate: Date;
+  expenseDate: string;
 }
 
 interface ExpenseType extends PartialExpenseType {
@@ -47,7 +47,7 @@ interface ExpenseType extends PartialExpenseType {
    budgetId: string;
    budget: string;
    amount: number;
-   paid: number;
+   paid: boolean;
  }
 
  interface BudgetType extends PartialBudgetType {

@@ -1,49 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useFetch from "../utils/fetch";
 import NoExpenseCurrently from "./NoExpenseCurrently";
 import DisplayExpense from "./DisplayExpense";
-import NewExpenseCard from "./components/NewExpenseCard";
 
-
-const Expense = () => {
-  const [expenses, setExpenses] = useState<PartialExpenseType[]>([]);
-  const [addEdit, setAddEdit] = useState<{ edit: "edit" | "add" | null }>({
-    edit: null,
-  });
-
-  const changeToAdd = () => {
-    setAddEdit({ edit: "add" });
-  };
-  const changeToDisplay =async () => {
-    const data = await fetch("/expense");
-    setExpenses(data);
-    setAddEdit({ edit: null });
-  };
+const ExpensePage = () => {
+  const [expenses, setExpenses] = useState<ExpenseType[]>([]);
+  const [loadingExpenses, setLoadingExpenses] = useState<boolean>(false)
   const fetch = useFetch();
   useEffect(() => {
     const getNotes = async () => {
-      const data = await fetch("/expense");
+      setLoadingExpenses(true)
+      const data = (await fetch("/expense")) as ExpenseType[];
       setExpenses(data);
+      setLoadingExpenses(false)
     };
     getNotes();
   }, []);
+  if(loadingExpenses){
+    return <h1>Loading expenses. Please wait</h1>
+  }
   return (
     <div>
-      {addEdit.edit === null ? (
-        <div>
-          {expenses.length <= 0 ? (
-            <NoExpenseCurrently changeToAdd={changeToAdd} />
-          ) : (
-            <DisplayExpense changeToAdd={changeToAdd} expenses={expenses} />
-          )}
-        </div>
-      ) : (
-        addEdit.edit === "add" && (
-          <NewExpenseCard changeToDisplay={changeToDisplay} />
-        )
-      )}
+      <div>
+        {expenses.length <= 0 ? (
+          <NoExpenseCurrently />
+        ) : (
+          <DisplayExpense expenses={expenses} />
+        )}
+      </div>
     </div>
   );
 };
 
-export default Expense;
+export default ExpensePage;

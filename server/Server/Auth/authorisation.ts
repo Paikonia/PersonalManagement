@@ -9,6 +9,7 @@ export const getUserDataMiddleWare = async (
   next: NextFunction
 ) => {
   try {
+    if(req.url.includes('auth')) return next()
     const authHeader = req.headers["authorization"];
     if(!authHeader) return next(AUTHERRORS.MissingToken);
 

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div>
+        <input type="text" id="user" placeholder="username, email, id">
+        <input type="password" placeholder="password" id="password">
+        <button onclick="login()">Login</button>
+    </div>
+</body>
+<script>
+    const user = document.getElementById('user')
+    const password = document.getElementById('password')
+    const login = async() => {
+        const res = await fetch('http://127.0.0.1:8090/auth/signin', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({user: user.value, password: password.value})
+        })
+
+        console.log(await res.json())
+    }
+</script>
+</html>

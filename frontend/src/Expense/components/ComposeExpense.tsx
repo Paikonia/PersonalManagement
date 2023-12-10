@@ -1,23 +1,46 @@
 import { Button } from "../../Components/ui/button";
 import LabelledInput from "../../Components/LabelledInput";
-import React, { useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import useFetch from "../../utils/fetch";
+import { useSearchParams } from "react-router-dom";
 
-interface NewExpenseCardProps {
-  changeToDisplay: () => void;
-}
-
-const NewExpenseCard = ({ changeToDisplay }: NewExpenseCardProps) => {
-  const [newExpense, setNewExpense] = useState({
+const ComposeExpense = () => {
+  const [newExpense, setNewExpense] = useState<ExpenseType>({
     budgetId: "",
     item: "",
-    amount: "",
+    amount: 0,
     paymentMethod: "Cash",
-    expenseCategory: "",
+    expenseCategory: "Living",
     expensePrivacy: "private",
+    expenseDate: Date.now().toString(),
+    creator: '',
+    expenseId: ''
   });
-  const fetch = useFetch()
-  const onChangeHandler = (e: any) => {
+  const [loadingExpense, setLoadingExpense] = useState<boolean>(false)
+  const [searchParams] = useSearchParams()
+  const id = searchParams.get("eId")
+  const fetch = useFetch();
+  
+  useEffect(()=> {
+    const caller = async () => {
+      if(id) {
+        setLoadingExpense(true)
+        try{
+          const data = (await fetch('/expense/'+id)) as ExpenseType
+          setNewExpense(data)
+        }catch(e){
+          console.error(e)
+        }finally {
+          setLoadingExpense(false)
+        }
+      }
+    }
+    caller()
+  }, [])
+  
+  const onChangeHandler = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+  ) => {
     const { value, name } = e.target;
 
     setNewExpense((prev) => {
@@ -25,19 +48,21 @@ const NewExpenseCard = ({ changeToDisplay }: NewExpenseCardProps) => {
     });
   };
 
-  const submitExpense = async() => {
+  const submitExpense = async () => {
     try {
-       await fetch("/expense", {
+      await fetch("/expense", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify([newExpense]),
       });
-      changeToDisplay();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-    
   };
+
+  if(loadingExpense) {
+    return <h1>The expense is loading for editing</h1>
+  }
 
   return (
     <div className="p-2 flex justify-center flex-col w-full">
@@ -68,7 +93,7 @@ const NewExpenseCard = ({ changeToDisplay }: NewExpenseCardProps) => {
           id="budgetId"
           className="w-full"
           onChange={onChangeHandler}
-          value={newExpense.budgetId}
+          value={newExpense.budgetId || ''}
         />
       </div>
 
@@ -116,4 +141,4 @@ const NewExpenseCard = ({ changeToDisplay }: NewExpenseCardProps) => {
   );
 };
 
-export default NewExpenseCard;
+export default ComposeExpense;

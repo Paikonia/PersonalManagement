@@ -6,11 +6,11 @@ import { useNavigate } from "react-router-dom";
 const ExpenseDisplayCard = ({
   expense,
   handleClick,
-  currentExpense,
+  currentExpense
 }: {
   expense: PartialExpenseType;
   handleClick: (id: string) => void;
-  currentExpense: ExpenseType | null | undefined;
+  currentExpense: ExpenseType|undefined|null
 }) => {
   const fetch = useFetch();
   const handleDelete = async() => {
@@ -26,7 +26,7 @@ const ExpenseDisplayCard = ({
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    navigate('/expense/edit', {state: [expense.expenseId]})
+    navigate('compose?eId='+expense.expenseId)
   };
 
 

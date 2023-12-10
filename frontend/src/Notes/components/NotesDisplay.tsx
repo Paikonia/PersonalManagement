@@ -1,10 +1,10 @@
-import React from "react";
+
 import EditDeleteButtons from "../../Components/EditDeleteButtons";
 import { Card } from "../../Components/ui/card";
 import useFetch from "../../utils/fetch";
 import { useNavigate } from "react-router-dom";
 
-interface DisplayNotesProps extends PartialNoteType {
+interface DisplayNotesProps {
   displayClick: (id: number) => void;
   noteId:string;
   title:string;
@@ -28,7 +28,7 @@ const NotesDisplay = ({
   };
   const navigate = useNavigate()
   const onEditNoteClick = () => {
-    navigate("/notes/edit", { state: [noteId] });
+    navigate(`compose?ei=${noteId}`, { state: [noteId] });
   };
   return (
     <Card
@@ -45,7 +45,7 @@ const NotesDisplay = ({
           id={String(noteId)}
         />
         <p className="ml-2 w-30  sm:w-42 max-w-xs mr-2 truncate">{title}</p>
-        <h3 className="mr-2 w-20">
+        <h3 className="mr-2">
           {
             new Date(dateCreated?.toString() as string)
               .toISOString()

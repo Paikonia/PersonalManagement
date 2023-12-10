@@ -1,4 +1,3 @@
-import React from "react";
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { useAuthContext } from "../Contexts/authContext";
 import Sidebar from "../Components/Sidebar";
@@ -11,6 +10,7 @@ const Mainlayout = () => {
     <NavContextProvider>
       <Sidebar />
       <NavBar />
+      <h1>Hello One</h1>
       <main className={"lg:ml-48 p-4"}>
         <Outlet />
       </main>

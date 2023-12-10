@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useFetch from "../utils/fetch";
-import NoExpenseCurrently from "./NoBudgetCurrently";
-import NewBudgetCard from "./components/NewBudgetCard";
+import NoBudgetCurrently from "./NoBudgetCurrently";
 import DisplayBudget from "./DisplayBudget";
 
 export interface NoteType {
@@ -9,48 +8,40 @@ export interface NoteType {
   title: string;
   note: string | null;
   dateCreated: Date | null;
-  media: any;
+  media: object[];
   notePrivacy: "private" | "public";
   creator: string;
 }
 
 const BudgetPage = () => {
-  const [budgets, setBudgets] = useState<PartialBudgetType[]>([]);
-  const [addEdit, setAddEdit] = useState<{ edit: "edit" | "add" | null }>({
-    edit: null,
-  });
-
-  const changeToAdd = () => {
-    setAddEdit({ edit: "add" });
-  };
-  const changeToDisplay =async () => {
-    const data = await fetch("/budget");
-    setBudgets(data);
-    setAddEdit({ edit: null });
-  };
+  const [budgets, setBudgets] = useState<BudgetType[]>([]);
+  const [budgetsLoading, setBudgetsLoading] = useState<boolean>(false)
   const fetch = useFetch();
   useEffect(() => {
     const getBudgets = async () => {
-      const data = await fetch("/budget");
+      setBudgetsLoading(true)
+      const data = (await fetch("/budget")) as BudgetType[];
       setBudgets(data);
+      setBudgetsLoading(false);
     };
     getBudgets();
   }, []);
+
+  if(budgetsLoading){
+    return <h1>Budget is currently loading</h1>
+  }
+
   return (
     <div>
-      {addEdit.edit === null ? (
+      { (
         <div>
           {budgets.length <= 0 ? (
-            <NoExpenseCurrently changeToAdd={changeToAdd} />
+            <NoBudgetCurrently />
           ) : (
-            <DisplayBudget changeToAdd={changeToAdd} budgets={budgets} />
+            <DisplayBudget budgets={budgets} />
           )}
         </div>
-      ) : (
-        addEdit.edit === "add" && (
-          <NewBudgetCard changeToDisplay={changeToDisplay} />
-        )
-      )}
+      ) }
     </div>
   );
 };
