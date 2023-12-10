@@ -10,8 +10,7 @@ const Mainlayout = () => {
     <NavContextProvider>
       <Sidebar />
       <NavBar />
-      <h1>Hello One</h1>
-      <main className={"lg:ml-48 p-4"}>
+      <main className={"lg:ml-48 p-0"}>
         <Outlet />
       </main>
     </NavContextProvider>

@@ -15,6 +15,7 @@ import BudgetPage from "./Budget/Page";
 import ComposeBudget from "./Budget/components/ComposeBudgetComponent";
 import ExpensePage from "./Expense/Page";
 import ComposeExpense from "./Expense/components/ComposeExpense";
+import ProjectLayout from "./Projects/ProjectLayout";
 
 const App = () => {
   return (
@@ -33,6 +34,11 @@ const App = () => {
                     <Route path="budget/compose" element={<ComposeBudget />} />
                     <Route path="expense" element={<ExpensePage />} />
                     <Route path="expense/compose" element={<ComposeExpense />} />
+                    <Route path="projects" element={<ProjectLayout /> }>
+                      <Route index  element={<h1>Projects</h1>} />
+                      <Route path="goals" element={<h1>Goals</h1>} />
+                      <Route path="tasks" element={<h1>tasks</h1>} />
+                    </Route>
                   </Route>
                   <Route path="/auth">
                     <Route path="signin" element={<Login />} />

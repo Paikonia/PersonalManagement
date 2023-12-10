@@ -15,25 +15,30 @@ export interface NoteType {
 
 const BudgetPage = () => {
   const [budgets, setBudgets] = useState<BudgetType[]>([]);
-  const [budgetsLoading, setBudgetsLoading] = useState<boolean>(false)
+  const [budgetsLoading, setBudgetsLoading] = useState<boolean>(false);
   const fetch = useFetch();
   useEffect(() => {
     const getBudgets = async () => {
-      setBudgetsLoading(true)
-      const data = (await fetch("/budget")) as BudgetType[];
-      setBudgets(data);
-      setBudgetsLoading(false);
+      setBudgetsLoading(true);
+      try {
+        const data = (await fetch("/budget")) as BudgetType[];
+        setBudgets(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setBudgetsLoading(false);
+      }
     };
     getBudgets();
   }, []);
 
-  if(budgetsLoading){
-    return <h1>Budget is currently loading</h1>
+  if (budgetsLoading) {
+    return <h1>Budget is currently loading</h1>;
   }
 
   return (
     <div>
-      { (
+      {
         <div>
           {budgets.length <= 0 ? (
             <NoBudgetCurrently />
@@ -41,7 +46,7 @@ const BudgetPage = () => {
             <DisplayBudget budgets={budgets} />
           )}
         </div>
-      ) }
+      }
     </div>
   );
 };

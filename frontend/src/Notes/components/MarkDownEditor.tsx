@@ -7,9 +7,7 @@ import LabelledInput from "../../Components/LabelledInput";
 import useFetch from "../../utils/fetch";
 import { Note } from "../Page";
 
-// type MarkDownEditorProps = {
-//   changeToDisplay: () => void
-// };
+
 
 const MarkdownEditor = () => {
   const [markdownText, setMarkdownText] = useState<string>("");

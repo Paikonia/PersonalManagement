@@ -5,19 +5,24 @@ import DisplayExpense from "./DisplayExpense";
 
 const ExpensePage = () => {
   const [expenses, setExpenses] = useState<ExpenseType[]>([]);
-  const [loadingExpenses, setLoadingExpenses] = useState<boolean>(false)
+  const [loadingExpenses, setLoadingExpenses] = useState<boolean>(false);
   const fetch = useFetch();
   useEffect(() => {
     const getNotes = async () => {
-      setLoadingExpenses(true)
-      const data = (await fetch("/expense")) as ExpenseType[];
-      setExpenses(data);
-      setLoadingExpenses(false)
+      setLoadingExpenses(true);
+      try {
+        const data = (await fetch("/expense")) as ExpenseType[];
+        setExpenses(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingExpenses(false);
+      }
     };
     getNotes();
   }, []);
-  if(loadingExpenses){
-    return <h1>Loading expenses. Please wait</h1>
+  if (loadingExpenses) {
+    return <h1>Loading expenses. Please wait</h1>;
   }
   return (
     <div>
